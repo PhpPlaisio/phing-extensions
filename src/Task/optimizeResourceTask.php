@@ -1,10 +1,5 @@
 <?php
 //----------------------------------------------------------------------------------------------------------------------
-namespace SetBased\Abc\Phing\Task;
-
-use SetBased\Abc\Error\LogicException;
-
-//----------------------------------------------------------------------------------------------------------------------
 /**
  * Abstract parent class for optimizing/minimizing resources (i.e. CSS and JS files) and modifying references to those
  * resources.
