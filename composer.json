@@ -1,0 +1,26 @@
+{
+  "name": "setbased/abc-phing",
+  "description": "Phing Extensions for SetBased ABC Framework",
+  "type": "library",
+  "keyword": ["abc", "phing", "extensions"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Paul Water",
+      "email": "p.r.water@setbased.nl",
+      "homepage": "http://www.setbased.nl",
+      "role": "Architect"
+    }
+  ],
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "http://packagist.setbased.nl/"
+    }
+  ],
+  "require": {
+    "php": ">=5.4.0",
+    "phing/phing": "2.*",
+    "tubalmartin/cssmin": "2.*"
+  }
+}
