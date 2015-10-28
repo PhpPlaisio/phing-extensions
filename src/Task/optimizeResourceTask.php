@@ -1,11 +1,15 @@
 <?php
+//----------------------------------------------------------------------------------------------------------------------
+namespace SetBased\Abc\Phing\Task;
+
+use SetBased\Abc\Error\LogicException;
 
 //----------------------------------------------------------------------------------------------------------------------
 /**
  * Abstract parent class for optimizing/minimizing resources (i.e. CSS and JS files) and modifying references to those
  * resources.
  */
-abstract class optimizeResourceTask extends Task
+abstract class optimizeResourceTask extends \Task
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -67,7 +71,7 @@ abstract class optimizeResourceTask extends Task
   /**
    * The phing project.
    *
-   * @var Project
+   * @var \Project
    */
   protected $myProject;
 
@@ -319,7 +323,7 @@ abstract class optimizeResourceTask extends Task
         }
         else
         {
-          throw new LogicException(sprintf("Unexpected token %s", print_r($token, true)));
+          throw new LogicException("Unexpected token %s", print_r($token, true));
         }
       }
 
@@ -349,13 +353,13 @@ abstract class optimizeResourceTask extends Task
    * @param $thePath string The full path name of resource file.
    *
    * @return string The path name relative to the parent resource directory.
-   * @throws BuildException
+   * @throws \BuildException
    */
   protected function getPathInSources($thePath)
   {
     if (strncmp($thePath, $this->myParentResourceDirFullPath, strlen($this->myParentResourceDirFullPath))!=0)
     {
-      throw new BuildException(sprintf("Resource file '%s' is not under resource dir '%s'.",
+      throw new \BuildException(sprintf("Resource file '%s' is not under resource dir '%s'.",
                                        $thePath,
                                        $this->myParentResourceDirFullPath));
     }
@@ -365,7 +369,7 @@ abstract class optimizeResourceTask extends Task
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * @throws BuildException
+   * @throws \BuildException
    */
   protected function logError()
   {
@@ -377,8 +381,8 @@ abstract class optimizeResourceTask extends Task
       if (!is_scalar($arg)) $arg = var_export($arg, true);
     }
 
-    if ($this->myHaltOnError) throw new BuildException(vsprintf($format, $args));
-    else $this->log(vsprintf($format, $args), Project::MSG_ERR);
+    if ($this->myHaltOnError) throw new \BuildException(vsprintf($format, $args));
+    else $this->log(vsprintf($format, $args), \Project::MSG_ERR);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -394,7 +398,7 @@ abstract class optimizeResourceTask extends Task
       if (!is_scalar($arg)) $arg = var_export($arg, true);
     }
 
-    $this->log(vsprintf($format, $args), Project::MSG_INFO);
+    $this->log(vsprintf($format, $args), \Project::MSG_INFO);
   }
 
 
@@ -411,7 +415,7 @@ abstract class optimizeResourceTask extends Task
       if (!is_scalar($arg)) $arg = var_export($arg, true);
     }
 
-    $this->log(vsprintf($format, $args), Project::MSG_VERBOSE);
+    $this->log(vsprintf($format, $args), \Project::MSG_VERBOSE);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -461,7 +465,7 @@ abstract class optimizeResourceTask extends Task
    *
    * @param string $theFilename The name of the file.
    *
-   * @throws BuildException
+   * @throws \BuildException
    * @return int
    */
   private function getFilePermissions($theFilename)
@@ -793,7 +797,7 @@ abstract class optimizeResourceTask extends Task
    * @param string $theFilename The filename.
    * @param string $theMode     The file mode bits.
    *
-   * @throws BuildException
+   * @throws \BuildException
    */
   private function setFilePermissions($theFilename, $theMode)
   {

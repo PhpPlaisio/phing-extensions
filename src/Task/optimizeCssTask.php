@@ -1,6 +1,6 @@
 <?php
 //----------------------------------------------------------------------------------------------------------------------
-require 'optimizeResourceTask.php';
+namespace SetBased\Abc\Phing\Task;
 
 //----------------------------------------------------------------------------------------------------------------------
 /**
@@ -19,7 +19,7 @@ class optimizeCssTask extends optimizeResourceTask
       $this->logInfo("Minimizing '%s'.", $file_info['full_path_name']);
 
       $css_raw    = file_get_contents($file_info['full_path_name']);
-      $compressor = new CSSmin(false);
+      $compressor = new \CSSmin(false);
       $css_opt    = $compressor->run($css_raw);
 
       $file_info['hash']        = md5($css_opt);
