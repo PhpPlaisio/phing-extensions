@@ -3,6 +3,8 @@
 /**
  * Abstract parent class for optimizing/minimizing resources (i.e. CSS and JS files) and modifying references to those
  * resources.
+ *
+ * @todo refractor storage of resource file info.
  */
 abstract class optimizeResourceTask extends \Task
 {
@@ -239,7 +241,6 @@ abstract class optimizeResourceTask extends \Task
     $this->myResourceDir = $theResourceDir;
   }
 
-
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Setter for XML attribute resource.
@@ -350,13 +351,13 @@ abstract class optimizeResourceTask extends \Task
    * @return string The path name relative to the parent resource directory.
    * @throws \BuildException
    */
-  protected function getPathInSources($thePath)
+  protected function getPathInResources($thePath)
   {
     if (strncmp($thePath, $this->myParentResourceDirFullPath, strlen($this->myParentResourceDirFullPath))!=0)
     {
       throw new \BuildException(sprintf("Resource file '%s' is not under resource dir '%s'.",
-                                       $thePath,
-                                       $this->myParentResourceDirFullPath));
+                                        $thePath,
+                                        $this->myParentResourceDirFullPath));
     }
 
     return substr($thePath, strlen($this->myParentResourceDirFullPath));
@@ -417,7 +418,7 @@ abstract class optimizeResourceTask extends \Task
   /**
    * Optimizes/minimizes all resource files (in the resource file set).
    */
-  abstract protected function optimizeResourceFile();
+  abstract protected function optimizeResourceFiles();
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -507,7 +508,7 @@ abstract class optimizeResourceTask extends \Task
 
       $this->myResourceFilesInfo[$full_path] = ['filename_in_fileset'  => $filename,
                                                 'full_path_name'       => $full_path,
-                                                'path_name_in_sources' => $this->getPathInSources($full_path),
+                                                'path_name_in_sources' => $this->getPathInResources($full_path),
                                                 'mode'                 => $this->getFilePermissions($full_path)];
     }
 
@@ -633,8 +634,9 @@ abstract class optimizeResourceTask extends \Task
         }
 
         // If required preserve file permissions.
-        if ($this->myPreserveModificationTime)
+        if ($this->myPreserveModificationTime && isset($file_info['mode']))
         {
+          // @todo Use mode from JS file and remove key 'mode'.
           $this->setFilePermissions($file_info['full_path_name_with_hash'].'.gz', $file_info['mode']);
         }
       }
@@ -695,7 +697,7 @@ abstract class optimizeResourceTask extends \Task
   private function processResourceFiles()
   {
     // Optimize/minimize all resource files.
-    $this->optimizeResourceFile();
+    $this->optimizeResourceFiles();
 
     // Enhance elements in $this->myResourceFilesInfo with an ordinal number to prevent hash collisions.
     $this->enhanceResourceFilesInfoWithOrdinal();
@@ -715,6 +717,8 @@ abstract class optimizeResourceTask extends \Task
 
     foreach ($this->mySourceFilesInfo as $source_filename)
     {
+      $this->logVerbose("Processing %s.", $source_filename);
+
       $content = file_get_contents($source_filename);
       if ($content===false) $this->logError("Unable to read file '%s'.", $source_filename);
 
@@ -766,7 +770,7 @@ abstract class optimizeResourceTask extends \Task
     foreach ($this->myResourceFilesInfo as &$file_info)
     {
       $file_info['full_path_name_with_hash']       = $this->getFullPathNameWithHash($file_info);
-      $file_info['path_name_in_sources_with_hash'] = $this->getPathInSources($file_info['full_path_name_with_hash']);
+      $file_info['path_name_in_sources_with_hash'] = $this->getPathInResources($file_info['full_path_name_with_hash']);
 
       $bytes = file_put_contents($file_info['full_path_name_with_hash'], $file_info['content_opt']);
       if ($bytes===false) $this->logError("Unable to write to file '%s'.", $file_info['full_path_name_with_hash']);
@@ -831,7 +835,7 @@ abstract class optimizeResourceTask extends \Task
 
     foreach ($this->myResourceFilesInfo as $file_info)
     {
-      if (isset($file_info['full_path_name_with_hash']) && $file_info['full_path_name'])
+      if (isset($file_info['full_path_name_with_hash']) && isset($file_info['full_path_name']))
       {
         // Resource file has an optimized/minimized version. Remove the original file.
         $this->logInfo("Removing '%s'.", $file_info['full_path_name']);

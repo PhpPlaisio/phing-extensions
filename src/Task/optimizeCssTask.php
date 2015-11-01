@@ -1,6 +1,6 @@
 <?php
 //----------------------------------------------------------------------------------------------------------------------
-require 'optimizeResourceTask.php';
+require_once 'optimizeResourceTask.php';
 
 //----------------------------------------------------------------------------------------------------------------------
 /**
@@ -12,7 +12,7 @@ class optimizeCssTask extends optimizeResourceTask
   /**
    * Optimizes/minimizes all CSS files (in the resource file set).
    */
-  protected function optimizeResourceFile()
+  protected function optimizeResourceFiles()
   {
     foreach ($this->myResourceFilesInfo as &$file_info)
     {
@@ -219,7 +219,7 @@ class optimizeCssTask extends optimizeResourceTask
     // Set the full path with hash of the combined file.
     $file_info['full_path_name_with_hash']       = $this->myResourceDirFullPath.'/'.
       $file_info['hash'].'.'.$file_info['ordinal'].'.css';
-    $file_info['path_name_in_sources_with_hash'] = $this->getPathInSources($file_info['full_path_name_with_hash']);
+    $file_info['path_name_in_sources_with_hash'] = $this->getPathInResources($file_info['full_path_name_with_hash']);
 
     // Save the combined code.
     $bytes = file_put_contents($file_info['full_path_name_with_hash'], $file_info['content_opt']);
