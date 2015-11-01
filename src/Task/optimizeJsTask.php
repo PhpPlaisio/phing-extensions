@@ -94,10 +94,11 @@ class optimizeJsTask extends optimizeResourceTask
   protected function processPhpSourceFile($thePhpCode)
   {
     // Methods for including JS files.
-    $methods = ['callPageSpecificJsFunction',
-                'callJsFunction',
-                'setPageSpecificRequireJsMain',
-                'setOptimizedPageSpecificRequireJsMain'];
+    $methods = ['jsAdmPageSpecificFunctionCall',
+                'jsAdmFunctionCall',
+                'jsAdmOptimizedFunctionCall',
+                'jsAdmSetPageSpecificMain',
+                'jsAdmOptimizedSetPageSpecificMain'];
 
     // If true the PHP code includes CSS files.
     $includes = false;
@@ -120,8 +121,8 @@ class optimizeJsTask extends optimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Replaces calls to method {@link \SetBased\Abc\Page\Page::setPageSpecificRequireJsMain) with calls to
-   * {@link \SetBased\Abc\Page\Page::setOptimizedPageSpecificRequireJsMain}.
+   * Replaces calls to method {@link \SetBased\Abc\Page\Page::jsAdmSetPageSpecificMain) with calls to
+   * {@link \SetBased\Abc\Page\Page::jsAdmOptimizedSetPageSpecificMain}.
    *
    * @param string $thePhpCode The PHP code.
    *
@@ -143,8 +144,8 @@ class optimizeJsTask extends optimizeResourceTask
         }
       }
 
-      // Replace calls to setPageSpecificRequireJsMain with setOptimizedPageSpecificRequireJsMain.
-      if (preg_match('/^(.*)(\$this->)(setPageSpecificRequireJsMain)(\(\s*)(__CLASS__)(\s*\)\s*;)(.*)$/',
+      // Replace calls to jsAdmSetPageSpecificMain with jsAdmOptimizedSetPageSpecificMain.
+      if (preg_match('/^(\s*)(\$this->)(jsAdmSetPageSpecificMain)(\(\s*)(__CLASS__)(\s*\)\s*;)(.*)$/',
                      $line,
                      $matches))
       {
@@ -157,7 +158,7 @@ class optimizeJsTask extends optimizeResourceTask
         else
         {
           $real_path  = realpath($full_path);
-          $matches[3] = 'setOptimizedPageSpecificRequireJsMain';
+          $matches[3] = 'jsAdmOptimizedSetPageSpecificMain';
           $matches[5] = "'".$this->combineAndMinimize($real_path)."'";
 
           array_shift($matches);
@@ -165,8 +166,8 @@ class optimizeJsTask extends optimizeResourceTask
         }
       }
 
-      // Replace calls to callPageSpecificJsFunction with callJsFunction.
-      if (preg_match('/^(.*)(\$this->)(callPageSpecificJsFunction)(\(\s*)(__CLASS__)(.*)$/',
+      // Replace calls to jsAdmPageSpecificFunctionCall with jsAdmOptimizedFunctionCall.
+      if (preg_match('/^(\s*)(\$this->)(jsAdmPageSpecificFunctionCall)(\(\s*)(__CLASS__)(.*)$/',
                      $line,
                      $matches))
       {
@@ -178,7 +179,7 @@ class optimizeJsTask extends optimizeResourceTask
         }
         else
         {
-          $matches[3] = 'callOptimizedJsFunction';
+          $matches[3] = 'jsAdmOptimizedFunctionCall';
           $matches[5] = "'".$this->getNamespaceFromResourceFilename(realpath($full_path))."'";
 
           array_shift($matches);
@@ -186,8 +187,8 @@ class optimizeJsTask extends optimizeResourceTask
         }
       }
 
-      // Replace calls to callPageSpecificJsFunction with callJsFunction.
-      if (preg_match('/^(.*)(\$this->)(callJsFunction)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"].*)$/',
+      // Replace calls to jsAdmFunctionCall with jsAdmOptimizedFunctionCall.
+      if (preg_match('/^(\s*)(\$this->)(jsAdmFunctionCall)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"].*)$/',
                      $line,
                      $matches))
       {
@@ -200,7 +201,7 @@ class optimizeJsTask extends optimizeResourceTask
         else
         {
           $real_path  = realpath($full_path);
-          $matches[3] = 'callOptimizedJsFunction';
+          $matches[3] = 'jsAdmOptimizedFunctionCall';
           $matches[5] = $this->myResourceFilesInfo[$real_path]['path_name_in_sources_with_hash'];
 
           array_shift($matches);
@@ -267,7 +268,7 @@ class optimizeJsTask extends optimizeResourceTask
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Creates file and minimizes in which all required JavaScript files of a page specific RequireJs file are combined,
-   * see {@link \SetBased\Abc\Page\Page::setPageSpecificRequireJsMain}.
+   * see {@link \SetBased\Abc\Page\Page::jsAdmSetPageSpecificMain}.
    *
    * @param string $theRealPath The path to the JavaScript file
    *

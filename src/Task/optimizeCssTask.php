@@ -32,7 +32,7 @@ class optimizeCssTask extends optimizeResourceTask
   protected function processPhpSourceFile($thePhpCode)
   {
     // Methods for including CCS files.
-    $methods = ['appendCssSource', 'appendPageSpecificCssSource', 'appendOptimizedCssSource'];
+    $methods = ['cssAppendSource', 'cssAppendPageSpecificSource', 'cssOptimizedAppendSource'];
 
     // If true the PHP code includes CSS files.
     $includes = false;
@@ -57,8 +57,8 @@ class optimizeCssTask extends optimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Replaces multiple consecutive calls to {@link \SetBased\Abc\Page\Page::appendOptimizedCssSource} in PHP code with a
-   * single call to {@link \SetBased\Abc\Page\Page::appendOptimizedCssSource} and combines the multiple CSS files into a
+   * Replaces multiple consecutive calls to {@link \SetBased\Abc\Page\Page::cssOptimizedAppendSource} in PHP code with a
+   * single call to {@link \SetBased\Abc\Page\Page::cssOptimizedAppendSource} and combines the multiple CSS files into a
    * single CCS file.
    *
    * @param string $thePhpCode The PHP code.
@@ -74,8 +74,8 @@ class optimizeCssTask extends optimizeResourceTask
     $previous = -1;
     foreach ($lines as $i => $line)
     {
-      // FInd calls to appendOptimizedCssSource with appendOptimizedCssSource.
-      if (preg_match('/^(.*)(\$this->)(appendOptimizedCssSource)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"]\s*\)\s*;)(.*)$/',
+      // Find calls to cssOptimizedAppendSource.
+      if (preg_match('/^(.*)(\$this->)(cssOptimizedAppendSource)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"]\s*\)\s*;)(.*)$/',
                      $line,
                      $matches))
       {
@@ -110,9 +110,9 @@ class optimizeCssTask extends optimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Replaces calls to methods {@link \SetBased\Abc\Page\Page::appendPageSpecificCssSource) and
-   * {@link \SetBased\Abc\Page\Page::appendCssSource) with calls to
-   * {@link \SetBased\Abc\Page\Page::appendOptimizedCssSource}.
+   * Replaces calls to methods {@link \SetBased\Abc\Page\Page::cssAppendPageSpecificSource) and
+   * {@link \SetBased\Abc\Page\Page::cssAppendSource) with calls to
+   * {@link \SetBased\Abc\Page\Page::cssOptimizedAppendSource}.
    *
    * @param string $thePhpCode The PHP code.
    *
@@ -134,8 +134,8 @@ class optimizeCssTask extends optimizeResourceTask
         }
       }
 
-      // Replace calls to appendPageSpecificCssSource with appendOptimizedCssSource.
-      if (preg_match('/^(.*)(\$this->)(appendPageSpecificCssSource)(\(\s*)(__CLASS__)(\s*\)\s*;)(.*)$/',
+      // Replace calls to cssAppendPageSpecificSource with cssOptimizedAppendSource.
+      if (preg_match('/^(\s*)(\$this->)(cssAppendPageSpecificSource)(\(\s*)(__CLASS__)(\s*\)\s*;)(.*)$/',
                      $line,
                      $matches))
       {
@@ -148,14 +148,14 @@ class optimizeCssTask extends optimizeResourceTask
         else
         {
           $real_path  = realpath($full_path);
-          $matches[3] = 'appendOptimizedCssSource';
+          $matches[3] = 'cssOptimizedAppendSource';
           $matches[5] = "'".$this->myResourceFilesInfo[$real_path]['path_name_in_sources_with_hash']."'";
 
           array_shift($matches);
           $lines[$i] = implode('', $matches);
         }
       }
-      elseif (preg_match('/^(.*)(\$this->)(appendCssSource)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"]\s*\)\s*;)(.*)$/',
+      elseif (preg_match('/^(\s*)(\$this->)(cssAppendSource)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"]\s*\)\s*;)(.*)$/',
                          $line,
                          $matches))
       {
@@ -168,7 +168,7 @@ class optimizeCssTask extends optimizeResourceTask
         else
         {
           $real_path  = realpath($full_path);
-          $matches[3] = 'appendOptimizedCssSource';
+          $matches[3] = 'cssOptimizedAppendSource';
           $matches[5] = $this->myResourceFilesInfo[$real_path]['path_name_in_sources_with_hash'];
 
           array_shift($matches);
@@ -182,12 +182,12 @@ class optimizeCssTask extends optimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Replaces a group of multiple consecutive calls to {@link \SetBased\Abc\Page\Page::appendOptimizedCssSource} in PHP
+   * Replaces a group of multiple consecutive calls to {@link \SetBased\Abc\Page\Page::cssOptimizedAppendSource} in PHP
    * code with a single call.
    *
    * @param string[]   $theLines The lines of the PHP code.
    * @param int[]      $theGroup The group of of multiple consecutive calls to
-   *                             {@link \SetBased\Abc\Page\Page::appendOptimizedCssSource}
+   *                             {@link \SetBased\Abc\Page\Page::cssOptimizedAppendSource}
    * @param string[][] $theCalls The matches from preg_match.
    */
   private function processPhpSourceFileCombineGroup(&$theLines, $theGroup, $theCalls)
