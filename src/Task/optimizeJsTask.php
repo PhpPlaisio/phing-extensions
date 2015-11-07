@@ -23,6 +23,13 @@ class optimizeJsTask extends optimizeResourceTask
    */
   private $myMinifyCommand;
 
+  /**
+   * The path to require.js relative to the parent resource path.
+   *
+   * @var string
+   */
+  private $myRequireJsPath = 'js/require.js';
+
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Returns the 'main' file of a page specific main JavaScript file.
@@ -58,6 +65,17 @@ class optimizeJsTask extends optimizeResourceTask
   public function setMinifyCommand($theMinifyCommand)
   {
     $this->myMinifyCommand = $theMinifyCommand;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Setter for XML attribute requireJsPath.
+   *
+   * @param string $theRequireJsPath The command to run r.js.
+   */
+  public function setRequireJsPath($theRequireJsPath)
+  {
+    $this->myRequireJsPath = $theRequireJsPath;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -258,6 +276,14 @@ class optimizeJsTask extends optimizeResourceTask
     $code = file_get_contents($tmp_name2);
     if ($code===false) $this->logError("Unable to read file '%s'.", $tmp_name2);
 
+    // Get require.js
+    $path       = $this->myParentResourceDirFullPath.'/'.$this->myRequireJsPath;
+    $require_js = file_get_contents($path);
+    if ($code===false) $this->logError("Unable to read file '%s'.", $path);
+
+    // Combine require.js and all required includes.
+    $code = $require_js.$code;
+
     // Remove temporary files.
     unlink($tmp_name2);
     unlink($tmp_name1);
@@ -423,7 +449,7 @@ class optimizeJsTask extends optimizeResourceTask
    * @param string $theCommand The command to run.
    * @param string $theInput   The data to send to the process.
    *
-   * @return string[] An array with elements: the standard output and the standard error.
+   * @return string[] An array with two elements: the standard output and the standard error.
    * @throws BuildException
    */
   private function runProcess($theCommand, $theInput)
