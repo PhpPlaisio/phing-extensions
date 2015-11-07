@@ -18,10 +18,17 @@ class optimizeCssTask extends optimizeResourceTask
     {
       $this->logInfo("Minimizing '%s'.", $file_info['full_path_name']);
 
-      $css_raw    = file_get_contents($file_info['full_path_name']);
+      $css_raw = file_get_contents($file_info['full_path_name']);
+
+      // All optimized CSS files will installed directly under the CSS root directory. Replace relative URLs in the CSS
+      // file with absolute URLs.
+      $this->convertRelativePaths($css_raw);
+
+      // Compress the CSS code.
       $compressor = new \CSSmin(false);
       $css_opt    = $compressor->run($css_raw);
 
+      // Store the CSS code.
       $file_info['hash']        = md5($css_opt);
       $file_info['content_raw'] = $css_raw;
       $file_info['content_opt'] = $css_opt;
@@ -29,6 +36,18 @@ class optimizeCssTask extends optimizeResourceTask
   }
 
   //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Replaces in PHP code calls to methods {@link \SetBased\Abc\Page\Page::cssAppendPageSpecificSource) and
+   * {@link \SetBased\Abc\Page\Page::cssAppendSource) with calls to
+   * {@link \SetBased\Abc\Page\Page::cssOptimizedAppendSource} and replaces multiple consecutive calls to
+   * {@link \SetBased\Abc\Page\Page::cssOptimizedAppendSource} single call to
+   * {@link \SetBased\Abc\Page\Page::cssOptimizedAppendSource} and combines the multiple CSS files into a single CCS
+   * file.
+   *
+   * @param string $thePhpCode The PHP code.
+   *
+   * @return string The modified PHP code.
+   */
   protected function processPhpSourceFile($thePhpCode)
   {
     // Methods for including CCS files.
@@ -47,6 +66,7 @@ class optimizeCssTask extends optimizeResourceTask
 
     if ($includes)
     {
+      // The PHP code includes CSS files.
       $thePhpCode = $this->processPhpSourceFileReplaceMethod($thePhpCode);
 
       $thePhpCode = $this->processPhpSourceFileCombine($thePhpCode);
@@ -178,6 +198,23 @@ class optimizeCssTask extends optimizeResourceTask
     }
 
     return implode("\n", $lines);
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * In CSS code replace relative paths to absolute paths.
+   *
+   * @param string $theCss The CSS code.
+   *
+   * @return string The modified CSS code.
+   */
+  private function convertRelativePaths($theCss)
+  {
+    // preg_match_all('/(url\(")([^"]+)("\))/i', $theCss, $matches);
+
+    // @todo Implement \SetBased\Abc\Helper\Url::combine first.
+
+    return $theCss;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
