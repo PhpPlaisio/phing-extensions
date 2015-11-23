@@ -107,6 +107,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
   {
     $this->myGzipFlag = (boolean)$theGzipFlag;
   }
+
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Setter for XML attribute preserveLastModified.
