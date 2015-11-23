@@ -1,38 +1,27 @@
 <?php
 //----------------------------------------------------------------------------------------------------------------------
-require_once 'optimizeResourceTask.php';
+require_once 'OptimizeResourceTask.php';
 
 //----------------------------------------------------------------------------------------------------------------------
 /**
  * Class for optimizing and combining CSS files.
  */
-class optimizeCssTask extends optimizeResourceTask
+class OptimizeCssTask extends OptimizeResourceTask
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Optimizes/minimizes all CSS files (in the resource file set).
+   * Minimizes CSS code.
+   *
+   * @param string $theResource The CSS code.
+   *
+   * @return string The minimized CSS code.
    */
-  protected function optimizeResourceFiles()
+  protected function minimizeResource($theResource)
   {
-    foreach ($this->myResourceFilesInfo as &$file_info)
-    {
-      $this->logInfo("Minimizing '%s'.", $file_info['full_path_name']);
+    // Compress the CSS code.
+    $compressor = new \CSSmin(false);
 
-      $css_raw = file_get_contents($file_info['full_path_name']);
-
-      // All optimized CSS files will installed directly under the CSS root directory. Replace relative URLs in the CSS
-      // file with absolute URLs.
-      $this->convertRelativePaths($css_raw);
-
-      // Compress the CSS code.
-      $compressor = new \CSSmin(false);
-      $css_opt    = $compressor->run($css_raw);
-
-      // Store the CSS code.
-      $file_info['hash']        = md5($css_opt);
-      $file_info['content_raw'] = $css_raw;
-      $file_info['content_opt'] = $css_opt;
-    }
+    return $compressor->run($theResource);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -169,7 +158,7 @@ class optimizeCssTask extends optimizeResourceTask
         {
           $real_path  = realpath($full_path);
           $matches[3] = 'cssOptimizedAppendSource';
-          $matches[5] = "'".$this->myResourceFilesInfo[$real_path]['path_name_in_sources_with_hash']."'";
+          $matches[5] = "'".$this->getResourceInfo($real_path)['path_name_in_sources_with_hash']."'";
 
           array_shift($matches);
           $lines[$i] = implode('', $matches);
@@ -189,7 +178,8 @@ class optimizeCssTask extends optimizeResourceTask
         {
           $real_path  = realpath($full_path);
           $matches[3] = 'cssOptimizedAppendSource';
-          $matches[5] = $this->myResourceFilesInfo[$real_path]['path_name_in_sources_with_hash'];
+          $matches[5] = $this->getResourceInfo($real_path)['path_name_in_sources_with_hash'];
+          //$matches[5] = "'".$this->getResourcesInfo()[$real_path]['path_name_in_sources_with_hash']."'";
 
           array_shift($matches);
           $lines[$i] = implode('', $matches);
@@ -241,31 +231,7 @@ class optimizeCssTask extends optimizeResourceTask
       $file_info['content_opt'] .= $code;
       $files[] = $filename;
     }
-
-    // Compute hash of the combined code.
-    $file_info['hash'] = md5($file_info['content_opt']);
-
-    // Compute the ordinal of the hash code.
-    if (!isset($this->myHashCount[$file_info['hash']]))
-    {
-      $this->myHashCount[$file_info['hash']] = 0;
-    }
-    $file_info['ordinal'] = $this->myHashCount[$file_info['hash']];
-    $this->myHashCount[$file_info['hash']]++;
-
-    // Set the full path with hash of the combined file.
-    $file_info['full_path_name_with_hash']       = $this->myResourceDirFullPath.'/'.
-      $file_info['hash'].'.'.$file_info['ordinal'].'.css';
-    $file_info['path_name_in_sources_with_hash'] = $this->getPathInResources($file_info['full_path_name_with_hash']);
-
-    // Save the combined code.
-    $bytes = file_put_contents($file_info['full_path_name_with_hash'], $file_info['content_opt']);
-    if ($bytes===false) $this->logError("Unable to write to file '%s'.", $file_info['full_path_name_with_hash']);
-
-    // Take the permissions from the first include file.
-    $time = fileperms($files[0]);
-    if ($time===false) $this->logError("Unable to get mode of file '%s'.", $files[0]);
-    $file_info['mode'] = $time;
+    $file_info = $this->store($file_info['content_opt'], $files[0]);
 
     // Replace the multiple calls with one call in the PHP code.
     $first = true;
@@ -285,30 +251,7 @@ class optimizeCssTask extends optimizeResourceTask
         $theLines[$i] = '';
       }
     }
-
-    if ($this->myPreserveModificationTime)
-    {
-      // If required determine the latest modification time of the include files.
-      $mtime = 0;
-      foreach ($files as $filename)
-      {
-        $time = filemtime($filename);
-        if ($time===false) $this->logError("Unable to get mtime of file '%s'.", $filename);
-        $mtime = max($mtime, $time);
-      }
-
-      // Set mtime of the combined include file.
-      $status = touch($file_info['full_path_name_with_hash'], $mtime);
-      if ($status===false)
-      {
-        $this->logError("Unable to set mtime of file '%s' to '%s", $file_info['full_path_name_with_hash'], $mtime);
-      }
-    }
-
-    $this->myResourceFilesInfo[] = $file_info;
   }
-
-  //--------------------------------------------------------------------------------------------------------------------
 }
 
 //----------------------------------------------------------------------------------------------------------------------

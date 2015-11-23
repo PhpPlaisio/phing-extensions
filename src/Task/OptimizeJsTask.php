@@ -1,12 +1,12 @@
 <?php
 //----------------------------------------------------------------------------------------------------------------------
-require_once 'optimizeResourceTask.php';
+require_once 'OptimizeResourceTask.php';
 
 //----------------------------------------------------------------------------------------------------------------------
 /**
  * Class for optimizing and combining JS files.
  */
-class optimizeJsTask extends optimizeResourceTask
+class OptimizeJsTask extends \OptimizeResourceTask
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -69,35 +69,19 @@ class optimizeJsTask extends optimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Setter for XML attribute requireJsPath.
+   * Minimizes JavaScript code.
    *
-   * @param string $theRequireJsPath The command to run r.js.
+   * @param string $theResource The JavaScript code.
+   *
+   * @return string The minimized JavaScript code.
    */
-  public function setRequireJsPath($theRequireJsPath)
+  protected function minimizeResource($theResource)
   {
-    $this->myRequireJsPath = $theRequireJsPath;
-  }
+    list($std_out, $std_err) = $this->runProcess($this->myMinifyCommand, $theResource);
 
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
-   * Optimizes/minimizes all resource files (in the resource file set).
-   */
-  protected function optimizeResourceFiles()
-  {
-    foreach ($this->myResourceFilesInfo as &$file_info)
-    {
-      $this->logInfo("Minimizing '%s'.", $file_info['full_path_name']);
+    if ($std_err) $this->logInfo($std_err);
 
-      $js_raw = file_get_contents($file_info['full_path_name']);
-      if ($js_raw===false) $this->logError("Unable to read file '%s'.", $file_info['full_path_name']);
-      $js_opt = $this->minimizeJs($js_raw);
-
-      // @todo Ignore *.main.js files.
-
-      $file_info['hash']        = md5($js_opt);
-      $file_info['content_raw'] = $js_raw;
-      $file_info['content_opt'] = $js_opt;
-    }
+    return $std_out;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -220,7 +204,7 @@ class optimizeJsTask extends optimizeResourceTask
         {
           $real_path  = realpath($full_path);
           $matches[3] = 'jsAdmOptimizedFunctionCall';
-          $matches[5] = $this->myResourceFilesInfo[$real_path]['path_name_in_sources_with_hash'];
+          $matches[5] = $this->getResourceInfo($real_path)['path_name_in_sources_with_hash'];
 
           array_shift($matches);
           $lines[$i] = implode('', $matches);
@@ -229,6 +213,104 @@ class optimizeJsTask extends optimizeResourceTask
     }
 
     return implode("\n", $lines);
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Executes a command and writes data to the standard input and reads data from the standard output and error of the
+   * process.
+   *
+   * @param string $theCommand The command to run.
+   * @param string $theInput   The data to send to the process.
+   *
+   * @return string[] An array with two elements: the standard output and the standard error.
+   * @throws BuildException
+   */
+  protected function runProcess($theCommand, $theInput)
+  {
+    $descriptor_spec = [0 => ["pipe", "r"],
+                        1 => ["pipe", "w"],
+                        2 => ["pipe", "w"]];
+
+    $process = proc_open($theCommand, $descriptor_spec, $pipes);
+    if ($process===false) $this->logError("Unable to span process '%s'.", $theCommand);
+
+    $write_pipes = [$pipes[0]];
+    $read_pipes  = [$pipes[1], $pipes[2]];
+    $std_out     = '';
+    $std_err     = '';
+    while (true)
+    {
+      $reads  = $read_pipes;
+      $writes = $write_pipes;
+      $except = null;
+
+      if (!$reads && !$writes) break;
+
+      stream_select($reads, $writes, $except, 1);
+      if ($reads)
+      {
+        foreach ($reads as $read)
+        {
+          if ($read==$pipes[1])
+          {
+            $data = fread($read, 8000);
+            if ($data===false) $this->logError("Unable to read standard output from command '%s'.", $theCommand);
+            if ($data==='')
+            {
+              fclose($pipes[1]);
+              unset($read_pipes[0]);
+            }
+            else
+            {
+              $std_out .= $data;
+            }
+          }
+          if ($read==$pipes[2])
+          {
+            $data = fread($read, 8000);
+            if ($data===false) $this->logError("Unable to read standard error from command '%s'.", $theCommand);
+            if ($data==='')
+            {
+              fclose($pipes[2]);
+              unset($read_pipes[1]);
+            }
+            else
+            {
+              $std_err .= $data;
+            }
+          }
+        }
+      }
+
+      if (isset($writes[0]))
+      {
+        $bytes = fwrite($writes[0], $theInput);
+        if ($bytes===false) $this->logError("Unable to write to standard input of command '%s'.", $theCommand);
+        if ($bytes==0)
+        {
+          fclose($writes[0]);
+          unset($write_pipes[0]);
+        }
+        else
+        {
+          $theInput = substr($theInput, $bytes);
+        }
+      }
+    }
+
+    return [$std_out, $std_err];
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Setter for XML attribute requireJsPath.
+   *
+   * @param string $theRequireJsPath The command to run r.js.
+   */
+  protected function setRequireJsPath($theRequireJsPath)
+  {
+    $this->myRequireJsPath = $theRequireJsPath;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -306,38 +388,11 @@ class optimizeJsTask extends optimizeResourceTask
     $js_raw = $this->combine($theRealPath);
     $js_raw .= $this->getMainWithHashedPaths($theRealPath);
 
-    $js_opt = $this->minimizeJs($js_raw);
+    $file_info = $this->store($js_raw, $theRealPath);
 
-    $file_info2['hash']        = md5($js_opt);
-    $file_info2['content_raw'] = $js_raw;
-    $file_info2['content_opt'] = $js_opt;
-
-    // Compute hash of the combined code.
-    $file_info2['hash'] = md5($file_info2['content_opt']);
-
-    // Compute the ordinal of the hash code.
-    if (!isset($this->myHashCount[$file_info2['hash']]))
-    {
-      $this->myHashCount[$file_info2['hash']] = 0;
-    }
-    $file_info2['ordinal'] = $this->myHashCount[$file_info2['hash']];
-    $this->myHashCount[$file_info2['hash']]++;
-
-    // Set the full path with hash of the combined file.
-    $file_info2['full_path_name_with_hash']       = $this->myResourceDirFullPath.'/'.
-      $file_info2['hash'].'.'.$file_info2['ordinal'].'.js';
-    $file_info2['path_name_in_sources_with_hash'] = $this->getPathInResources($file_info2['full_path_name_with_hash']);
-
-    // Save the combined code.
-    $bytes = file_put_contents($file_info2['full_path_name_with_hash'], $file_info2['content_opt']);
-    if ($bytes===false) $this->logError("Unable to write to file '%s'.", $file_info2['full_path_name_with_hash']);
-
-    $this->myResourceFilesInfo[] = $file_info2;
-
+    return $file_info['path_name_in_sources_with_hash'];
     // @todo Set mtime of the combined code.
     // @todo Set file permissions.
-
-    return $file_info2['path_name_in_sources_with_hash'];
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -376,7 +431,8 @@ class optimizeJsTask extends optimizeResourceTask
 
     // @todo Remove from paths files already combined.
     // @todo Replace existing paths with hashed.
-    foreach ($this->myResourceFilesInfo as $info)
+
+    foreach ($this->getResourcesInfo() as $info)
     {
       // @todo Skip files already combined.
       // @todo Skip *.main.js files.
@@ -390,7 +446,6 @@ class optimizeJsTask extends optimizeResourceTask
         $matches[2] .= "'";
       }
     }
-
     array_shift($matches);
     $js = implode('', $matches);
 
@@ -423,111 +478,6 @@ class optimizeJsTask extends optimizeResourceTask
 
     return $name;
   }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
-   * Minimizes JavaScript code.
-   *
-   * @param string $theJsCode The JavaScript code.
-   *
-   * @return string The minimized JavaScript code.
-   */
-  private function minimizeJs($theJsCode)
-  {
-    list($std_out, $std_err) = $this->runProcess($this->myMinifyCommand, $theJsCode);
-
-    if ($std_err) $this->logInfo($std_err);
-
-    return $std_out;
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
-   * Executes a command and writes data to the standard input and reads data from the standard output and error of the
-   * process.
-   *
-   * @param string $theCommand The command to run.
-   * @param string $theInput   The data to send to the process.
-   *
-   * @return string[] An array with two elements: the standard output and the standard error.
-   * @throws BuildException
-   */
-  private function runProcess($theCommand, $theInput)
-  {
-    $descriptor_spec = [0 => ["pipe", "r"],
-                        1 => ["pipe", "w"],
-                        2 => ["pipe", "w"]];
-
-    $process = proc_open($theCommand, $descriptor_spec, $pipes);
-    if ($process===false) $this->logError("Unable to span process '%s'.", $theCommand);
-
-    $write_pipes = [$pipes[0]];
-    $read_pipes  = [$pipes[1], $pipes[2]];
-    $std_out     = '';
-    $std_err     = '';
-    while (true)
-    {
-      $reads  = $read_pipes;
-      $writes = $write_pipes;
-      $except = null;
-
-      if (!$reads && !$writes) break;
-
-      stream_select($reads, $writes, $except, 1);
-      if ($reads)
-      {
-        foreach ($reads as $read)
-        {
-          if ($read==$pipes[1])
-          {
-            $data = fread($read, 8000);
-            if ($data===false) $this->logError("Unable to read standard output from command '%s'.", $theCommand);
-            if ($data==='')
-            {
-              fclose($pipes[1]);
-              unset($read_pipes[0]);
-            }
-            else
-            {
-              $std_out .= $data;
-            }
-          }
-          if ($read==$pipes[2])
-          {
-            $data = fread($read, 8000);
-            if ($data===false) $this->logError("Unable to read standard error from command '%s'.", $theCommand);
-            if ($data==='')
-            {
-              fclose($pipes[2]);
-              unset($read_pipes[1]);
-            }
-            else
-            {
-              $std_err .= $data;
-            }
-          }
-        }
-      }
-
-      if (isset($writes[0]))
-      {
-        $bytes = fwrite($writes[0], $theInput);
-        if ($bytes===false) $this->logError("Unable to write to standard input of command '%s'.", $theCommand);
-        if ($bytes==0)
-        {
-          fclose($writes[0]);
-          unset($write_pipes[0]);
-        }
-        else
-        {
-          $theInput = substr($theInput, $bytes);
-        }
-      }
-    }
-
-    return [$std_out, $std_err];
-  }
-
   //--------------------------------------------------------------------------------------------------------------------
 }
 
