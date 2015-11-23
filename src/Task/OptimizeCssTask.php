@@ -178,8 +178,7 @@ class OptimizeCssTask extends OptimizeResourceTask
         {
           $real_path  = realpath($full_path);
           $matches[3] = 'cssOptimizedAppendSource';
-          $matches[5] = $this->getResourceInfo($real_path)['path_name_in_sources_with_hash'];
-          //$matches[5] = "'".$this->getResourcesInfo()[$real_path]['path_name_in_sources_with_hash']."'";
+          $matches[5] = "'".$this->getResourceInfo($real_path)['path_name_in_sources_with_hash']."'";
 
           array_shift($matches);
           $lines[$i] = implode('', $matches);
