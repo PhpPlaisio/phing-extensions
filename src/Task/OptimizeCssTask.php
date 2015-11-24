@@ -191,7 +191,7 @@ class OptimizeCssTask extends OptimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * In CSS code replace relative paths to absolute paths.
+   * In CSS code replace relative paths with absolute paths.
    *
    * @param string $theCss The CSS code.
    *
