@@ -73,9 +73,11 @@ class OptimizeJsTask extends \OptimizeResourceTask
    *
    * @param string $theResource The JavaScript code.
    *
+   * @param        $theFullPathName
+   *
    * @return string The minimized JavaScript code.
    */
-  protected function minimizeResource($theResource)
+  protected function minimizeResource($theResource , $theFullPathName)
   {
     list($std_out, $std_err) = $this->runProcess($this->myMinifyCommand, $theResource);
 

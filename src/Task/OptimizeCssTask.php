@@ -14,10 +14,14 @@ class OptimizeCssTask extends OptimizeResourceTask
    *
    * @param string $theResource The CSS code.
    *
+   * @param        $theFullPathName
+   *
    * @return string The minimized CSS code.
    */
-  protected function minimizeResource($theResource)
+  protected function minimizeResource($theResource, $theFullPathName)
   {
+    $theResource = $this->convertRelativePaths($theResource, $theFullPathName);
+
     // Compress the CSS code.
     $compressor = new \CSSmin(false);
 
@@ -178,7 +182,7 @@ class OptimizeCssTask extends OptimizeResourceTask
         {
           $real_path  = realpath($full_path);
           $matches[3] = 'cssOptimizedAppendSource';
-          $matches[5] = "'".$this->getResourceInfo($real_path)['path_name_in_sources_with_hash']."'";
+          $matches[5] = $this->getResourceInfo($real_path)['path_name_in_sources_with_hash'];
 
           array_shift($matches);
           $lines[$i] = implode('', $matches);
@@ -195,15 +199,21 @@ class OptimizeCssTask extends OptimizeResourceTask
    *
    * @param string $theCss The CSS code.
    *
+   * @param        $theFullPathName
+   *
    * @return string The modified CSS code.
    */
-  private function convertRelativePaths($theCss)
+  private function convertRelativePaths($theCss, $theFullPathName)
   {
-    // preg_match_all('/(url\(")([^"]+)("\))/i', $theCss, $matches);
+    // @todo fix URLs like url(test/test(1).jpg)
 
-    // @todo Implement \SetBased\Abc\Helper\Url::combine first.
+    $ccs = preg_replace_callback('/(url\([\'"]?)(([^()]|(?R))+)([\'"]?\))/i', function ($matches) use ($theFullPathName)
+    {
+      return $matches[1].\SetBased\Abc\Helper\Url::combine($this->getPathInResources($theFullPathName), $matches[2]).$matches[4];
+    }
+      , $theCss);
 
-    return $theCss;
+    return $ccs;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -223,7 +233,7 @@ class OptimizeCssTask extends OptimizeResourceTask
     $file_info['content_opt'] = '';
     foreach ($theGroup as $i)
     {
-      $filename = $this->myParentResourceDirFullPath.'/'.$theCalls[$i][5];
+      $filename = $this->myParentResourceDirFullPath.$theCalls[$i][5];
       $code     = file_get_contents($filename);
       if ($code===false) $this->logError("Unable to read file '%s'.", $filename);
 

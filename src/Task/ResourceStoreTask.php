@@ -286,9 +286,11 @@ abstract class ResourceStoreTask extends \Task
    *
    * @param string $theResource The JavaScript or CSS code.
    *
+   * @param        $theFullPathName
+   *
    * @return string The minimized JavaScript or CSS code.
    */
-  abstract protected function minimizeResource($theResource);
+  abstract protected function minimizeResource($theResource, $theFullPathName);
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -324,7 +326,7 @@ abstract class ResourceStoreTask extends \Task
     $this->logInfo("Minimizing '%s'.", $theFullPathName);
 
     $type        = pathinfo($theFullPathName)['extension'];
-    $content_opt = $this->minimizeResource($theResource);
+    $content_opt = $this->minimizeResource($theResource, $theFullPathName);
 
     // @todo Ignore *.main.js files.
 
