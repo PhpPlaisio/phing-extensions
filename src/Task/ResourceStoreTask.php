@@ -2,7 +2,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 /**
  * Abstract parent class for tasks for optimizing resources (i.e. CSS and JS files). This class does the housekeeping
- * op resources.
+ * of resources.
  */
 abstract class ResourceStoreTask extends \Task
 {
@@ -194,7 +194,7 @@ abstract class ResourceStoreTask extends \Task
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Returns the resource info based on the full path of the resource
+   * Returns the resource info based on the full path of the resource.
    *
    * @param $theFullPathName
    *
@@ -217,7 +217,7 @@ abstract class ResourceStoreTask extends \Task
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Return the resource info
+   * Returns an array with info about all resources.
    *
    * @return array
    */
@@ -228,7 +228,9 @@ abstract class ResourceStoreTask extends \Task
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Print to console Error Message
+   * Prints an error message and depending on HaltOnError throws an exception.
+   *
+   * @param mixed  ...$param  The arguments as for [sprintf](http://php.net/manual/function.sprintf.php)
    *
    * @throws \BuildException
    */
@@ -248,7 +250,9 @@ abstract class ResourceStoreTask extends \Task
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Print to console Info Message
+   * Prints an info message.
+   *
+   * @param mixed  ...$param  The arguments as for [sprintf](http://php.net/manual/function.sprintf.php)
    */
   protected function logInfo()
   {
@@ -265,7 +269,9 @@ abstract class ResourceStoreTask extends \Task
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Print to console Verbose Message
+   * Prints an verbose level message.
+   *
+   * @param mixed  ...$param  The arguments as for [sprintf](http://php.net/manual/function.sprintf.php)
    */
   protected function logVerbose()
   {
