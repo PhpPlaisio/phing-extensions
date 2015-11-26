@@ -1,6 +1,8 @@
 .idea
 bin/phing
-bin/stratum
+bin/phpcbf
+bin/phpcs
+bin/phpunit
 composer.lock
 doc/api
 vendor

@@ -12,20 +12,19 @@ class OptimizeCssTask extends OptimizeResourceTask
   /**
    * Minimizes CSS code.
    *
-   * @param string $theResource The CSS code.
-   *
-   * @param        $theFullPathName
+   * @param string $theResource     The CSS code.
+   * @param string $theFullPathName The full pathname of the CSS file.
    *
    * @return string The minimized CSS code.
    */
   protected function minimizeResource($theResource, $theFullPathName)
   {
-    $theResource = $this->convertRelativePaths($theResource, $theFullPathName);
+    $resource = $this->convertRelativePaths($theResource, $theFullPathName);
 
     // Compress the CSS code.
     $compressor = new \CSSmin(false);
 
-    return $compressor->run($theResource);
+    return $compressor->run($resource);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -197,9 +196,8 @@ class OptimizeCssTask extends OptimizeResourceTask
   /**
    * In CSS code replace relative paths with absolute paths.
    *
-   * @param string $theCss The CSS code.
-   *
-   * @param        $theFullPathName
+   * @param string $theCss          The CSS code.
+   * @param string $theFullPathName The full pathname of the CSS file.
    *
    * @return string The modified CSS code.
    */
@@ -207,11 +205,13 @@ class OptimizeCssTask extends OptimizeResourceTask
   {
     // @todo fix URLs like url(test/test(1).jpg)
 
-    $ccs = preg_replace_callback('/(url\([\'"]?)(([^()]|(?R))+)([\'"]?\))/i', function ($matches) use ($theFullPathName)
-    {
-      return $matches[1].\SetBased\Abc\Helper\Url::combine($this->getPathInResources($theFullPathName), $matches[2]).$matches[4];
-    }
-      , $theCss);
+    $ccs = preg_replace_callback('/(url\([\'"]?)(([^()]|(?R))+)([\'"]?\))/i',
+      function ($matches) use ($theFullPathName)
+      {
+        return $matches[1].\SetBased\Abc\Helper\Url::combine($this->getPathInResources($theFullPathName),
+                                                             $matches[2]).$matches[4];
+      },
+                                 $theCss);
 
     return $ccs;
   }

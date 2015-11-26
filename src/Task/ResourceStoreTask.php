@@ -1,8 +1,8 @@
 <?php
 //----------------------------------------------------------------------------------------------------------------------
 /**
- * Class for optimizing resource files Js or Css. Combining all into one file.
- * Class have array with info about all files.
+ * Abstract parent class for tasks for optimizing resources (i.e. CSS and JS files). This class does the housekeeping
+ * op resources.
  */
 abstract class ResourceStoreTask extends \Task
 {
@@ -284,9 +284,8 @@ abstract class ResourceStoreTask extends \Task
   /**
    * Minimizes JavaScript or CSS code.
    *
-   * @param string $theResource The JavaScript or CSS code.
-   *
-   * @param        $theFullPathName
+   * @param string $theResource     The JavaScript or CSS code.
+   * @param string $theFullPathName The full pathname of the JavaScript or CSS file.
    *
    * @return string The minimized JavaScript or CSS code.
    */
@@ -315,8 +314,8 @@ abstract class ResourceStoreTask extends \Task
   /**
    * Minimize resource, create hash based on optimized content. Add resource info into array.
    *
-   * @param $theResource
-   * @param $theFullPathName
+   * @param string $theResource     The (actual content) of the resource.
+   * @param string $theFullPathName The full pathname of the file where the resource is stored.
    *
    * @return array
    * @throws BuildException
@@ -325,7 +324,7 @@ abstract class ResourceStoreTask extends \Task
   {
     $this->logInfo("Minimizing '%s'.", $theFullPathName);
 
-    $type        = pathinfo($theFullPathName)['extension'];
+    $extension   = pathinfo($theFullPathName)['extension'];
     $content_opt = $this->minimizeResource($theResource, $theFullPathName);
 
     // @todo Ignore *.main.js files.
@@ -341,7 +340,7 @@ abstract class ResourceStoreTask extends \Task
       $file_info['full_path_name']                 = $theFullPathName;
       $file_info['path_name_in_sources']           = $this->getPathInResources($theFullPathName);
       $file_info['full_path_name_with_hash']       = $this->myResourceDirFullPath.'/'.
-        $file_info['hash'].'.'.$file_info['ordinal'].'.'.$type;
+        $file_info['hash'].'.'.$file_info['ordinal'].'.'.$extension;
       $file_info['path_name_in_sources_with_hash'] = $this->getPathInResources($file_info['full_path_name_with_hash']);
     }
 

@@ -48,7 +48,7 @@
 
     <!-- Runs PHP code sniffer -->
     <target name="phpcs">
-        <exec command="bin/phpcs --standard=vendor/setbased/php-coding-standards/ruleset.xml lib/" passthru="true" checkreturn="true"/>
+        <exec command="bin/phpcs --standard=vendor/setbased/php-coding-standards/ruleset.xml src/" passthru="true" checkreturn="true"/>
     </target>
 
     <target name="build">

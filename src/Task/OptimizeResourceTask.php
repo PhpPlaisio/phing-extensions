@@ -193,7 +193,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
         }
         elseif ($token==='{')
         {
-          throw new LogicException('Bracketed syntax for name space not supported.');
+          throw new LogicException('Bracketed syntax for namespace not supported.');
         }
         else
         {

@@ -17,7 +17,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
   private $myCombineCommand;
 
   /**
-   * The command to run uglifyjs.
+   * The command to minify JS.
    *
    * @var string
    */
@@ -71,13 +71,12 @@ class OptimizeJsTask extends \OptimizeResourceTask
   /**
    * Minimizes JavaScript code.
    *
-   * @param string $theResource The JavaScript code.
-   *
-   * @param        $theFullPathName
+   * @param string $theResource     The JavaScript code.
+   * @param string $theFullPathName The full pathname of the JavaScript file.
    *
    * @return string The minimized JavaScript code.
    */
-  protected function minimizeResource($theResource , $theFullPathName)
+  protected function minimizeResource($theResource, $theFullPathName)
   {
     list($std_out, $std_err) = $this->runProcess($this->myMinifyCommand, $theResource);
 
