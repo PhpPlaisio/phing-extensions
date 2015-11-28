@@ -51,6 +51,6 @@
         <exec command="bin/phpcs --standard=vendor/setbased/php-coding-standards/ruleset.xml lib/" passthru="true" checkreturn="true"/>
     </target>
 
-    <target name="build">
+    <target name="build" depends="unit">
     </target>
 </project>

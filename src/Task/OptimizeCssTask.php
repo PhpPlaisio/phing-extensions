@@ -10,6 +10,24 @@ class OptimizeCssTask extends OptimizeResourceTask
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Enable\disable Compress the CSS code (true\false)
+   *
+   * @var bool
+   */
+  protected $myMinimize;
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Setter for XML attribute $myCssMinimize.
+   *
+   * @param bool $theMinimize
+   */
+  public function setMinimize($theMinimize = true)
+  {
+    $this->myMinimize = (boolean)$theMinimize;
+  }
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Minimizes CSS code.
    *
    * @param string $theResource The CSS code.
@@ -23,9 +41,16 @@ class OptimizeCssTask extends OptimizeResourceTask
     $theResource = $this->convertRelativePaths($theResource, $theFullPathName);
 
     // Compress the CSS code.
-    $compressor = new \CSSmin(false);
+    if ($this->myMinimize)
+    {
+      $compressor = new \CSSmin(false);
 
-    return $compressor->run($theResource);
+      return $compressor->run($theResource);
+    }
+    else
+    {
+      return $theResource;
+    }
   }
 
   //--------------------------------------------------------------------------------------------------------------------
