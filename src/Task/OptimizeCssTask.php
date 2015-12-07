@@ -128,7 +128,7 @@ class OptimizeCssTask extends OptimizeResourceTask
     foreach ($lines as $i => $line)
     {
       // Find calls to cssOptimizedAppendSource.
-      if (preg_match('/^(.*)(\$[a-zA-Z0-9_]+->)(cssOptimizedAppendSource)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"]\s*\)\s*;)(.*)$/',
+      if (preg_match('/^(.*)([\$:a-zA-Z0-9_]+->)(cssOptimizedAppendSource)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"]\s*\)\s*;)(.*)$/',
                      $line,
                      $matches))
       {
@@ -188,7 +188,7 @@ class OptimizeCssTask extends OptimizeResourceTask
       }
 
       // Replace calls to cssAppendPageSpecificSource with cssOptimizedAppendSource.
-      if (preg_match('/^(\s*)(\$[a-zA-Z0-9_]+->)(cssAppendPageSpecificSource)(\(\s*)(__CLASS__)(\s*\)\s*;)(.*)$/',
+      if (preg_match('/^(\s*)([\$:a-zA-Z0-9_]+->)(cssAppendPageSpecificSource)(\(\s*)(__CLASS__)(\s*\)\s*;)(.*)$/',
                      $line,
                      $matches))
       {
@@ -208,7 +208,7 @@ class OptimizeCssTask extends OptimizeResourceTask
           $lines[$i] = implode('', $matches);
         }
       }
-      elseif (preg_match('/^(\s*)(\$[a-zA-Z0-9_]+->)(cssAppendSource)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"]\s*\)\s*;)(.*)$/',
+      elseif (preg_match('/^(\s*)([\$:a-zA-Z0-9_]+->)(cssAppendSource)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"]\s*\)\s*;)(.*)$/',
                          $line,
                          $matches))
       {
