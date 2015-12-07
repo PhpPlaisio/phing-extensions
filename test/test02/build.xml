@@ -1,0 +1,59 @@
+<project name="abc-phing" default="build" basedir=".">
+    <taskdef name="optimizeCss" classname="../../src.Task.OptimizeCssTask"/>
+    <property name="BUILD_DIR" value="./build"/>
+    <property name="CSS_DIR" value="www/css"/>
+
+    <!-- Creates an empty build directory. -->
+    <target name="prepare">
+        <echo msg="Preparing files…"/>
+        <if>
+            <available property="test_build_directory_exists" file="${BUILD_DIR}" type="dir"/>
+            <then>
+                <echo msg="Removing old files…"/>
+                <delete includeemptydirs="true" verbose="false" failonerror="true">
+                    <fileset dir="${BUILD_DIR}">
+                        <include name="**"/>
+                    </fileset>
+                </delete>
+            </then>
+            <else>
+                <echo msg="Creating build dir…"/>
+                <mkdir dir="${BUILD_DIR}"/>
+            </else>
+        </if>
+    </target>
+
+    <!-- Copies all required files the the build directory. -->
+    <target name="copy_files" depends="prepare">
+        <echo msg="Copying main files…"/>
+        <copy todir="${BUILD_DIR}" includeemptydirs="true" verbose="false" preservelastmodified="true">
+            <fileset dir=".">
+                <include name="**"/>
+
+                <exclude name="**.xml"/>
+                <exclude name="build/**"/>
+                <exclude name="expected/**"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- Optimizes all CSS files. -->
+    <target name="optimize_css" depends="copy_files">
+        <fileset dir="${BUILD_DIR}" id="css-sources">
+            <include name="${CSS_DIR}/**/*.css"/>
+        </fileset>
+
+        <!-- Files set with all our own PHP sources -->
+        <fileset dir="${BUILD_DIR}" id="php-sources">
+            <include name="www/*.php"/>
+        </fileset>
+
+        <!-- Include the optimized CSS file from the PHP code. -->
+        <optimizeCss sources="php-sources" resources="css-sources"
+                     parentResourceDir="www" resourceDir="css"
+                     preserveLastModified="true" gzip="false"
+                     minimize="true"/>
+    </target>
+
+    <target name="build" depends="optimize_css" />
+</project>
