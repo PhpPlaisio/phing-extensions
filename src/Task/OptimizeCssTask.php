@@ -35,6 +35,7 @@ class OptimizeCssTask extends OptimizeResourceTask
   {
     $this->myMinimize = (boolean)$theMinimize;
   }
+
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Minimizes CSS code.
@@ -55,13 +56,8 @@ class OptimizeCssTask extends OptimizeResourceTask
 
       return $compressor->run($theResource);
     }
-    
+
     return $resource;
-    }
-    else
-    {
-      return $theResource;
-    }
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -299,6 +295,8 @@ class OptimizeCssTask extends OptimizeResourceTask
       }
     }
   }
+
+  //--------------------------------------------------------------------------------------------------------------------
 }
 
 //----------------------------------------------------------------------------------------------------------------------
