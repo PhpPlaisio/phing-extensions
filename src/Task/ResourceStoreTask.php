@@ -213,16 +213,15 @@ abstract class ResourceStoreTask extends \Task
    */
   protected function getResourceInfo($theFullPathName)
   {
-    foreach ($this->myResourceFilesInfo as $key => $val)
+    foreach ($this->myResourceFilesInfo as $info)
     {
-      if ($val['full_path_name']===$theFullPathName)
+      if ($info['full_path_name']===$theFullPathName)
       {
-        return $this->myResourceFilesInfo[$key];
+        return $info;
       }
     }
-    $args   = func_get_args();
-    $format = array_shift($args);
-    throw new \BuildException(vsprintf($format, $args));
+
+    $this->logError("Unknown resource file '%s'.", $theFullPathName);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
