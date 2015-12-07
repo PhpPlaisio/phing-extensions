@@ -505,7 +505,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
         }
 
         // If required preserve file permissions.
-        if ($this->myPreserveModificationTime)
+        if ($this->myPreserveFilePermissions)
         {
           $this->setFilePermissions($file_info['full_path_name_with_hash'], $file_info['full_path_name']);
         }
