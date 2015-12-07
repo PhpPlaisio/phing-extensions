@@ -14,7 +14,7 @@ class OptimizeCssTask extends OptimizeResourceTask
    *
    * @var bool
    */
-  protected $myMinimize;
+  protected $myMinimize = true;
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
