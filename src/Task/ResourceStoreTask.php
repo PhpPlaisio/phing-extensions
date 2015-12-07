@@ -337,7 +337,7 @@ abstract class ResourceStoreTask extends \Task
    */
   protected function store($theResource, $theFullPathName)
   {
-    $this->logInfo("Minimizing '%s'.", $theFullPathName);
+    if (isset($theFullPathName)) $this->logInfo("Minimizing '%s'.", $theFullPathName);
 
     $content_opt = $this->minimizeResource($theResource, $theFullPathName);
 

@@ -10,7 +10,7 @@ class OptimizeCssTask extends OptimizeResourceTask
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Enable\disable Compress the CSS code (true\false)
+   * Enables/disables compression of CSS. This flag is for testing purposes only.
    *
    * @var bool
    */
@@ -31,7 +31,7 @@ class OptimizeCssTask extends OptimizeResourceTask
    *
    * @param bool $theMinimize
    */
-  public function setMinimize($theMinimize = true)
+  public function setMinimize($theMinimize)
   {
     $this->myMinimize = (boolean)$theMinimize;
   }
@@ -47,14 +47,22 @@ class OptimizeCssTask extends OptimizeResourceTask
    */
   protected function minimizeResource($theResource, $theFullPathName)
   {
-    $resource = $this->convertRelativePaths($theResource, $theFullPathName);
+    $resource = $theResource;
 
-    // Compress the CSS code.
-    if ($this->myMinimize && isset($theFullPathName))
+    // If $theFullPathName is not set $theResource is concatenation of 2 or more optimized CSS file. There is no need to
+    // convert relative paths and minimized $theResource again. Moreover, it is not possible to convert relative paths
+    // since $theResource can be a concatenation of CSS files from different subdirectories.
+    if (isset($theFullPathName))
     {
-      $compressor = new \CSSmin(false);
+      $resource = $this->convertRelativePaths($theResource, $theFullPathName);
 
-      return $compressor->run($theResource);
+      // Compress the CSS code.
+      if ($this->myMinimize)
+      {
+        $compressor = new \CSSmin(false);
+
+        $resource = $compressor->run($resource);
+      }
     }
 
     return $resource;
