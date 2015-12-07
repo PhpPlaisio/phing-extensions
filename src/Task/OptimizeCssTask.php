@@ -214,7 +214,6 @@ class OptimizeCssTask extends OptimizeResourceTask
       {
         $file_name = $matches[5];
         $full_path = $this->myParentResourceDirFullPath.'/'.$file_name;
-        print_r("\n$full_path\n");
         if (!file_exists($full_path))
         {
           $this->logError("File '%s' not found.", $full_path);
