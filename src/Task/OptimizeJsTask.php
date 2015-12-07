@@ -161,17 +161,15 @@ class OptimizeJsTask extends \OptimizeResourceTask
                      $line,
                      $matches))
       {
-        $file_name = str_replace('\\', '/', $current_class).$this->myExtension;
-        $full_path = $this->myResourceDirFullPath.'/'.$file_name;
+        $full_path = $this->getFullPathFromClassName($current_class);
         if (!file_exists($full_path))
         {
           $this->logError("File '%s' not found.", $full_path);
         }
         else
         {
-          $real_path  = realpath($full_path);
           $matches[3] = 'jsAdmOptimizedSetPageSpecificMain';
-          $matches[5] = "'".$this->combineAndMinimize($real_path)."'";
+          $matches[5] = "'".$this->combineAndMinimize($full_path)."'";
 
           array_shift($matches);
           $lines[$i] = implode('', $matches);
@@ -183,8 +181,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
                      $line,
                      $matches))
       {
-        $file_name = str_replace('\\', '/', $current_class).$this->myExtension;
-        $full_path = $this->myResourceDirFullPath.'/'.$file_name;
+        $full_path = $this->getFullPathFromClassName($current_class);
         if (!file_exists($full_path))
         {
           $this->logError("File '%s' not found.", $full_path);
@@ -192,7 +189,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
         else
         {
           $matches[3] = 'jsAdmOptimizedFunctionCall';
-          $matches[5] = "'".$this->getNamespaceFromResourceFilename(realpath($full_path))."'";
+          $matches[5] = "'".$this->getNamespaceFromClassName($current_class)."'";
 
           array_shift($matches);
           $lines[$i] = implode('', $matches);
@@ -204,17 +201,14 @@ class OptimizeJsTask extends \OptimizeResourceTask
                      $line,
                      $matches))
       {
-        $file_name = $matches[5];
-        $full_path = $this->myResourceDirFullPath.'/'.$file_name.$this->myExtension;
+        $full_path = $this->getFullPathFromNamespace($matches[5]);
         if (!file_exists($full_path))
         {
           $this->logError("File '%s' not found.", $full_path);
         }
         else
         {
-          $real_path  = realpath($full_path);
           $matches[3] = 'jsAdmOptimizedFunctionCall';
-          $matches[5] = $this->getResourceInfo($real_path)['path_name_in_sources_with_hash'];
 
           array_shift($matches);
           $lines[$i] = implode('', $matches);
@@ -388,17 +382,19 @@ class OptimizeJsTask extends \OptimizeResourceTask
    * Creates file and minimizes in which all required JavaScript files of a page specific RequireJs file are combined,
    * see {@link \SetBased\Abc\Page\Page::jsAdmSetPageSpecificMain}.
    *
-   * @param string $theRealPath The path to the JavaScript file
+   * @param string $theFullPath The path to the JavaScript file
    *
    * @return string
    * @throws BuildException
    */
-  private function combineAndMinimize($theRealPath)
+  private function combineAndMinimize($theFullPath)
   {
-    $js_raw = $this->combine($theRealPath);
-    $js_raw .= $this->getMainWithHashedPaths($theRealPath);
+    $real_path = realpath($theFullPath);
 
-    $file_info = $this->store($js_raw, $theRealPath);
+    $js_raw = $this->combine($real_path);
+    $js_raw .= $this->getMainWithHashedPaths($real_path);
+
+    $file_info = $this->store($js_raw, $real_path);
 
     return $file_info['path_name_in_sources_with_hash'];
     // @todo Set mtime of the combined code.
@@ -418,6 +414,38 @@ class OptimizeJsTask extends \OptimizeResourceTask
     if (!isset($matches[2])) $this->logError("Unable to fine 'requirejs.config' in file '%s'.", $theFilename);
 
     return $matches[2];
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Returns the full path of a ADM JavaScript file based on a PHP class name.
+   *
+   * @param string $theClassName The PHP class name.
+   *
+   * @return string
+   */
+  private function getFullPathFromClassName($theClassName)
+  {
+    $file_name = str_replace('\\', '/', $theClassName).$this->myExtension;
+    $full_path = $this->myResourceDirFullPath.'/'.$file_name;
+
+    return $full_path;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Returns the full path of a ADM JavaScript file based on a ADM namespace.
+   *
+   * @param string $theNamespace The ADM namespace.
+   *
+   * @return string
+   */
+  private function getFullPathFromNamespace($theNamespace)
+  {
+    $file_name = $theNamespace.$this->myExtension;
+    $full_path = $this->myResourceDirFullPath.'/'.$file_name;
+
+    return $full_path;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -460,6 +488,19 @@ class OptimizeJsTask extends \OptimizeResourceTask
     $js = implode('', $matches);
 
     return $js;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Returns the namespace in JS file based on PHP class name.
+   *
+   * @param string $theClassName The PHP class name.
+   *
+   * @return string
+   */
+  private function getNamespaceFromClassName($theClassName)
+  {
+    return str_replace('\\', '/', $theClassName);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
