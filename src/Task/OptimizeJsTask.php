@@ -157,7 +157,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
       }
 
       // Replace calls to jsAdmSetPageSpecificMain with jsAdmOptimizedSetPageSpecificMain.
-      if (preg_match('/^(\s*)(\$this->)(jsAdmSetPageSpecificMain)(\(\s*)(__CLASS__)(\s*\)\s*;)(.*)$/',
+      if (preg_match('/^(\s*)(\$[a-zA-Z0-9_]+->)(jsAdmSetPageSpecificMain)(\(\s*)(__CLASS__)(\s*\)\s*;)(.*)$/',
                      $line,
                      $matches))
       {
@@ -179,7 +179,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
       }
 
       // Replace calls to jsAdmPageSpecificFunctionCall with jsAdmOptimizedFunctionCall.
-      if (preg_match('/^(\s*)(\$this->)(jsAdmPageSpecificFunctionCall)(\(\s*)(__CLASS__)(.*)$/',
+      if (preg_match('/^(\s*)(\$[a-zA-Z0-9_]+->)(jsAdmPageSpecificFunctionCall)(\(\s*)(__CLASS__)(.*)$/',
                      $line,
                      $matches))
       {
@@ -200,7 +200,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
       }
 
       // Replace calls to jsAdmFunctionCall with jsAdmOptimizedFunctionCall.
-      if (preg_match('/^(\s*)(\$this->)(jsAdmFunctionCall)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"].*)$/',
+      if (preg_match('/^(\s*)(\$[a-zA-Z0-9_]+->)(jsAdmFunctionCall)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"].*)$/',
                      $line,
                      $matches))
       {
