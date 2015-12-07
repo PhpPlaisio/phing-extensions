@@ -43,7 +43,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
    *
    * @var array
    */
-  private $myReplacePairs;
+  private $myReplacePairs = [];
 
   /**
    * The names of the sources files.
@@ -255,10 +255,8 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
    */
   private function getFullPathNameWithHash($theFileInfo)
   {
-    $path_parts = pathinfo($theFileInfo['full_path_name_with_hash']);
-
     $path = $this->myResourceDirFullPath;
-    $path .= '/'.$theFileInfo['hash'].'.'.$theFileInfo['ordinal'].'.'.$path_parts['extension'];
+    $path .= '/'.$theFileInfo['hash'].'.'.$theFileInfo['ordinal'].$this->myExtension;
 
     return $path;
   }

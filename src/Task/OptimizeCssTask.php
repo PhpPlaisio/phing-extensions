@@ -18,6 +18,15 @@ class OptimizeCssTask extends OptimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * OptimizeCssTask constructor.
+   */
+  public function __construct()
+  {
+    parent::__construct('.css');
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Setter for XML attribute $myCssMinimize.
    *
    * @param bool $theMinimize
@@ -41,7 +50,7 @@ class OptimizeCssTask extends OptimizeResourceTask
     $theResource = $this->convertRelativePaths($theResource, $theFullPathName);
 
     // Compress the CSS code.
-    if ($this->myMinimize)
+    if ($this->myMinimize && isset($theFullPathName))
     {
       $compressor = new \CSSmin(false);
 
@@ -177,7 +186,7 @@ class OptimizeCssTask extends OptimizeResourceTask
                      $line,
                      $matches))
       {
-        $file_name = str_replace('\\', '/', $current_class).'.css';
+        $file_name = str_replace('\\', '/', $current_class).$this->myExtension;
         $full_path = $this->myResourceDirFullPath.'/'.$file_name;
         if (!file_exists($full_path))
         {
@@ -199,6 +208,7 @@ class OptimizeCssTask extends OptimizeResourceTask
       {
         $file_name = $matches[5];
         $full_path = $this->myParentResourceDirFullPath.'/'.$file_name;
+        print_r("\n$full_path\n");
         if (!file_exists($full_path))
         {
           $this->logError("File '%s' not found.", $full_path);
@@ -265,7 +275,7 @@ class OptimizeCssTask extends OptimizeResourceTask
       $file_info['content_opt'] .= $code;
       $files[] = $filename;
     }
-    $file_info = $this->store($file_info['content_opt'], $files[0]);
+    $file_info = $this->store($file_info['content_opt'], null);
 
     // Replace the multiple calls with one call in the PHP code.
     $first = true;

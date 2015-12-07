@@ -4,3 +4,5 @@ bin/stratum
 composer.lock
 doc/api
 vendor
+test/test01/build
+test/test02/build

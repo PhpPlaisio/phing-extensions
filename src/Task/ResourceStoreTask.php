@@ -1,8 +1,7 @@
 <?php
 //----------------------------------------------------------------------------------------------------------------------
 /**
- * Class for optimizing resource files Js or Css. Combining all into one file.
- * Class have array with info about all files.
+ * Class for optimizing and combining resource files (i.e. JS or CSS).
  */
 abstract class ResourceStoreTask extends \Task
 {
@@ -70,13 +69,23 @@ abstract class ResourceStoreTask extends \Task
    */
   private $myResourcesFilesetId;
 
+  /**
+   * The extension of the resource files (i.e. .js or .css).
+   *
+   * @var string
+   */
+  protected $myExtension;
+
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Object constructor.
+   *
+   * @param string $theExtension The extension of the resource files (i.e. .js or .css).
    */
-  public function __construct()
+  public function __construct($theExtension)
   {
     $this->myResourceFilesInfo = [];
+    $this->myExtension         = $theExtension;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -325,24 +334,23 @@ abstract class ResourceStoreTask extends \Task
   {
     $this->logInfo("Minimizing '%s'.", $theFullPathName);
 
-    $type        = pathinfo($theFullPathName)['extension'];
     $content_opt = $this->minimizeResource($theResource, $theFullPathName);
 
     // @todo Ignore *.main.js files.
 
-    $file_info                = [];
-    $file_info['hash']        = md5($content_opt);
-    $file_info['content_raw'] = $theResource;
-    $file_info['content_opt'] = $content_opt;
-    $file_info['ordinal']     = isset($this->myHashCount[$file_info['hash']]) ? $this->myHashCount[$file_info['hash']]++ : $this->myHashCount[$file_info['hash']] = 0;
+    $file_info                             = [];
+    $file_info['hash']                     = md5($content_opt);
+    $file_info['content_raw']              = $theResource;
+    $file_info['content_opt']              = $content_opt;
+    $file_info['ordinal']                  = isset($this->myHashCount[$file_info['hash']]) ? $this->myHashCount[$file_info['hash']]++ : $this->myHashCount[$file_info['hash']] = 0;
+    $file_info['full_path_name_with_hash'] = $this->myResourceDirFullPath.'/'.
+      $file_info['hash'].'.'.$file_info['ordinal'].$this->myExtension;
+    $file_info['path_name_in_sources_with_hash'] = $this->getPathInResources($file_info['full_path_name_with_hash']);
 
     if (isset($theFullPathName))
     {
-      $file_info['full_path_name']                 = $theFullPathName;
-      $file_info['path_name_in_sources']           = $this->getPathInResources($theFullPathName);
-      $file_info['full_path_name_with_hash']       = $this->myResourceDirFullPath.'/'.
-        $file_info['hash'].'.'.$file_info['ordinal'].'.'.$type;
-      $file_info['path_name_in_sources_with_hash'] = $this->getPathInResources($file_info['full_path_name_with_hash']);
+      $file_info['full_path_name']       = $theFullPathName;
+      $file_info['path_name_in_sources'] = $this->getPathInResources($theFullPathName);
     }
 
     // Save the combined code.

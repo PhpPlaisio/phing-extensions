@@ -32,6 +32,15 @@ class OptimizeJsTask extends \OptimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * OptimizeJsTask constructor.
+   */
+  public function __construct()
+  {
+    parent::__construct('.js');
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Returns the 'main' file of a page specific main JavaScript file.
    *
    * @param string $theRealPath
@@ -153,7 +162,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
                      $line,
                      $matches))
       {
-        $file_name = str_replace('\\', '/', $current_class).'.js';
+        $file_name = str_replace('\\', '/', $current_class).$this->myExtension;
         $full_path = $this->myResourceDirFullPath.'/'.$file_name;
         if (!file_exists($full_path))
         {
@@ -175,7 +184,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
                      $line,
                      $matches))
       {
-        $file_name = str_replace('\\', '/', $current_class).'.js';
+        $file_name = str_replace('\\', '/', $current_class).$this->myExtension;
         $full_path = $this->myResourceDirFullPath.'/'.$file_name;
         if (!file_exists($full_path))
         {
@@ -197,7 +206,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
                      $matches))
       {
         $file_name = $matches[5];
-        $full_path = $this->myResourceDirFullPath.'/'.$file_name.'.js';
+        $full_path = $this->myResourceDirFullPath.'/'.$file_name.$this->myExtension;
         if (!file_exists($full_path))
         {
           $this->logError("File '%s' not found.", $full_path);

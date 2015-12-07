@@ -37,10 +37,30 @@ class OptimizeCssTest extends PHPUnit_Framework_TestCase
   /**
    * Optimizing all files inside folder test01 and then compare files.
    */
-  public function testOptimizeCss()
+  public function testOptimizeCss01()
   {
     chdir(__DIR__."/test01");
     exec('../../bin/phing optimize_css');
+
+    $build    = $this->getFilesById('build');
+    $expected = $this->getFilesById('expected');
+
+    foreach ($expected as $key => $b)
+    {
+      if (isset($build[$key]) && isset($expected[$key]))
+      {
+        $this->assertFileEquals($expected[$key], $build[$key]);
+      }
+    }
+  }
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Optimizing all files inside folder test01 and then compare files.
+   */
+  public function testOptimizeCss02()
+  {
+    chdir(__DIR__."/test02");
+    exec('../../bin/phing -verbose optimize_css');
 
     $build    = $this->getFilesById('build');
     $expected = $this->getFilesById('expected');

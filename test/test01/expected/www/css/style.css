@@ -1,0 +1,26 @@
+/* ID: style_id */
+
+.test1
+{
+  background: #548DC4 url(/images/background.png) no-repeat right center;
+}
+
+.test2
+{
+  background: #548DC4 url("/images/background.png") no-repeat right center;
+}
+
+.test3
+{
+  background: #548DC4 url('/images/background.png') no-repeat right center;
+}
+
+.test4
+{
+  background: #548DC4 url('/images/ background .png') no-repeat right center;
+}
+
+.test5
+{
+  background: #548DC4 url('/images/"background".png') no-repeat right center;
+}
