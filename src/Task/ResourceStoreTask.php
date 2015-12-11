@@ -8,6 +8,13 @@ abstract class ResourceStoreTask extends \Task
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * The extension of the resource files (i.e. .js or .css).
+   *
+   * @var string
+   */
+  protected $myExtension;
+
+  /**
    * The absolute path to the parent resource dir.
    *
    * @var string
@@ -69,13 +76,6 @@ abstract class ResourceStoreTask extends \Task
    * @var string
    */
   private $myResourcesFilesetId;
-
-  /**
-   * The extension of the resource files (i.e. .js or .css).
-   *
-   * @var string
-   */
-  protected $myExtension;
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -183,6 +183,29 @@ abstract class ResourceStoreTask extends \Task
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Returns path name in sources with hash from the resource info based on the path name in sources.
+   * If can't find, return path name in sources.
+   *
+   * @param string $theBaseUrl          Parent resource folder.
+   * @param string $theResourcePathName Path name to the resource.
+   *
+   * @return string
+   */
+  protected function getPathInResourcesWithHash($theBaseUrl, $theResourcePathName)
+  {
+    foreach ($this->myResourceFilesInfo as $info)
+    {
+      if ($info['path_name_in_sources']===$theBaseUrl.'/'.$theResourcePathName.$this->myExtension)
+      {
+        return $info['path_name_in_sources_with_hash'];
+      }
+    }
+
+    return $theResourcePathName;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Gets the path name relative to the parent resource directory of a resource file.
    *
    * @param $thePath string The full path name of resource file.
@@ -200,29 +223,6 @@ abstract class ResourceStoreTask extends \Task
     }
 
     return substr($thePath, strlen($this->myParentResourceDirFullPath));
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
-   * Returns path name in sources with hash from the resource info based on the path name in sources.
-   * If can't find, return path name in sources.
-   *
-   * @param string $theBaseUrl           Parent resource folder
-   * @param string $thePathNameInSources Path name in sources
-   *
-   * @return string
-   */
-  protected function getNameInSourcesWithHash($theBaseUrl,$thePathNameInSources)
-  {
-    foreach ($this->myResourceFilesInfo as $info)
-    {
-      if ($info['path_name_in_sources']===$theBaseUrl.'/'.$thePathNameInSources.$this->myExtension)
-      {
-        return $info['path_name_in_sources_with_hash'];
-      }
-    }
-
-    return $thePathNameInSources;
   }
 
   //--------------------------------------------------------------------------------------------------------------------

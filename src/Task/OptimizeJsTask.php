@@ -492,28 +492,33 @@ class OptimizeJsTask extends \OptimizeResourceTask
     // @todo Remove from paths files already combined.
 
     $paths = [];
-    list($base_url, $paths_array) = $this->extractPaths($main_js_file);
+
+    // Replace aliases to paths with aliases to paths with hashes (i.e. path to minimized files).
+    list($base_url, $aliases) = $this->extractPaths($main_js_file);
     if (isset($base_url) && isset($paths))
     {
-      foreach ($paths_array as $js_path => $line)
+      foreach ($aliases as $alias => $path)
       {
-        $path_with_hash = $this->getNameInSourcesWithHash($base_url, $line);
+        $path_with_hash = $this->getPathInResourcesWithHash($base_url, $path);
         if (isset($path_with_hash))
-          $paths[$path_with_hash] = $js_path."\n";
-      }
-
-      foreach ($this->getResourcesInfo() as $info)
-      {
-        // @todo Skip *.main.js files.
-
-        if (!isset($paths[$info['path_name_in_sources_with_hash']]))
         {
-          if (isset($info['path_name_in_sources']))
-          {
-            $js_path                = $this->getNamespaceFromResourceFilename($info['full_path_name']);
-            $path_with_hash         = $this->getNamespaceFromResourceFilename($info['full_path_name_with_hash']);
-            $paths[$path_with_hash] = $js_path;
-          }
+          $paths[$path_with_hash] = $alias;
+        }
+      }
+    }
+
+    // Add paths from namespaces to to paths with hashes (i.e. path to minimized files).
+    foreach ($this->getResourcesInfo() as $info)
+    {
+      // @todo Skip *.main.js files.
+
+      if (!isset($paths[$info['path_name_in_sources_with_hash']]))
+      {
+        if (isset($info['path_name_in_sources']))
+        {
+          $namespace              = $this->getNamespaceFromResourceFilename($info['full_path_name']);
+          $path_with_hash         = $this->getNamespaceFromResourceFilename($info['full_path_name_with_hash']);
+          $paths[$path_with_hash] = $namespace;
         }
       }
     }
