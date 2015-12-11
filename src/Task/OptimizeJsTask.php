@@ -418,6 +418,27 @@ class OptimizeJsTask extends \OptimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Reads the main.js file and returns baseUrl and paths.
+   *
+   * @param $theMainJsFile
+   *
+   * @return array
+   */
+  private function extractPaths($theMainJsFile)
+  {
+    $extract_script = __DIR__.'/../../lib/extract_config.js';
+    $command        = 'node';
+    $command .= ' '.escapeshellarg($extract_script);
+    $command .= ' '.escapeshellarg($theMainJsFile);
+    $output = shell_exec($command);
+    if ($output===null) $this->logError("Command '%s' return failed.", $command);
+    $config = json_decode($output, true);
+
+    return [$config['baseUrl'], $config['paths']];
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Returns the full path of a ADM JavaScript file based on a PHP class name.
    *
    * @param string $theClassName The PHP class name.
@@ -450,30 +471,9 @@ class OptimizeJsTask extends \OptimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Reads the main.js file and return baseUrl and paths.
+   * Rewrites paths in requirejs.config. Adds path names from namespaces and aliases to filenames with hashes.
    *
-   * @param $theMainJsFile
-   *
-   * @return array
-   */
-  private function extractPaths($theMainJsFile)
-  {
-    $extract_script = __DIR__.'/../../lib/extract_config.js';
-    $command        = 'node';
-    $command .= ' '.$extract_script;
-    $command .= ' '.escapeshellarg($theMainJsFile);
-    $output = shell_exec($command);
-    if ($output===null) $this->logError("Command '%s' return NULL.", $command);
-    $decode = json_decode($output, true);
-
-    return [$decode['baseUrl'], $decode['paths']];
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
-   * Adds paths from namespaces to filenames with hashes.
-   *
-   * @param string $theRealPath The filename of the main file.
+   * @param string $theRealPath The filename of the main.js file.
    *
    * @return string
    * @throws BuildException
@@ -518,7 +518,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
       }
     }
 
-    $matches[2] = json_encode(array_flip($paths),JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT);
+    $matches[2] = json_encode(array_flip($paths), JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
     array_shift($matches);
     $js = implode('', $matches);
 
