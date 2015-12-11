@@ -486,7 +486,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
     if ($js===false) $this->logError("Unable to read file '%s'.", $theRealPath);
 
     // Extract paths from main.
-    preg_match('/^(.*paths:[^{]*{)([^}]*)(}.*)$/sm', $js, $matches);
+    preg_match('/^(.*paths:[^{]*)({[^}]*})(.*)$/sm', $js, $matches);
     if (!isset($matches[2])) $this->logError("Unable to find paths in '%s'.", $theRealPath);
 
     // @todo Remove from paths files already combined.
@@ -495,11 +495,11 @@ class OptimizeJsTask extends \OptimizeResourceTask
     list($base_url, $paths_array) = $this->extractPaths($main_js_file);
     if (isset($base_url) && isset($paths))
     {
-      foreach ($paths_array as $key => $line)
+      foreach ($paths_array as $js_path => $line)
       {
         $path_with_hash = $this->getNameInSourcesWithHash($base_url, $line);
         if (isset($path_with_hash))
-          $paths[$path_with_hash] = $key;
+          $paths[$path_with_hash] = $js_path."\n";
       }
 
       foreach ($this->getResourcesInfo() as $info)
@@ -510,34 +510,15 @@ class OptimizeJsTask extends \OptimizeResourceTask
         {
           if (isset($info['path_name_in_sources']))
           {
-            $path                   = $this->getNamespaceFromResourceFilename($info['full_path_name']);
+            $js_path                = $this->getNamespaceFromResourceFilename($info['full_path_name']);
             $path_with_hash         = $this->getNamespaceFromResourceFilename($info['full_path_name_with_hash']);
-            $paths[$path_with_hash] = $path;
+            $paths[$path_with_hash] = $js_path;
           }
         }
       }
     }
 
-    $path  = '';
-    $paths = array_flip($paths);
-    reset($paths);
-    $first = key($paths);
-    end($paths);
-    $last = key($paths);
-    reset($paths);
-    foreach ($paths as $key => $element)
-    {
-      if (isset($element))
-      {
-        if ($key===$first)
-          $path .= sprintf("\n'%s': '%s',\n", $key, $element);
-        elseif ($key===$last)
-          $path .= sprintf("'%s': '%s'\n", $key, $element);
-        else
-          $path .= sprintf("'%s': '%s',\n", $key, $element);
-      }
-    }
-    $matches[2] = $path;
+    $matches[2] = json_encode(array_flip($paths),JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT);
     array_shift($matches);
     $js = implode('', $matches);
 
