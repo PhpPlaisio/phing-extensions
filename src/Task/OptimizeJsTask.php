@@ -450,7 +450,28 @@ class OptimizeJsTask extends \OptimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Reads the main.js file and adds paths from namespaces to filenames with hashes.
+   * Reads the main.js file and return baseUrl and paths.
+   *
+   * @param $theMainJsFile
+   *
+   * @return array
+   */
+  private function extractPaths($theMainJsFile)
+  {
+    $extract_script = __DIR__.'/../../lib/extract_config.js';
+    $command        = 'node';
+    $command .= ' '.$extract_script;
+    $command .= ' '.escapeshellarg($theMainJsFile);
+    $output = shell_exec($command);
+    if ($output===null) $this->logError("Command '%s' return NULL.", $command);
+    $decode = json_decode($output, true);
+
+    return [$decode['baseUrl'], $decode['paths']];
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Adds paths from namespaces to filenames with hashes.
    *
    * @param string $theRealPath The filename of the main file.
    *
@@ -459,8 +480,9 @@ class OptimizeJsTask extends \OptimizeResourceTask
    */
   private function getMainWithHashedPaths($theRealPath)
   {
+    $main_js_file = self::getMainJsFileName($theRealPath);
     // Read the main file.
-    $js = file_get_contents(self::getMainJsFileName($theRealPath));
+    $js = file_get_contents($main_js_file);
     if ($js===false) $this->logError("Unable to read file '%s'.", $theRealPath);
 
     // Extract paths from main.
@@ -468,22 +490,54 @@ class OptimizeJsTask extends \OptimizeResourceTask
     if (!isset($matches[2])) $this->logError("Unable to find paths in '%s'.", $theRealPath);
 
     // @todo Remove from paths files already combined.
-    // @todo Replace existing paths with hashed.
 
-    foreach ($this->getResourcesInfo() as $info)
+    $paths = [];
+    list($base_url, $paths_array) = $this->extractPaths($main_js_file);
+    if (isset($base_url) && isset($paths))
     {
-      // @todo Skip files already combined.
-      // @todo Skip *.main.js files.
-      if (isset($info['path_name_in_sources']))
+      foreach ($paths_array as $key => $line)
       {
-        if ($matches[2]) $matches[2] .= ",\n";
-        $matches[2] .= "'";
-        $matches[2] .= $this->getNamespaceFromResourceFilename($info['full_path_name']);
-        $matches[2] .= "': '";
-        $matches[2] .= $this->getNamespaceFromResourceFilename($info['full_path_name_with_hash']);
-        $matches[2] .= "'";
+        $path_with_hash = $this->getNameInSourcesWithHash($base_url, $line);
+        if (isset($path_with_hash))
+          $paths[$path_with_hash] = $key;
+      }
+
+      foreach ($this->getResourcesInfo() as $info)
+      {
+        // @todo Skip *.main.js files.
+
+        if (!isset($paths[$info['path_name_in_sources_with_hash']]))
+        {
+          if (isset($info['path_name_in_sources']))
+          {
+            $path                   = $this->getNamespaceFromResourceFilename($info['full_path_name']);
+            $path_with_hash         = $this->getNamespaceFromResourceFilename($info['full_path_name_with_hash']);
+            $paths[$path_with_hash] = $path;
+          }
+        }
       }
     }
+
+    $path  = '';
+    $paths = array_flip($paths);
+    reset($paths);
+    $first = key($paths);
+    end($paths);
+    $last = key($paths);
+    reset($paths);
+    foreach ($paths as $key => $element)
+    {
+      if (isset($element))
+      {
+        if ($key===$first)
+          $path .= sprintf("\n'%s': '%s',\n", $key, $element);
+        elseif ($key===$last)
+          $path .= sprintf("'%s': '%s'\n", $key, $element);
+        else
+          $path .= sprintf("'%s': '%s',\n", $key, $element);
+      }
+    }
+    $matches[2] = $path;
     array_shift($matches);
     $js = implode('', $matches);
 

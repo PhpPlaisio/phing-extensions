@@ -204,6 +204,29 @@ abstract class ResourceStoreTask extends \Task
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Returns path name in sources with hash from the resource info based on the path name in sources.
+   * If can't find, return path name in sources.
+   *
+   * @param string $theBaseUrl           Parent resource folder
+   * @param string $thePathNameInSources Path name in sources
+   *
+   * @return string
+   */
+  protected function getNameInSourcesWithHash($theBaseUrl,$thePathNameInSources)
+  {
+    foreach ($this->myResourceFilesInfo as $info)
+    {
+      if ($info['path_name_in_sources']===$theBaseUrl.'/'.$thePathNameInSources.$this->myExtension)
+      {
+        return $info['path_name_in_sources_with_hash'];
+      }
+    }
+
+    return $thePathNameInSources;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Returns the resource info based on the full path of the resource.
    *
    * @param $theFullPathName
@@ -239,7 +262,7 @@ abstract class ResourceStoreTask extends \Task
   /**
    * Prints an error message and depending on HaltOnError throws an exception.
    *
-   * @param mixed  ...$param  The arguments as for [sprintf](http://php.net/manual/function.sprintf.php)
+   * @param mixed ...$param The arguments as for [sprintf](http://php.net/manual/function.sprintf.php)
    *
    * @throws \BuildException
    */
@@ -261,7 +284,7 @@ abstract class ResourceStoreTask extends \Task
   /**
    * Prints an info message.
    *
-   * @param mixed  ...$param  The arguments as for [sprintf](http://php.net/manual/function.sprintf.php)
+   * @param mixed ...$param The arguments as for [sprintf](http://php.net/manual/function.sprintf.php)
    */
   protected function logInfo()
   {
@@ -280,7 +303,7 @@ abstract class ResourceStoreTask extends \Task
   /**
    * Prints an verbose level message.
    *
-   * @param mixed  ...$param  The arguments as for [sprintf](http://php.net/manual/function.sprintf.php)
+   * @param mixed ...$param The arguments as for [sprintf](http://php.net/manual/function.sprintf.php)
    */
   protected function logVerbose()
   {
@@ -343,12 +366,12 @@ abstract class ResourceStoreTask extends \Task
 
     // @todo Ignore *.main.js files.
 
-    $file_info                             = [];
-    $file_info['hash']                     = md5($content_opt);
-    $file_info['content_raw']              = $theResource;
-    $file_info['content_opt']              = $content_opt;
-    $file_info['ordinal']                  = isset($this->myHashCount[$file_info['hash']]) ? $this->myHashCount[$file_info['hash']]++ : $this->myHashCount[$file_info['hash']] = 0;
-    $file_info['full_path_name_with_hash'] = $this->myResourceDirFullPath.'/'.
+    $file_info                                   = [];
+    $file_info['hash']                           = md5($content_opt);
+    $file_info['content_raw']                    = $theResource;
+    $file_info['content_opt']                    = $content_opt;
+    $file_info['ordinal']                        = isset($this->myHashCount[$file_info['hash']]) ? $this->myHashCount[$file_info['hash']]++ : $this->myHashCount[$file_info['hash']] = 0;
+    $file_info['full_path_name_with_hash']       = $this->myResourceDirFullPath.'/'.
       $file_info['hash'].'.'.$file_info['ordinal'].$this->myExtension;
     $file_info['path_name_in_sources_with_hash'] = $this->getPathInResources($file_info['full_path_name_with_hash']);
 
