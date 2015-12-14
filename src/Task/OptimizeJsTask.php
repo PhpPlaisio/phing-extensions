@@ -471,19 +471,6 @@ class OptimizeJsTask extends \OptimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Function for remove file extension
-   *
-   * @param $theFileName string File name
-   *
-   * @return string File name without extension
-   */
-  private function removeExtension($theFileName)
-  {
-    return substr($theFileName,0,-strlen($this->myExtension));
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
    * Rewrites paths in requirejs.config. Adds path names from namespaces and aliases to filenames with hashes.
    *
    * @param string $theRealPath The filename of the main.js file.
@@ -504,9 +491,10 @@ class OptimizeJsTask extends \OptimizeResourceTask
 
     // @todo Remove from paths files already combined.
 
+    // Lookup table as paths in requirejs.config, however, keys and values are flipped.
     $paths = [];
 
-    // Replace aliases to paths with aliases to paths with hashes (i.e. path to minimized files).
+    // Replace aliases to paths with aliases to paths with hashes (i.e. paths to minimized files).
     list($base_url, $aliases) = $this->extractPaths($main_js_file);
     if (isset($base_url) && isset($paths))
     {
@@ -515,30 +503,29 @@ class OptimizeJsTask extends \OptimizeResourceTask
         $path_with_hash = $this->getPathInResourcesWithHash($base_url, $path);
         if (isset($path_with_hash))
         {
-          $extension = substr($path_with_hash,-strlen($this->myExtension),strlen($path_with_hash));
-          if($extension===$this->myExtension)
-            $path_with_hash = $this->removeExtension($path_with_hash);
-          $paths[$path_with_hash] = $alias;
+          $paths[$this->removeJsExtension($path_with_hash)] = $alias;
         }
       }
     }
 
-    // Add paths from namespaces to to paths with hashes (i.e. path to minimized files).
+    // Add paths from modules that conform to ADM naming convention to paths with hashes (i.e. path to minimized files).
     foreach ($this->getResourcesInfo() as $info)
     {
       // @todo Skip *.main.js files.
 
-      if (!isset($paths[$this->removeExtension($info['path_name_in_sources_with_hash'])]))
+      // Test JS file is not already in paths, e.g. 'jquery': 'jquery/jquery'.
+      if (!isset($paths[$this->removeJsExtension($info['path_name_in_sources_with_hash'])]))
       {
         if (isset($info['path_name_in_sources']))
         {
-          $namespace              = $this->getNamespaceFromResourceFilename($info['full_path_name']);
+          $module                 = $this->getNamespaceFromResourceFilename($info['full_path_name']);
           $path_with_hash         = $this->getNamespaceFromResourceFilename($info['full_path_name_with_hash']);
-          $paths[$path_with_hash] = $namespace;
+          $paths[$path_with_hash] = $module;
         }
       }
     }
 
+    // Convert the paths to proper JS code.
     $matches[2] = json_encode(array_flip($paths), JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
     array_shift($matches);
     $js = implode('', $matches);
@@ -584,6 +571,25 @@ class OptimizeJsTask extends \OptimizeResourceTask
     $name  = substr($name, 0, -(strlen($parts['extension']) + 1));
 
     return $name;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Removes the .js (if any) extension form a filename.
+   *
+   * @param $theFileName string Filename
+   *
+   * @return string Filename without .js extension.
+   */
+  private function removeJsExtension($theFileName)
+  {
+    $extension = substr($theFileName, -strlen($this->myExtension));
+    if ($extension==$this->myExtension)
+    {
+      return substr($theFileName, 0, -strlen($this->myExtension));
+    }
+
+    return $theFileName;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
