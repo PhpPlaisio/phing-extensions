@@ -177,7 +177,7 @@ abstract class ResourceStoreTask extends \Task
       $this->store(file_get_contents($full_path), $full_path);
     }
 
-    $suc = ksort($this->getResourcesInfo());
+    $suc = ksort($this->myResourceFilesInfo);
     if ($suc===false) $this->logError("ksort failed.");
   }
 
@@ -253,7 +253,7 @@ abstract class ResourceStoreTask extends \Task
    *
    * @return array
    */
-  protected function getResourcesInfo()
+  protected function &getResourcesInfo()
   {
     return $this->myResourceFilesInfo;
   }
