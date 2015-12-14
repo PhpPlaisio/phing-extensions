@@ -245,6 +245,8 @@ abstract class ResourceStoreTask extends \Task
     }
 
     $this->logError("Unknown resource file '%s'.", $theFullPathName);
+    
+    return null;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -253,7 +255,7 @@ abstract class ResourceStoreTask extends \Task
    *
    * @return array
    */
-  protected function &getResourcesInfo()
+  protected function getResourcesInfo()
   {
     return $this->myResourceFilesInfo;
   }
