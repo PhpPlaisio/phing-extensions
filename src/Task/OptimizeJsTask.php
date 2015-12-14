@@ -471,6 +471,19 @@ class OptimizeJsTask extends \OptimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Function for remove file extension
+   *
+   * @param $theFileName string File name
+   *
+   * @return string File name without extension
+   */
+  private function removeExtension($theFileName)
+  {
+    return substr($theFileName,0,-strlen($this->myExtension));
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Rewrites paths in requirejs.config. Adds path names from namespaces and aliases to filenames with hashes.
    *
    * @param string $theRealPath The filename of the main.js file.
@@ -502,6 +515,9 @@ class OptimizeJsTask extends \OptimizeResourceTask
         $path_with_hash = $this->getPathInResourcesWithHash($base_url, $path);
         if (isset($path_with_hash))
         {
+          $extension = substr($path_with_hash,-strlen($this->myExtension),strlen($path_with_hash));
+          if($extension===$this->myExtension)
+            $path_with_hash = $this->removeExtension($path_with_hash);
           $paths[$path_with_hash] = $alias;
         }
       }
@@ -512,7 +528,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
     {
       // @todo Skip *.main.js files.
 
-      if (!isset($paths[$info['path_name_in_sources_with_hash']]))
+      if (!isset($paths[$this->removeExtension($info['path_name_in_sources_with_hash'])]))
       {
         if (isset($info['path_name_in_sources']))
         {
