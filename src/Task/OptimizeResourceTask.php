@@ -239,11 +239,12 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
    * In PHP code replaces references to resource files (i.e. CSS or JS files) with references to the optimized versions
    * of the resource files.
    *
-   * @param string $thePhpCode The PHP code.
+   * @param string $theFilename The filename with the PHP code.
+   * @param string $thePhpCode  The PHP code.
    *
    * @return string The modified PHP code.
    */
-  abstract protected function processPhpSourceFile($thePhpCode);
+  abstract protected function processPhpSourceFile($theFilename, $thePhpCode);
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -446,7 +447,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
       if (strncmp($content, '<?php', 5)===0)
       {
         // Source is a PHP file.
-        $new_content = $this->processPhpSourceFile($new_content);
+        $new_content = $this->processPhpSourceFile($source_filename, $new_content);
       }
 
       $new_content = strtr($new_content, $this->myReplacePairs);

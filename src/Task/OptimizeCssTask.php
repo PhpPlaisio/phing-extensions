@@ -16,6 +16,18 @@ class OptimizeCssTask extends OptimizeResourceTask
    */
   protected $myMinimize = true;
 
+  /**
+   * All methods for including CSS sources.
+   *
+   * @var array
+   */
+  private $myMethods = ['cssAppendSource',
+                        'cssAppendPageSpecificSource',
+                        'cssOptimizedAppendSource',
+                        'cssStaticAppendClassSource',
+                        'cssStaticAppendSource',
+                        'cssStaticOptimizedAppendSource'];
+
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * OptimizeCssTask constructor.
@@ -70,25 +82,25 @@ class OptimizeCssTask extends OptimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Replaces in PHP code calls to methods {@link \SetBased\Abc\Page\Page::cssAppendPageSpecificSource) and
-   * {@link \SetBased\Abc\Page\Page::cssAppendSource) with calls to
-   * {@link \SetBased\Abc\Page\Page::cssOptimizedAppendSource} and replaces multiple consecutive calls to
-   * {@link \SetBased\Abc\Page\Page::cssOptimizedAppendSource} single call to
-   * {@link \SetBased\Abc\Page\Page::cssOptimizedAppendSource} and combines the multiple CSS files into a single CCS
-   * file.
+   * Replaces in PHP code calls to methods:
+   * <ul>
+   * <li>{@link \SetBased\Abc\Page\Page::cssAppendSource) and
+   * <li>{@link \SetBased\Abc\Page\Page::cssAppendPageSpecificSource)
+   * <li>{@link \SetBased\Abc\Page\Page::cssStaticAppendClassSource}
+   * <li>{@link \SetBased\Abc\Page\Page::cssStaticAppendSource}
+   * </ul>
+   * with the appropriate optimized method. Also, combines the multiple CSS files into a single CCS file.
    *
-   * @param string $thePhpCode The PHP code.
+   * @param string $theFilename The filename with the PHP code.
+   * @param string $thePhpCode  The PHP code.
    *
    * @return string The modified PHP code.
    */
-  protected function processPhpSourceFile($thePhpCode)
+  protected function processPhpSourceFile($theFilename, $thePhpCode)
   {
-    // Methods for including CCS files.
-    $methods = ['cssAppendSource', 'cssAppendPageSpecificSource', 'cssOptimizedAppendSource'];
-
     // If true the PHP code includes CSS files.
     $includes = false;
-    foreach ($methods as $method)
+    foreach ($this->myMethods as $method)
     {
       if (stripos($thePhpCode, $method)!==false)
       {
@@ -100,7 +112,7 @@ class OptimizeCssTask extends OptimizeResourceTask
     if ($includes)
     {
       // The PHP code includes CSS files.
-      $thePhpCode = $this->processPhpSourceFileReplaceMethod($thePhpCode);
+      $thePhpCode = $this->processPhpSourceFileReplaceMethod($theFilename, $thePhpCode);
 
       $thePhpCode = $this->processPhpSourceFileCombine($thePhpCode);
     }
@@ -128,7 +140,7 @@ class OptimizeCssTask extends OptimizeResourceTask
     foreach ($lines as $i => $line)
     {
       // Find calls to cssOptimizedAppendSource.
-      if (preg_match('/^(.*)([\$:a-zA-Z0-9_]+->)(cssOptimizedAppendSource)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"]\s*\)\s*;)(.*)$/',
+      if (preg_match('/^(.*)(\$this->)(cssOptimizedAppendSource)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"]\s*\)\s*;)(.*)$/',
                      $line,
                      $matches))
       {
@@ -167,11 +179,12 @@ class OptimizeCssTask extends OptimizeResourceTask
    * {@link \SetBased\Abc\Page\Page::cssAppendSource) with calls to
    * {@link \SetBased\Abc\Page\Page::cssOptimizedAppendSource}.
    *
-   * @param string $thePhpCode The PHP code.
+   * @param string $theFilename The filename with the PHP code.
+   * @param string $thePhpCode  The PHP code.
    *
    * @return string The modified PHP code.
    */
-  protected function processPhpSourceFileReplaceMethod($thePhpCode)
+  protected function processPhpSourceFileReplaceMethod($theFilename, $thePhpCode)
   {
     $classes       = $this->getClasses($thePhpCode);
     $current_class = '';
@@ -187,45 +200,54 @@ class OptimizeCssTask extends OptimizeResourceTask
         }
       }
 
+      // Don't process the class that defines the css* methods.
+      if ($current_class=='SetBased\\Abc\\Page\\Page') continue;
+
       // Replace calls to cssAppendPageSpecificSource with cssOptimizedAppendSource.
-      if (preg_match('/^(\s*)([\$:a-zA-Z0-9_]+->)(cssAppendPageSpecificSource)(\(\s*)(__CLASS__)(\s*\)\s*;)(.*)$/',
+      if (preg_match('/^(\s*)(\$this->)(cssAppendPageSpecificSource)(\(\s*)(__CLASS__)(\s*\)\s*;)(.*)$/',
                      $line,
                      $matches))
       {
-        $file_name = str_replace('\\', '/', $current_class).$this->myExtension;
-        $full_path = $this->myResourceDirFullPath.'/'.$file_name;
-        if (!file_exists($full_path))
-        {
-          $this->logError("File '%s' not found.", $full_path);
-        }
-        else
-        {
-          $real_path  = realpath($full_path);
-          $matches[3] = 'cssOptimizedAppendSource';
-          $matches[5] = "'".$this->getResourceInfo($real_path)['path_name_in_sources_with_hash']."'";
-
-          array_shift($matches);
-          $lines[$i] = implode('', $matches);
-        }
+        $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($matches,
+                                                                    'cssOptimizedAppendSource',
+                                                                    $current_class);
       }
-      elseif (preg_match('/^(\s*)([\$:a-zA-Z0-9_]+->)(cssAppendSource)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"]\s*\)\s*;)(.*)$/',
+
+      // Replace calls to cssAppendSource with cssOptimizedAppendSource.
+      elseif (preg_match('/^(\s*)(\$this->)(cssAppendSource)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"]\s*\)\s*;)(.*)$/',
                          $line,
                          $matches))
       {
-        $file_name = $matches[5];
-        $full_path = $this->myParentResourceDirFullPath.'/'.$file_name;
-        if (!file_exists($full_path))
-        {
-          $this->logError("File '%s' not found.", $full_path);
-        }
-        else
-        {
-          $real_path  = realpath($full_path);
-          $matches[3] = 'cssOptimizedAppendSource';
-          $matches[5] = $this->getResourceInfo($real_path)['path_name_in_sources_with_hash'];
+        $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($matches, 'cssOptimizedAppendSource');
+      }
 
-          array_shift($matches);
-          $lines[$i] = implode('', $matches);
+      // Replace calls to cssStaticAppendClassSource with cssStaticOptimizedAppendSource.
+      elseif (preg_match('/^(\s*)(Page::)(cssStaticAppendClassSource)(\(\s*)(__CLASS__)(\s*\)\s*;)(.*)$/',
+                         $line,
+                         $matches))
+      {
+        $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($matches,
+                                                                    'cssStaticOptimizedAppendSource',
+                                                                    $current_class);
+      }
+
+      // Replace calls to cssStaticAppendSource with cssStaticOptimizedAppendSource.
+      elseif (preg_match('/^(\s*)(Page::)(cssStaticAppendSource)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"]\s*\)\s*;)(.*)$/',
+                         $line,
+                         $matches))
+      {
+        $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($matches, 'cssStaticOptimizedAppendSource');
+      }
+
+      // Test for invalid usage of methods for including CSS files.
+      else
+      {
+        foreach ($this->myMethods as $method)
+        {
+          if (preg_match("/(->|::)($method)(\\()/", $line))
+          {
+            $this->logError("Unexpected usage of method '%s' at line %s:%d.", $method, $theFilename, $i + 1);
+          }
         }
       }
     }
@@ -301,6 +323,52 @@ class OptimizeCssTask extends OptimizeResourceTask
         $theLines[$i] = '';
       }
     }
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Helper function for {@link processPhpSourceFileReplaceMethodHelper}.
+   *
+   * @param string[] $theMatches         The matches as returned by preg_match.
+   * @param string   $theOptimizedMethod The appropriate optimized method.
+   * @param string   $theClassName       The current class name of the PHP code.
+   *
+   * @return string
+   * @throws BuildException
+   */
+  private function processPhpSourceFileReplaceMethodHelper($theMatches, $theOptimizedMethod, $theClassName = null)
+  {
+    if (isset($theClassName))
+    {
+      $file_name = str_replace('\\', '/', $theClassName).$this->myExtension;
+      $full_path = $this->myResourceDirFullPath.'/'.$file_name;
+    }
+    else
+    {
+      $file_name = $theMatches[5];
+      $full_path = $this->myParentResourceDirFullPath.'/'.$file_name;
+    }
+
+    if (!file_exists($full_path))
+    {
+      $this->logError("File '%s' not found.", $full_path);
+    }
+
+    $real_path     = realpath($full_path);
+    $theMatches[3] = $theOptimizedMethod;
+
+    if (isset($theClassName))
+    {
+      $theMatches[5] = "'".$this->getResourceInfo($real_path)['path_name_in_sources_with_hash']."'";
+    }
+    else
+    {
+      $theMatches[5] = $this->getResourceInfo($real_path)['path_name_in_sources_with_hash'];
+    }
+
+    array_shift($theMatches);
+
+    return implode('', $theMatches);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
