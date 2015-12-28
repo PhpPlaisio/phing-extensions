@@ -534,29 +534,6 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Copy the mtime form the source file to the destination file.
-   *
-   * @param $theDestinationFilename string The full file name of destination file.
-   * @param $theReferenceFilename
-   *
-   * @throws BuildException
-   */
-  private function setModificationTime($theDestinationFilename, $theReferenceFilename)
-  {
-    $time = filemtime($theReferenceFilename);
-    if ($time===false) $this->logError("Unable to get mtime of file '%s'.", $theReferenceFilename);
-
-    $status = touch($theDestinationFilename, $time);
-    if ($status===false)
-    {
-      $this->logError("Unable to set mtime of file '%s' to mtime of '%s",
-                      $theDestinationFilename,
-                      $theReferenceFilename);
-    }
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
    * Removes resource files that have been optimized/minimized.
    */
   private function unlinkResourceFiles()

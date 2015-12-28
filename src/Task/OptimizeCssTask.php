@@ -281,7 +281,7 @@ class OptimizeCssTask extends OptimizeResourceTask
       $file_info['content_opt'] .= $code;
       $files[] = $filename;
     }
-    $file_info = $this->store($file_info['content_opt'], null);
+    $file_info = $this->store($file_info['content_opt'], null, $files);
 
     // Replace the multiple calls with one call in the PHP code.
     $first = true;

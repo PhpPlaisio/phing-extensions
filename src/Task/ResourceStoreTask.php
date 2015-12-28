@@ -245,7 +245,7 @@ abstract class ResourceStoreTask extends \Task
     }
 
     $this->logError("Unknown resource file '%s'.", $theFullPathName);
-    
+
     return null;
   }
 
@@ -352,15 +352,39 @@ abstract class ResourceStoreTask extends \Task
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Copy the mtime form the source file to the destination file.
+   *
+   * @param $theDestinationFilename string The full file name of destination file.
+   * @param $theReferenceFilename
+   *
+   * @throws BuildException
+   */
+  protected function setModificationTime($theDestinationFilename, $theReferenceFilename)
+  {
+    $time = filemtime($theReferenceFilename);
+    if ($time===false) $this->logError("Unable to get mtime of file '%s'.", $theReferenceFilename);
+
+    $status = touch($theDestinationFilename, $time);
+    if ($status===false)
+    {
+      $this->logError("Unable to set mtime of file '%s' to mtime of '%s",
+                      $theDestinationFilename,
+                      $theReferenceFilename);
+    }
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Minimize resource, create hash based on optimized content. Add resource info into array.
    *
    * @param string $theResource     The (actual content) of the resource.
    * @param string $theFullPathName The full pathname of the file where the resource is stored.
+   * @param array  $theParts        Array with original resource files.
    *
    * @return array
    * @throws BuildException
    */
-  protected function store($theResource, $theFullPathName)
+  protected function store($theResource, $theFullPathName, $theParts = null)
   {
     if (isset($theFullPathName)) $this->logInfo("Minimizing '%s'.", $theFullPathName);
 
@@ -386,6 +410,23 @@ abstract class ResourceStoreTask extends \Task
     // Save the combined code.
     $bytes = file_put_contents($file_info['full_path_name_with_hash'], $file_info['content_opt']);
     if ($bytes===false) $this->logError("Unable to write to file '%s'.", $file_info['full_path_name_with_hash']);
+    if (isset($theParts))
+    {
+      $mtime          = 0;
+      $reference_file = '';
+      foreach ($theParts as $part)
+      {
+        $time = filemtime($part);
+        if ($time===false) $this->logError("Unable to get mtime of file '%s'.", $part);
+        print_r("\nPart - $part\n");
+        if ($mtime<$time)
+        {
+          $mtime          = $time;
+          $reference_file = $part;
+        }
+      }
+      $this->setModificationTime($file_info['full_path_name_with_hash'], $reference_file);
+    }
 
     $this->myResourceFilesInfo[] = $file_info;
 

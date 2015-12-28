@@ -391,10 +391,11 @@ class OptimizeJsTask extends \OptimizeResourceTask
   {
     $real_path = realpath($theFullPath);
 
-    $js_raw = $this->combine($real_path);
-    $js_raw .= $this->getMainWithHashedPaths($real_path);
+    $js_raw     = $this->combine($real_path);
+    $files_info = $this->getMainWithHashedPaths($real_path);
+    $js_raw .= $files_info['content'];
 
-    $file_info = $this->store($js_raw, $real_path);
+    $file_info = $this->store($js_raw, $real_path, $files_info['files']);
 
     return $file_info['path_name_in_sources_with_hash'];
     // @todo Set mtime of the combined code.
@@ -493,7 +494,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
 
     // Lookup table as paths in requirejs.config, however, keys and values are flipped.
     $paths = [];
-
+    $array = [];
     // Replace aliases to paths with aliases to paths with hashes (i.e. paths to minimized files).
     list($base_url, $aliases) = $this->extractPaths($main_js_file);
     if (isset($base_url) && isset($paths))
@@ -518,6 +519,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
       {
         if (isset($info['path_name_in_sources']))
         {
+          $array[]                = $info['full_path_name_with_hash'];
           $module                 = $this->getNamespaceFromResourceFilename($info['full_path_name']);
           $path_with_hash         = $this->getNamespaceFromResourceFilename($info['full_path_name_with_hash']);
           $paths[$path_with_hash] = $module;
@@ -530,7 +532,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
     array_shift($matches);
     $js = implode('', $matches);
 
-    return $js;
+    return ['content' => $js, 'files' => $array];
   }
 
   //--------------------------------------------------------------------------------------------------------------------
