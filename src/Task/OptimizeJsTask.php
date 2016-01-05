@@ -323,7 +323,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
    *
    * @param string $theRealPath The path to the main JavaScript file.
    *
-   * @return string The combined code.
+   * @return array The combined code and parts.
    * @throws BuildException
    */
   private function combine($theRealPath)
@@ -356,7 +356,15 @@ class OptimizeJsTask extends \OptimizeResourceTask
     }
     if ($ret!=0) $this->logError("RequireJS optimizer failed.");
 
-    // @todo Get all files of the combined code.
+    // Get all files of the combined code.
+    $parts = [];
+    foreach ($output as $index => $file)
+    {
+      if ($index>4 && !empty($file))
+      {
+        $parts[] = $file;
+      }
+    }
 
     // Get the combined the JavaScript code.
     $code = file_get_contents($tmp_name2);
@@ -374,7 +382,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
     unlink($tmp_name2);
     unlink($tmp_name1);
 
-    return $code;
+    return ['code' => $code, 'parts' => $parts];
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -391,11 +399,12 @@ class OptimizeJsTask extends \OptimizeResourceTask
   {
     $real_path = realpath($theFullPath);
 
-    $js_raw     = $this->combine($real_path);
-    $files_info = $this->getMainWithHashedPaths($real_path);
-    $js_raw .= $files_info['content'];
+    $combine_info = $this->combine($real_path);
+    $files_info   = $this->getMainWithHashedPaths($real_path);
+    $js_raw       = $combine_info['code'];
+    $js_raw .= $files_info;
 
-    $file_info = $this->store($js_raw, $real_path, $files_info['files']);
+    $file_info = $this->store($js_raw, $real_path, $combine_info['parts']);
 
     return $file_info['path_name_in_sources_with_hash'];
     // @todo Set mtime of the combined code.
@@ -494,7 +503,6 @@ class OptimizeJsTask extends \OptimizeResourceTask
 
     // Lookup table as paths in requirejs.config, however, keys and values are flipped.
     $paths = [];
-    $array = [];
     // Replace aliases to paths with aliases to paths with hashes (i.e. paths to minimized files).
     list($base_url, $aliases) = $this->extractPaths($main_js_file);
     if (isset($base_url) && isset($paths))
@@ -519,7 +527,6 @@ class OptimizeJsTask extends \OptimizeResourceTask
       {
         if (isset($info['path_name_in_sources']))
         {
-          $array[]                = $info['full_path_name_with_hash'];
           $module                 = $this->getNamespaceFromResourceFilename($info['full_path_name']);
           $path_with_hash         = $this->getNamespaceFromResourceFilename($info['full_path_name_with_hash']);
           $paths[$path_with_hash] = $module;
@@ -532,7 +539,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
     array_shift($matches);
     $js = implode('', $matches);
 
-    return ['content' => $js, 'files' => $array];
+    return $js;
   }
 
   //--------------------------------------------------------------------------------------------------------------------

@@ -418,7 +418,6 @@ abstract class ResourceStoreTask extends \Task
       {
         $time = filemtime($part);
         if ($time===false) $this->logError("Unable to get mtime of file '%s'.", $part);
-        print_r("\nPart - $part\n");
         if ($mtime<$time)
         {
           $mtime          = $time;
