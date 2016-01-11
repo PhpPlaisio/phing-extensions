@@ -11,34 +11,6 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * If set
-   * <ul>
-   * <li> The mtime of optimized/minimized resource files will be inherited from its originals file.
-   * <li> If two or more source files will be combined in a single resource file the mtime of this combined file will
-   *      be set to the maximum mtime of the original resource files.
-   * <li> When a PHP file is modified its mtime will be set to the maximum mtime of the PHP file and the referenced
-   *      resource files.
-   * </ul>
-   *
-   * @var bool
-   */
-  protected $myPreserveModificationTime = false;
-
-  /**
-   * If set static gzipped files of the optimized/minimized resources will be created.
-   *
-   * @var bool
-   */
-  private $myGzipFlag = false;
-
-  /**
-   * If set the file permissions of optimized/minimized resource files will inherited from its originals file.
-   *
-   * @var bool
-   */
-  private $myPreserveFilePermissions = true;
-
-  /**
    * Map from the original references to resource files to new references (which includes a hash).
    *
    * @var array
@@ -81,14 +53,14 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
     // Get all info about resource files.
     $this->getInfoResourceFiles();
 
-    // Compress and rename files with hash.
-    $this->processResourceFiles();
-
     // Prepare all place holders.
     $this->preparePlaceHolders();
 
     // Replace references to resource files with references to optimized/minimized resource files.
     $this->processingSourceFiles();
+
+    // Compress and rename files with hash.
+    $this->processResourceFiles();
 
     // Create pre-compressed versions of the optimized/minimized resource files.
     if ($this->myGzipFlag) $this->gzipCompressOptimizedResourceFiles();
@@ -117,17 +89,6 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
   public function setPreserveLastModified($thePreserveLastModifiedFlag)
   {
     $this->myPreserveModificationTime = (boolean)$thePreserveLastModifiedFlag;
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
-   * Setter for XML attribute preservePermissions.
-   *
-   * @param $thePreservePermissionsFlag bool
-   */
-  public function setPreservePermissions($thePreservePermissionsFlag)
-  {
-    $this->myPreserveFilePermissions = (boolean)$thePreservePermissionsFlag;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -244,22 +205,6 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
    * @return string The modified PHP code.
    */
   abstract protected function processPhpSourceFile($thePhpCode);
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
-   * Returns the full path with hash of an resource file.
-   *
-   * @param array $theFileInfo An element from {@link $myResourceFilesInfo}.
-   *
-   * @return string
-   */
-  private function getFullPathNameWithHash($theFileInfo)
-  {
-    $path = $this->myResourceDirFullPath;
-    $path .= '/'.$theFileInfo['hash'].'.'.$theFileInfo['ordinal'].$this->myExtension;
-
-    return $path;
-  }
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -418,9 +363,6 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
    */
   private function processResourceFiles()
   {
-    // Enhance elements in $this->myResourceFilesInfo with an ordinal number to prevent hash collisions.
-    $this->enhanceResourceFilesInfoWithOrdinal();
-
     // Save all optimized resource files.
     $this->saveOptimizedResourceFiles();
   }
@@ -473,80 +415,6 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
           $status = touch($source_filename, $time);
           if ($status===false) $this->logError("Unable to set mtime for file '%s'.", $source_filename);
         }
-      }
-    }
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
-   * Enhance all elements in {@link $this->myResourceFilesInfo} with an ordinal to prevent hash collisions. (In most
-   * cases this ordinal will be 0.)
-   *
-   * @throws BuildException
-   */
-  private function saveOptimizedResourceFiles()
-  {
-    $this->logInfo("Saving minimized files.");
-
-    foreach ($this->getResourcesInfo() as $file_info)
-    {
-      $file_info['full_path_name_with_hash']       = $this->getFullPathNameWithHash($file_info);
-      $file_info['path_name_in_sources_with_hash'] = $this->getPathInResources($file_info['full_path_name_with_hash']);
-
-      $bytes = file_put_contents($file_info['full_path_name_with_hash'], $file_info['content_opt']);
-      if ($bytes===false) $this->logError("Unable to write to file '%s'.", $file_info['full_path_name_with_hash']);
-
-      if (isset($file_info['full_path_name']))
-      {
-        // If required preserve mtime.
-        if ($this->myPreserveModificationTime)
-        {
-          $this->setModificationTime($file_info['full_path_name_with_hash'], $file_info['full_path_name']);
-        }
-
-        // If required preserve file permissions.
-        if ($this->myPreserveFilePermissions)
-        {
-          $this->setFilePermissions($file_info['full_path_name_with_hash'], $file_info['full_path_name']);
-        }
-      }
-    }
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
-   * Sets the mode of a file.
-   *
-   * @param $theDestinationFilename string The full file name of destination file.
-   * @param $theReferenceFilename
-   *
-   * @throws BuildException
-   */
-  private function setFilePermissions($theDestinationFilename, $theReferenceFilename)
-  {
-    clearstatcache();
-    $perms = fileperms($theReferenceFilename);
-    if ($perms===false) $this->logError("Unable to get permissions of file '%s'.", $theReferenceFilename);
-
-    $status = chmod($theDestinationFilename, $perms);
-    if ($status===false) $this->logError("Unable to set permissions for file '%s'.", $theDestinationFilename);
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
-   * Removes resource files that have been optimized/minimized.
-   */
-  private function unlinkResourceFiles()
-  {
-    $this->logInfo("Removing resource files.");
-
-    foreach ($this->getResourcesInfo() as $file_info)
-    {
-      if (isset($file_info['full_path_name_with_hash']) && isset($file_info['full_path_name']))
-      {
-        // Resource file has an optimized/minimized version. Remove the original file.
-        $this->logInfo("Removing '%s'.", $file_info['full_path_name']);
-        if (file_exists($file_info['full_path_name'])) unlink($file_info['full_path_name']);
       }
     }
   }

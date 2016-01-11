@@ -15,11 +15,32 @@ abstract class ResourceStoreTask extends \Task
   protected $myExtension;
 
   /**
+   * If set static gzipped files of the optimized/minimized resources will be created.
+   *
+   * @var bool
+   */
+  protected $myGzipFlag = false;
+
+  /**
    * The absolute path to the parent resource dir.
    *
    * @var string
    */
   protected $myParentResourceDirFullPath;
+
+  /**
+   * If set
+   * <ul>
+   * <li> The mtime of optimized/minimized resource files will be inherited from its originals file.
+   * <li> If two or more source files will be combined in a single resource file the mtime of this combined file will
+   *      be set to the maximum mtime of the original resource files.
+   * <li> When a PHP file is modified its mtime will be set to the maximum mtime of the PHP file and the referenced
+   *      resource files.
+   * </ul>
+   *
+   * @var bool
+   */
+  protected $myPreserveModificationTime = false;
 
   /**
    * The path of the resource dir (relative to the parent resource dir).
@@ -135,26 +156,18 @@ abstract class ResourceStoreTask extends \Task
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Enhance all elements in {@link $this->myResourceFilesInfo} with an ordinal to prevent hash collisions. (In most
-   * cases this ordinal will be 0.)
+   * Returns the full path with hash of an resource file.
    *
-   * @todo if content is equal reuse ordinal.
+   * @param array $theFileInfo An element from {@link $myResourceFilesInfo}.
+   *
+   * @return string
    */
-  protected function enhanceResourceFilesInfoWithOrdinal()
+  protected function getFullPathNameWithHash($theFileInfo)
   {
-    $this->myHashCount = [];
+    $path = $this->myResourceDirFullPath;
+    $path .= '/'.$theFileInfo['hash'].'.'.$theFileInfo['ordinal'].$this->myExtension;
 
-    foreach ($this->myResourceFilesInfo as $file_info)
-    {
-      if (!isset($this->myHashCount[$file_info['hash']]))
-      {
-        $this->myHashCount[$file_info['hash']] = 0;
-      }
-
-      $file_info['ordinal'] = $this->myHashCount[$file_info['hash']];
-
-      $this->myHashCount[$file_info['hash']]++;
-    }
+    return $path;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -174,7 +187,7 @@ abstract class ResourceStoreTask extends \Task
       $path      = $resource_dir.'/'.$filename;
       $full_path = realpath($path);
 
-      $this->store(file_get_contents($full_path), $full_path);
+      $this->store(file_get_contents($full_path), $full_path, $full_path);
     }
 
     $suc = ksort($this->myResourceFilesInfo);
@@ -223,6 +236,30 @@ abstract class ResourceStoreTask extends \Task
     }
 
     return substr($thePath, strlen($this->myParentResourceDirFullPath));
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Returns the resource info based on the full path of the resource.
+   *
+   * @param $theFullPathNameWithHash
+   *
+   * @return array
+   * @throws BuildException
+   */
+  protected function getResourceInfoByHash($theFullPathNameWithHash)
+  {
+    foreach ($this->myResourceFilesInfo as $info)
+    {
+      if ($info['full_path_name_with_hash']===$theFullPathNameWithHash)
+      {
+        return $info;
+      }
+    }
+
+    $this->logError("Unknown resource file '%s'.", $theFullPathNameWithHash);
+
+    return null;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -352,6 +389,60 @@ abstract class ResourceStoreTask extends \Task
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Enhance all elements in {@link $this->myResourceFilesInfo} with an ordinal to prevent hash collisions. (In most
+   * cases this ordinal will be 0.)
+   *
+   * @throws BuildException
+   */
+  protected function saveOptimizedResourceFiles()
+  {
+    $this->logInfo("Saving minimized files.");
+
+    foreach ($this->myResourceFilesInfo as $file_info)
+    {
+      $file_info['full_path_name_with_hash']       = $this->getFullPathNameWithHash($file_info);
+      $file_info['path_name_in_sources_with_hash'] = $this->getPathInResources($file_info['full_path_name_with_hash']);
+
+      $bytes = file_put_contents($file_info['full_path_name_with_hash'], $file_info['content_opt']);
+      if ($bytes===false) $this->logError("Unable to write to file '%s'.", $file_info['full_path_name_with_hash']);
+
+      if (isset($file_info['full_path_name']))
+      {
+        // If required preserve mtime.
+        if ($this->myPreserveModificationTime)
+        {
+          $status = touch($file_info['full_path_name_with_hash'], $file_info['mtime']);
+          if ($status===false)
+          {
+            $this->logError("Unable to set mtime of file '%s' to mtime of '%s",
+                            $file_info['full_path_name_with_hash']);
+          }
+        }
+      }
+    }
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Sets the mode of a file.
+   *
+   * @param $theDestinationFilename string The full file name of destination file.
+   * @param $theReferenceFilename
+   *
+   * @throws BuildException
+   */
+  protected function setFilePermissions($theDestinationFilename, $theReferenceFilename)
+  {
+    clearstatcache();
+    $perms = fileperms($theReferenceFilename);
+    if ($perms===false) $this->logError("Unable to get permissions of file '%s'.", $theReferenceFilename);
+
+    $status = chmod($theDestinationFilename, $perms);
+    if ($status===false) $this->logError("Unable to set permissions for file '%s'.", $theDestinationFilename);
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Copy the mtime form the source file to the destination file.
    *
    * @param $theDestinationFilename string The full file name of destination file.
@@ -384,7 +475,7 @@ abstract class ResourceStoreTask extends \Task
    * @return array
    * @throws BuildException
    */
-  protected function store($theResource, $theFullPathName, $theParts = null)
+  protected function store($theResource, $theFullPathName, $theParts)
   {
     if (isset($theFullPathName)) $this->logInfo("Minimizing '%s'.", $theFullPathName);
 
@@ -407,29 +498,67 @@ abstract class ResourceStoreTask extends \Task
       $file_info['path_name_in_sources'] = $this->getPathInResources($theFullPathName);
     }
 
-    // Save the combined code.
-    $bytes = file_put_contents($file_info['full_path_name_with_hash'], $file_info['content_opt']);
-    if ($bytes===false) $this->logError("Unable to write to file '%s'.", $file_info['full_path_name_with_hash']);
     if (isset($theParts))
     {
-      $mtime          = 0;
-      $reference_file = '';
-      foreach ($theParts as $part)
-      {
-        $time = filemtime($part);
-        if ($time===false) $this->logError("Unable to get mtime of file '%s'.", $part);
-        if ($mtime<$time)
-        {
-          $mtime          = $time;
-          $reference_file = $part;
-        }
-      }
-      $this->setModificationTime($file_info['full_path_name_with_hash'], $reference_file);
+      $file_info['mtime'] = $this->getMaxMtime($theParts);
     }
 
     $this->myResourceFilesInfo[] = $file_info;
 
     return $file_info;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Return mtime if $theParts is one file or return max mtime if array
+   *
+   * @param $theParts array or single file
+   *
+   * @return int mtime
+   */
+  private function getMaxMtime($theParts)
+  {
+    $mtime = 0;
+    if (is_array($theParts))
+    {
+      foreach ($theParts as $part)
+      {
+        $info = '';
+        if ($this->myExtension==='.css')
+          $info = $this->getResourceInfoByHash($part);
+        if ($this->myExtension==='.js')
+          $info = $this->getResourceInfo($part);
+
+        $time = $info['mtime'];
+        if ($mtime<$time)
+        {
+          $mtime = $time;
+        }
+      }
+    }
+    else
+      $mtime = filemtime($theParts);
+
+    return $mtime;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Removes resource files that have been optimized/minimized.
+   */
+  protected function unlinkResourceFiles()
+  {
+    $this->logInfo("Removing resource files.");
+
+    foreach ($this->myResourceFilesInfo as $file_info)
+    {
+      if (isset($file_info['full_path_name_with_hash']) && isset($file_info['full_path_name']))
+      {
+        // Resource file has an optimized/minimized version. Remove the original file.
+        $this->logInfo("Removing '%s'.", $file_info['full_path_name']);
+        if (file_exists($file_info['full_path_name'])) unlink($file_info['full_path_name']);
+      }
+    }
   }
 
   //--------------------------------------------------------------------------------------------------------------------

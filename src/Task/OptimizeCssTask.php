@@ -275,8 +275,9 @@ class OptimizeCssTask extends OptimizeResourceTask
     foreach ($theGroup as $i)
     {
       $filename = $this->myParentResourceDirFullPath.$theCalls[$i][5];
-      $code     = file_get_contents($filename);
-      if ($code===false) $this->logError("Unable to read file '%s'.", $filename);
+      $info     = $this->getResourceInfoByHash($filename);
+      $code     = $info['content_opt'];
+//      if ($code===false) $this->logError("Unable to read file '%s'.", $filename);
 
       $file_info['content_opt'] .= $code;
       $files[] = $filename;

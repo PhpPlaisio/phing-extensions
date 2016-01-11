@@ -358,9 +358,10 @@ class OptimizeJsTask extends \OptimizeResourceTask
 
     // Get all files of the combined code.
     $parts = [];
+    $trigger = array_search('----------------',$output);
     foreach ($output as $index => $file)
     {
-      if ($index>4 && !empty($file))
+      if ($index>$trigger && !empty($file))
       {
         $parts[] = $file;
       }
