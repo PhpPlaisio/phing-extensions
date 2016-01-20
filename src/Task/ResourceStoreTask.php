@@ -198,6 +198,27 @@ abstract class ResourceStoreTask extends \Task
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Gets the path name relative to the parent resource directory of a resource file.
+   *
+   * @param $thePath string The full path name of resource file.
+   *
+   * @return string The path name relative to the parent resource directory.
+   * @throws \BuildException
+   */
+  protected function getPathInResources($thePath)
+  {
+    if (strncmp($thePath, $this->myParentResourceDirFullPath, strlen($this->myParentResourceDirFullPath))!=0)
+    {
+      throw new \BuildException(sprintf("Resource file '%s' is not under resource dir '%s'.",
+                                        $thePath,
+                                        $this->myParentResourceDirFullPath));
+    }
+
+    return substr($thePath, strlen($this->myParentResourceDirFullPath));
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Returns path name in sources with hash from the resource info based on the path name in sources.
    * If can't find, return path name in sources.
    *
@@ -221,23 +242,26 @@ abstract class ResourceStoreTask extends \Task
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Gets the path name relative to the parent resource directory of a resource file.
+   * Returns the resource info based on the full path of the resource.
    *
-   * @param $thePath string The full path name of resource file.
+   * @param $theFullPathName
    *
-   * @return string The path name relative to the parent resource directory.
-   * @throws \BuildException
+   * @return array
+   * @throws BuildException
    */
-  protected function getPathInResources($thePath)
+  protected function getResourceInfo($theFullPathName)
   {
-    if (strncmp($thePath, $this->myParentResourceDirFullPath, strlen($this->myParentResourceDirFullPath))!=0)
+    foreach ($this->myResourceFilesInfo as $info)
     {
-      throw new \BuildException(sprintf("Resource file '%s' is not under resource dir '%s'.",
-                                        $thePath,
-                                        $this->myParentResourceDirFullPath));
+      if ($info['full_path_name']===$theFullPathName)
+      {
+        return $info;
+      }
     }
 
-    return substr($thePath, strlen($this->myParentResourceDirFullPath));
+    $this->logError("Unknown resource file '%s'.", $theFullPathName);
+
+    return null;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -260,30 +284,6 @@ abstract class ResourceStoreTask extends \Task
     }
 
     $this->logError("Unknown resource file '%s'.", $theFullPathNameWithHash);
-
-    return null;
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
-   * Returns the resource info based on the full path of the resource.
-   *
-   * @param $theFullPathName
-   *
-   * @return array
-   * @throws BuildException
-   */
-  protected function getResourceInfo($theFullPathName)
-  {
-    foreach ($this->myResourceFilesInfo as $info)
-    {
-      if ($info['full_path_name']===$theFullPathName)
-      {
-        return $info;
-      }
-    }
-
-    $this->logError("Unknown resource file '%s'.", $theFullPathName);
 
     return null;
   }
@@ -507,6 +507,25 @@ abstract class ResourceStoreTask extends \Task
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Removes resource files that have been optimized/minimized.
+   */
+  protected function unlinkResourceFiles()
+  {
+    $this->logInfo("Removing resource files.");
+
+    foreach ($this->myResourceFilesInfo as $file_info)
+    {
+      if (isset($file_info['full_path_name_with_hash']) && isset($file_info['full_path_name']))
+      {
+        // Resource file has an optimized/minimized version. Remove the original file.
+        $this->logInfo("Removing '%s'.", $file_info['full_path_name']);
+        if (file_exists($file_info['full_path_name'])) unlink($file_info['full_path_name']);
+      }
+    }
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Return mtime if $theParts is one file or return max mtime if array
    *
    * @param array|string $theParts
@@ -532,7 +551,7 @@ abstract class ResourceStoreTask extends \Task
             break;
 
           default:
-            throw  new FallenException('$theGetInfoBy', $theGetInfoBy);
+            throw new FallenException('$theGetInfoBy', $theGetInfoBy);
         }
         $mtime[] = $info['mtime'];
       }
@@ -543,25 +562,6 @@ abstract class ResourceStoreTask extends \Task
     }
 
     return max($mtime);
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
-   * Removes resource files that have been optimized/minimized.
-   */
-  protected function unlinkResourceFiles()
-  {
-    $this->logInfo("Removing resource files.");
-
-    foreach ($this->myResourceFilesInfo as $file_info)
-    {
-      if (isset($file_info['full_path_name_with_hash']) && isset($file_info['full_path_name']))
-      {
-        // Resource file has an optimized/minimized version. Remove the original file.
-        $this->logInfo("Removing '%s'.", $file_info['full_path_name']);
-        if (file_exists($file_info['full_path_name'])) unlink($file_info['full_path_name']);
-      }
-    }
   }
 
   //--------------------------------------------------------------------------------------------------------------------

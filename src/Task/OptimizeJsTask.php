@@ -357,8 +357,8 @@ class OptimizeJsTask extends \OptimizeResourceTask
     if ($ret!=0) $this->logError("RequireJS optimizer failed.");
 
     // Get all files of the combined code.
-    $parts = [];
-    $trigger = array_search('----------------',$output);
+    $parts   = [];
+    $trigger = array_search('----------------', $output);
     foreach ($output as $index => $file)
     {
       if ($index>$trigger && !empty($file))
