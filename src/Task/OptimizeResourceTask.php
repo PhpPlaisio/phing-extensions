@@ -248,8 +248,8 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
     $resource_files_info = $this->getResourceFilesInSource($theContent);
     foreach ($resource_files_info as $resource_file_info)
     {
-      if (file_exists($resource_file_info['full_path_name_with_hash']))
-        $time = filemtime($resource_file_info['full_path_name_with_hash']);
+      $info = $this->getResourceInfoByHash($resource_file_info['full_path_name_with_hash']);
+      $time = $info['mtime'];
       if ($time===false) $this->logError("Unable to get mtime for file '%s'.", $resource_file_info);
       $times[] = $time;
     }
@@ -322,7 +322,9 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
         // If required preserve mtime.
         if ($this->myPreserveModificationTime)
         {
-          $this->setModificationTime($file_info['full_path_name_with_hash'].'.gz', $file_info['full_path_name_with_hash']);
+          $info  = $this->getResourceInfoByHash($file_info['full_path_name_with_hash']);
+          $mtime = $info['mtime'];
+          $this->setModificationTime($file_info['full_path_name_with_hash'].'.gz', $mtime);
         }
 
         // If required preserve file permissions.

@@ -405,7 +405,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
     $js_raw       = $combine_info['code'];
     $js_raw .= $files_info;
 
-    $file_info = $this->store($js_raw, $real_path, $combine_info['parts']);
+    $file_info = $this->store($js_raw, $real_path, $combine_info['parts'], 'full_path_name');
 
     return $file_info['path_name_in_sources_with_hash'];
     // @todo Set mtime of the combined code.

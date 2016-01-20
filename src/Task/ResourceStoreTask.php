@@ -1,5 +1,7 @@
 <?php
 //----------------------------------------------------------------------------------------------------------------------
+use SetBased\Abc\Error\FallenException;
+
 /**
  * Abstract parent class for tasks for optimizing resources (i.e. CSS and JS files). This class does the housekeeping
  * of resources.
@@ -187,7 +189,7 @@ abstract class ResourceStoreTask extends \Task
       $path      = $resource_dir.'/'.$filename;
       $full_path = realpath($path);
 
-      $this->store(file_get_contents($full_path), $full_path, $full_path);
+      $this->store(file_get_contents($full_path), $full_path, $full_path, null);
     }
 
     $suc = ksort($this->myResourceFilesInfo);
@@ -414,8 +416,7 @@ abstract class ResourceStoreTask extends \Task
           $status = touch($file_info['full_path_name_with_hash'], $file_info['mtime']);
           if ($status===false)
           {
-            $this->logError("Unable to set mtime of file '%s' to mtime of '%s",
-                            $file_info['full_path_name_with_hash']);
+            $this->logError("Unable to set mtime of file '%s'", $file_info['full_path_name_with_hash']);
           }
         }
       }
@@ -446,21 +447,16 @@ abstract class ResourceStoreTask extends \Task
    * Copy the mtime form the source file to the destination file.
    *
    * @param $theDestinationFilename string The full file name of destination file.
-   * @param $theReferenceFilename
+   * @param $theNewMtime
    *
    * @throws BuildException
    */
-  protected function setModificationTime($theDestinationFilename, $theReferenceFilename)
+  protected function setModificationTime($theDestinationFilename, $theNewMtime)
   {
-    $time = filemtime($theReferenceFilename);
-    if ($time===false) $this->logError("Unable to get mtime of file '%s'.", $theReferenceFilename);
-
-    $status = touch($theDestinationFilename, $time);
+    $status = touch($theDestinationFilename, $theNewMtime);
     if ($status===false)
     {
-      $this->logError("Unable to set mtime of file '%s' to mtime of '%s",
-                      $theDestinationFilename,
-                      $theReferenceFilename);
+      $this->logError("Unable to set mtime of file '%s'", $theDestinationFilename);
     }
   }
 
@@ -468,14 +464,15 @@ abstract class ResourceStoreTask extends \Task
   /**
    * Minimize resource, create hash based on optimized content. Add resource info into array.
    *
-   * @param string $theResource     The (actual content) of the resource.
-   * @param string $theFullPathName The full pathname of the file where the resource is stored.
-   * @param array  $theParts        Array with original resource files.
+   * @param string       $theResource     The (actual content) of the resource.
+   * @param string       $theFullPathName The full pathname of the file where the resource is stored.
+   * @param string|array $theParts        Array with original resource files.
+   * @param string       $theGetInfoBy    Flag for look in source with hash or without
    *
    * @return array
    * @throws BuildException
    */
-  protected function store($theResource, $theFullPathName, $theParts)
+  protected function store($theResource, $theFullPathName, $theParts, $theGetInfoBy)
   {
     if (isset($theFullPathName)) $this->logInfo("Minimizing '%s'.", $theFullPathName);
 
@@ -500,7 +497,7 @@ abstract class ResourceStoreTask extends \Task
 
     if (isset($theParts))
     {
-      $file_info['mtime'] = $this->getMaxMtime($theParts);
+      $file_info['mtime'] = $this->getMaxMtime($theParts, $theGetInfoBy);
     }
 
     $this->myResourceFilesInfo[] = $file_info;
@@ -512,34 +509,40 @@ abstract class ResourceStoreTask extends \Task
   /**
    * Return mtime if $theParts is one file or return max mtime if array
    *
-   * @param $theParts array or single file
+   * @param array|string $theParts
+   * @param string       $theGetInfoBy Flag for look in source with hash or without hash.
    *
    * @return int mtime
    */
-  private function getMaxMtime($theParts)
+  private function getMaxMtime($theParts, $theGetInfoBy)
   {
-    $mtime = 0;
+    $mtime = [];
     if (is_array($theParts))
     {
       foreach ($theParts as $part)
       {
-        $info = '';
-        if ($this->myExtension==='.css')
-          $info = $this->getResourceInfoByHash($part);
-        if ($this->myExtension==='.js')
-          $info = $this->getResourceInfo($part);
-
-        $time = $info['mtime'];
-        if ($mtime<$time)
+        switch ($theGetInfoBy)
         {
-          $mtime = $time;
+          case 'full_path_name_with_hash':
+            $info = $this->getResourceInfoByHash($part);
+            break;
+
+          case 'full_path_name':
+            $info = $this->getResourceInfo($part);
+            break;
+
+          default:
+            throw  new FallenException('$theGetInfoBy', $theGetInfoBy);
         }
+        $mtime[] = $info['mtime'];
       }
     }
     else
-      $mtime = filemtime($theParts);
+    {
+      $mtime[] = filemtime($theParts);
+    }
 
-    return $mtime;
+    return max($mtime);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
