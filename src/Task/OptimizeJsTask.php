@@ -17,6 +17,20 @@ class OptimizeJsTask extends \OptimizeResourceTask
   private $myCombineCommand;
 
   /**
+   * Methods for including JS files.
+   *
+   * @var array
+   */
+  private $myMethods = ['jsAdmSetPageSpecificMain',
+                        'jsAdmOptimizedSetPageSpecificMain',
+                        'jsAdmPageSpecificFunctionCall',
+                        'jsAdmFunctionCall',
+                        'jsAdmOptimizedFunctionCall',
+                        'jsAdmStaticClassSpecificFunctionCall',
+                        'jsAdmStaticFunctionCall',
+                        'jsAdmStaticOptimizedFunctionCall'];
+
+  /**
    * The command to minify JS.
    *
    * @var string
@@ -29,6 +43,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
    * @var string
    */
   private $myRequireJsPath = 'js/require.js';
+
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -99,22 +114,16 @@ class OptimizeJsTask extends \OptimizeResourceTask
    * In PHP code replaces references to resource files (i.e. CSS or JS files) with references to the optimized versions
    * of the resource files.
    *
-   * @param string $thePhpCode The PHP code.
+   * @param string $theFilename The filename with the PHP code.
+   * @param string $thePhpCode  The PHP code.
    *
    * @return string The modified PHP code.
    */
-  protected function processPhpSourceFile($thePhpCode)
+  protected function processPhpSourceFile($theFilename, $thePhpCode)
   {
-    // Methods for including JS files.
-    $methods = ['jsAdmPageSpecificFunctionCall',
-                'jsAdmFunctionCall',
-                'jsAdmOptimizedFunctionCall',
-                'jsAdmSetPageSpecificMain',
-                'jsAdmOptimizedSetPageSpecificMain'];
-
     // If true the PHP code includes CSS files.
     $includes = false;
-    foreach ($methods as $method)
+    foreach ($this->myMethods as $method)
     {
       if (stripos($thePhpCode, $method)!==false)
       {
@@ -125,7 +134,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
 
     if ($includes)
     {
-      $thePhpCode = $this->processPhpSourceFileReplaceMethod($thePhpCode);
+      $thePhpCode = $this->processPhpSourceFileReplaceMethod($theFilename, $thePhpCode);
     }
 
     return $thePhpCode;
@@ -133,14 +142,22 @@ class OptimizeJsTask extends \OptimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Replaces calls to method {@link \SetBased\Abc\Page\Page::jsAdmSetPageSpecificMain) with calls to
-   * {@link \SetBased\Abc\Page\Page::jsAdmOptimizedSetPageSpecificMain}.
+   * Replaces calls to methods:
+   * <ul>
+   * <li>{@link \SetBased\Abc\Page\Page::jsAdmSetPageSpecificMain)
+   * <li>{@link \SetBased\Abc\Page\Page::jsAdmPageSpecificFunctionCall)
+   * <li>{@link \SetBased\Abc\Page\Page::jsAdmFunctionCall)
+   * <li>{@link \SetBased\Abc\Page\Page::jsAdmStaticClassSpecificFunctionCall)
+   * <li>{@link \SetBased\Abc\Page\Page::jsAdmStaticFunctionCall)
+   * </ul>
+   * with the appropriate optimized method.
    *
-   * @param string $thePhpCode The PHP code.
+   * @param string $theFilename The filename with the PHP code.
+   * @param string $thePhpCode  The PHP code.
    *
    * @return string The modified PHP code.
    */
-  protected function processPhpSourceFileReplaceMethod($thePhpCode)
+  protected function processPhpSourceFileReplaceMethod($theFilename, $thePhpCode)
   {
     $classes       = $this->getClasses($thePhpCode);
     $current_class = '';
@@ -156,62 +173,65 @@ class OptimizeJsTask extends \OptimizeResourceTask
         }
       }
 
+      // Don't process the class that defines the jsAdm* methods.
+      if ($current_class=='SetBased\\Abc\\Page\\Page') continue;
+
       // Replace calls to jsAdmSetPageSpecificMain with jsAdmOptimizedSetPageSpecificMain.
-      if (preg_match('/^(\s*)([\$:a-zA-Z0-9_]+->)(jsAdmSetPageSpecificMain)(\(\s*)(__CLASS__)(\s*\)\s*;)(.*)$/',
+      if (preg_match('/^(\s*)(\$this->)(jsAdmSetPageSpecificMain)(\(\s*)(__CLASS__)(\s*\)\s*;)(.*)$/',
                      $line,
                      $matches))
       {
-        $full_path = $this->getFullPathFromClassName($current_class);
-        if (!file_exists($full_path))
-        {
-          $this->logError("File '%s' not found.", $full_path);
-        }
-        else
-        {
-          $matches[3] = 'jsAdmOptimizedSetPageSpecificMain';
-          $matches[5] = "'".$this->combineAndMinimize($full_path)."'";
-
-          array_shift($matches);
-          $lines[$i] = implode('', $matches);
-        }
+        $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($matches,
+                                                                    'jsAdmOptimizedSetPageSpecificMain',
+                                                                    null,
+                                                                    $this->getFullPathFromClassName($current_class));
       }
 
       // Replace calls to jsAdmPageSpecificFunctionCall with jsAdmOptimizedFunctionCall.
-      if (preg_match('/^(\s*)([\$:a-zA-Z0-9_]+->)(jsAdmPageSpecificFunctionCall)(\(\s*)(__CLASS__)(.*)$/',
-                     $line,
-                     $matches))
+      elseif (preg_match('/^(\s*)(\$this->)(jsAdmPageSpecificFunctionCall)(\(\s*)(__CLASS__)(.*)$/',
+                         $line,
+                         $matches))
       {
-        $full_path = $this->getFullPathFromClassName($current_class);
-        if (!file_exists($full_path))
-        {
-          $this->logError("File '%s' not found.", $full_path);
-        }
-        else
-        {
-          $matches[3] = 'jsAdmOptimizedFunctionCall';
-          $matches[5] = "'".$this->getNamespaceFromClassName($current_class)."'";
-
-          array_shift($matches);
-          $lines[$i] = implode('', $matches);
-        }
+        $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($matches,
+                                                                    'jsAdmOptimizedFunctionCall',
+                                                                    $this->getNamespaceFromClassName($current_class));
       }
 
       // Replace calls to jsAdmFunctionCall with jsAdmOptimizedFunctionCall.
-      if (preg_match('/^(\s*)([\$:a-zA-Z0-9_]+->)(jsAdmFunctionCall)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"].*)$/',
-                     $line,
-                     $matches))
+      elseif (preg_match('/^(\s*)(\$this->)(jsAdmFunctionCall)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"].*)$/',
+                         $line,
+                         $matches))
       {
-        $full_path = $this->getFullPathFromNamespace($matches[5]);
-        if (!file_exists($full_path))
-        {
-          $this->logError("File '%s' not found.", $full_path);
-        }
-        else
-        {
-          $matches[3] = 'jsAdmOptimizedFunctionCall';
+        $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($matches, 'jsAdmOptimizedFunctionCall');
+      }
 
-          array_shift($matches);
-          $lines[$i] = implode('', $matches);
+      // Replace calls to Page::jsAdmStaticClassSpecificFunctionCall with Page::jsAdmStaticOptimizedFunctionCall.
+      elseif (preg_match('/^(\s*)(Page::)(jsAdmStaticClassSpecificFunctionCall)(\(\s*)(__CLASS__)(.*)$/',
+                         $line,
+                         $matches))
+      {
+        $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($matches,
+                                                                    'jsAdmStaticOptimizedFunctionCall',
+                                                                    $this->getNamespaceFromClassName($current_class));
+      }
+
+      // Replace calls to Page::jsAdmStaticFunctionCall with Page::jsAdmStaticOptimizedFunctionCall.
+      elseif (preg_match('/^(\s*)(Page::)(jsAdmStaticFunctionCall)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"].*)$/',
+                         $line,
+                         $matches))
+      {
+        $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($matches, 'jsAdmStaticOptimizedFunctionCall');
+      }
+
+      // Test for invalid usages of methods for calling/including JS.
+      else
+      {
+        foreach ($this->myMethods as $method)
+        {
+          if (preg_match("/(->|::)($method)(\\()/", $line))
+          {
+            $this->logError("Unexpected usage of method '%s' at %s:%d.", $method, $theFilename, $i + 1);
+          }
         }
       }
     }
@@ -581,6 +601,49 @@ class OptimizeJsTask extends \OptimizeResourceTask
     $name  = substr($name, 0, -(strlen($parts['extension']) + 1));
 
     return $name;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Helper function for {@link processPhpSourceFileReplaceMethodHelper}.
+   *
+   * @param string[] $theMatches         The matches as returned by preg_match.
+   * @param string   $theOptimizedMethod The appropriate optimized method.
+   * @param string   $theNameSpace       The current class name of the PHP code.
+   * @param string   $theFullPath        The full path to the JS source.
+   *
+   * @return string
+   * @throws BuildException
+   */
+  private function processPhpSourceFileReplaceMethodHelper($theMatches,
+                                                           $theOptimizedMethod,
+                                                           $theNameSpace = null,
+                                                           $theFullPath = null)
+  {
+    $theMatches[3] = $theOptimizedMethod;
+    if (isset($theFullPath))
+    {
+      $theMatches[5] = "'".$this->combineAndMinimize($theFullPath)."'";
+      $full_path     = $theFullPath;
+    }
+    elseif (isset($theNameSpace))
+    {
+      $theMatches[5] = "'".$theNameSpace."'";
+      $full_path     = $this->getFullPathFromNamespace($theNameSpace);
+    }
+    else
+    {
+      $full_path = $this->getFullPathFromNamespace($theMatches[5]);
+    }
+
+    if (!file_exists($full_path))
+    {
+      $this->logError("File '%s' not found.", $full_path);
+    }
+
+    array_shift($theMatches);
+
+    return implode('', $theMatches);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
