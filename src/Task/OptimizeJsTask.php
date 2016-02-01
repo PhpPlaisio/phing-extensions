@@ -10,6 +10,13 @@ class OptimizeJsTask extends \OptimizeResourceTask
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * The size of buffers for reading stdout and stderr of sub-processes.
+   *
+   * @var int
+   */
+  const BUFFER_SIZE = 8000;
+
+  /**
    * The command to run r.js.
    *
    * @var string
@@ -43,7 +50,6 @@ class OptimizeJsTask extends \OptimizeResourceTask
    * @var string
    */
   private $myRequireJsPath = 'js/require.js';
-
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -263,6 +269,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
     $read_pipes  = [$pipes[1], $pipes[2]];
     $std_out     = '';
     $std_err     = '';
+    $std_in      = $theInput;
     while (true)
     {
       $reads  = $read_pipes;
@@ -278,7 +285,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
         {
           if ($read==$pipes[1])
           {
-            $data = fread($read, 8000);
+            $data = fread($read, self::BUFFER_SIZE);
             if ($data===false) $this->logError("Unable to read standard output from command '%s'.", $theCommand);
             if ($data==='')
             {
@@ -292,7 +299,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
           }
           if ($read==$pipes[2])
           {
-            $data = fread($read, 8000);
+            $data = fread($read, self::BUFFER_SIZE);
             if ($data===false) $this->logError("Unable to read standard error from command '%s'.", $theCommand);
             if ($data==='')
             {
@@ -309,7 +316,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
 
       if (isset($writes[0]))
       {
-        $bytes = fwrite($writes[0], $theInput);
+        $bytes = fwrite($writes[0], $std_in);
         if ($bytes===false) $this->logError("Unable to write to standard input of command '%s'.", $theCommand);
         if ($bytes==0)
         {
@@ -318,9 +325,18 @@ class OptimizeJsTask extends \OptimizeResourceTask
         }
         else
         {
-          $theInput = substr($theInput, $bytes);
+          $std_in = substr($std_in, $bytes);
         }
       }
+    }
+
+    // Close the process and it return value.
+    $ret = proc_close($process);
+    if ($ret!=0)
+    {
+      if ($std_err!=='') $this->logInfo($std_err);
+      else               $this->logInfo($std_out);
+      $this->logError("Error executing '%s'.", $theCommand);
     }
 
     return [$std_out, $std_err];
@@ -369,6 +385,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
 
     $this->logVerbose("Execute: $command");
     exec($command, $output, $ret);
+    if ($ret!=0) $this->logError("Error executing '%s'.", $this->myCombineCommand);
 
     foreach ($output as $line)
     {
@@ -428,8 +445,6 @@ class OptimizeJsTask extends \OptimizeResourceTask
     $file_info = $this->store($js_raw, $real_path, $combine_info['parts'], 'full_path_name');
 
     return $file_info['path_name_in_sources_with_hash'];
-    // @todo Set mtime of the combined code.
-    // @todo Set file permissions.
   }
 
   //--------------------------------------------------------------------------------------------------------------------
