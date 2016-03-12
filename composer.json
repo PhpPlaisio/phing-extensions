@@ -4,28 +4,13 @@
   "type": "library",
   "keyword": ["abc", "phing", "extensions"],
   "license": "MIT",
-  "authors": [
-    {
-      "name": "Paul Water",
-      "email": "p.r.water@setbased.nl",
-      "homepage": "http://www.setbased.nl",
-      "role": "Architect"
-    }
-  ],
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require-dev": {
     "gajus/dindent": "2.*",
     "phing/phing": "*",
-    "phpunit/phpunit": "*",
-    "setbased/php-coding-standards": "*"
+    "phpunit/phpunit": "*"
   },
-  "repositories": [
-    {
-      "type": "composer",
-      "url": "http://packagist.setbased.nl/"
-    }
-  ],
   "require": {
     "php": ">=5.4.0",
     "setbased/abc": "*",
