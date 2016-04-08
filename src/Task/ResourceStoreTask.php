@@ -1,7 +1,8 @@
 <?php
 //----------------------------------------------------------------------------------------------------------------------
-use SetBased\Abc\Error\FallenException;
+use SetBased\Affirm\Exception\FallenException;
 
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * Abstract parent class for tasks for optimizing resources (i.e. CSS and JS files). This class does the housekeeping
  * of resources.
@@ -178,7 +179,7 @@ abstract class ResourceStoreTask extends \Task
    */
   protected function getInfoResourceFiles()
   {
-    $this->logVerbose('Get resource files info.');
+    $this->logVerbose('Get resource files info');
 
     $resource_dir = $this->getProject()->getReference($this->myResourcesFilesetId)->getDir($this->getProject());
 
@@ -193,7 +194,7 @@ abstract class ResourceStoreTask extends \Task
     }
 
     $suc = ksort($this->myResourceFilesInfo);
-    if ($suc===false) $this->logError("ksort failed.");
+    if ($suc===false) $this->logError("ksort failed");
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -259,7 +260,7 @@ abstract class ResourceStoreTask extends \Task
       }
     }
 
-    $this->logError("Unknown resource file '%s'.", $theFullPathName);
+    $this->logError("Unknown resource file '%s'", $theFullPathName);
 
     return null;
   }
@@ -283,7 +284,7 @@ abstract class ResourceStoreTask extends \Task
       }
     }
 
-    $this->logError("Unknown resource file '%s'.", $theFullPathNameWithHash);
+    $this->logError("Unknown resource file '%s'", $theFullPathNameWithHash);
 
     return null;
   }
@@ -398,7 +399,7 @@ abstract class ResourceStoreTask extends \Task
    */
   protected function saveOptimizedResourceFiles()
   {
-    $this->logInfo("Saving minimized files.");
+    $this->logInfo("Saving minimized files");
 
     foreach ($this->myResourceFilesInfo as $file_info)
     {
@@ -406,7 +407,7 @@ abstract class ResourceStoreTask extends \Task
       $file_info['path_name_in_sources_with_hash'] = $this->getPathInResources($file_info['full_path_name_with_hash']);
 
       $bytes = file_put_contents($file_info['full_path_name_with_hash'], $file_info['content_opt']);
-      if ($bytes===false) $this->logError("Unable to write to file '%s'.", $file_info['full_path_name_with_hash']);
+      if ($bytes===false) $this->logError("Unable to write to file '%s'", $file_info['full_path_name_with_hash']);
 
       if (isset($file_info['full_path_name']))
       {
@@ -436,10 +437,10 @@ abstract class ResourceStoreTask extends \Task
   {
     clearstatcache();
     $perms = fileperms($theReferenceFilename);
-    if ($perms===false) $this->logError("Unable to get permissions of file '%s'.", $theReferenceFilename);
+    if ($perms===false) $this->logError("Unable to get permissions of file '%s'", $theReferenceFilename);
 
     $status = chmod($theDestinationFilename, $perms);
-    if ($status===false) $this->logError("Unable to set permissions for file '%s'.", $theDestinationFilename);
+    if ($status===false) $this->logError("Unable to set permissions for file '%s'", $theDestinationFilename);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -474,7 +475,7 @@ abstract class ResourceStoreTask extends \Task
    */
   protected function store($theResource, $theFullPathName, $theParts, $theGetInfoBy)
   {
-    if (isset($theFullPathName)) $this->logInfo("Minimizing '%s'.", $theFullPathName);
+    if (isset($theFullPathName)) $this->logInfo("Minimizing '%s'", $theFullPathName);
 
     $content_opt = $this->minimizeResource($theResource, $theFullPathName);
 
@@ -511,17 +512,24 @@ abstract class ResourceStoreTask extends \Task
    */
   protected function unlinkResourceFiles()
   {
-    $this->logInfo("Removing resource files.");
+    $this->logInfo("Removing resource files");
+    $count = 0;
 
     foreach ($this->myResourceFilesInfo as $file_info)
     {
       if (isset($file_info['full_path_name_with_hash']) && isset($file_info['full_path_name']))
       {
         // Resource file has an optimized/minimized version. Remove the original file.
-        $this->logInfo("Removing '%s'.", $file_info['full_path_name']);
-        if (file_exists($file_info['full_path_name'])) unlink($file_info['full_path_name']);
+        if (file_exists($file_info['full_path_name']))
+        {
+          $this->logVerbose("Removing '%s'", $file_info['full_path_name']);
+          unlink($file_info['full_path_name']);
+          $count++;
+        }
       }
     }
+
+    $this->logInfo("Removed %d resource files", $count);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
