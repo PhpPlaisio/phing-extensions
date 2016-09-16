@@ -48,6 +48,17 @@ class OptimizeCssTask extends OptimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Setter for XML attribute combineCommand.
+   *
+   * @param string $minifyCommand The command to run csso.
+   */
+  public function setMinifyCommand($minifyCommand)
+  {
+    $this->minifyCommand = $minifyCommand;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Setter for XML attribute $myCssMinimize.
    *
    * @param bool $minimize
