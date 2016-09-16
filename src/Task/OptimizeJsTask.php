@@ -279,7 +279,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
     $command .= ' name='.escapeshellarg($this->getNamespaceFromResourceFilename($realPath));
     $command .= ' out='.escapeshellarg($tmp_name2);
 
-    $this->logVerbose("Execute: $command");
+    $this->logVerbose('Execute: %s', $command);
     exec($command, $output, $ret);
     if ($ret!=0) $this->logError("Error executing '%s'.", $this->combineCommand);
 

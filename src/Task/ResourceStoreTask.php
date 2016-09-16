@@ -319,7 +319,15 @@ abstract class ResourceStoreTask extends \Task
     }
 
     if ($this->haltOnError) throw new \BuildException(vsprintf($format, $args));
-    else $this->log(vsprintf($format, $args), \Project::MSG_ERR);
+
+   if (sizeof($args)==0)
+    {
+      $this->log($format, \Project::MSG_ERR);
+    }
+    else
+    {
+      $this->log(vsprintf($format, $args), \Project::MSG_ERR);
+    }
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -338,7 +346,14 @@ abstract class ResourceStoreTask extends \Task
       if (!is_scalar($arg)) $arg = var_export($arg, true);
     }
 
-    $this->log(vsprintf($format, $args), \Project::MSG_INFO);
+    if (sizeof($args)==0)
+    {
+      $this->log($format, \Project::MSG_INFO);
+    }
+    else
+    {
+      $this->log(vsprintf($format, $args), \Project::MSG_INFO);
+    }
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -357,7 +372,14 @@ abstract class ResourceStoreTask extends \Task
       if (!is_scalar($arg)) $arg = var_export($arg, true);
     }
 
-    $this->log(vsprintf($format, $args), \Project::MSG_VERBOSE);
+    if (sizeof($args)==0)
+    {
+      $this->log($format, \Project::MSG_VERBOSE);
+    }
+    else
+    {
+      $this->log(vsprintf($format, $args), \Project::MSG_VERBOSE);
+    }
   }
 
   //--------------------------------------------------------------------------------------------------------------------

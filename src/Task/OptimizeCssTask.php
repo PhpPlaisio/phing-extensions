@@ -317,7 +317,7 @@ class OptimizeCssTask extends OptimizeResourceTask
     {
       $filename = $this->parentResourceDirFullPath.$calls[$i][5];
 
-      $this->logVerbose('Combining '.$filename);
+      $this->logVerbose('Combining %s', $filename);
 
       $info = $this->getResourceInfoByHash($filename);
       $code = $info['content_opt'];
