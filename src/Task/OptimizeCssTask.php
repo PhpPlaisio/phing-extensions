@@ -1,5 +1,7 @@
 <?php
 //----------------------------------------------------------------------------------------------------------------------
+use SetBased\Abc\Helper\Url;
+
 require_once 'OptimizeResourceTask.php';
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -14,19 +16,19 @@ class OptimizeCssTask extends OptimizeResourceTask
    *
    * @var bool
    */
-  protected $myMinimize = true;
+  protected $minimize = true;
 
   /**
    * All methods for including CSS sources.
    *
    * @var array
    */
-  private $myMethods = ['cssAppendSource',
-                        'cssAppendPageSpecificSource',
-                        'cssOptimizedAppendSource',
-                        'cssStaticAppendClassSource',
-                        'cssStaticAppendSource',
-                        'cssStaticOptimizedAppendSource'];
+  private $methods = ['cssAppendSource',
+                      'cssAppendPageSpecificSource',
+                      'cssOptimizedAppendSource',
+                      'cssStaticAppendClassSource',
+                      'cssStaticAppendSource',
+                      'cssStaticOptimizedAppendSource'];
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -41,43 +43,43 @@ class OptimizeCssTask extends OptimizeResourceTask
   /**
    * Setter for XML attribute $myCssMinimize.
    *
-   * @param bool $theMinimize
+   * @param bool $minimize
    */
-  public function setMinimize($theMinimize)
+  public function setMinimize($minimize)
   {
-    $this->myMinimize = (boolean)$theMinimize;
+    $this->minimize = (boolean)$minimize;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Minimizes CSS code.
    *
-   * @param string $theResource     The CSS code.
-   * @param string $theFullPathName The full pathname of the CSS file.
+   * @param string $resource     The CSS code.
+   * @param string $fullPathName The full pathname of the CSS file.
    *
    * @return string The minimized CSS code.
    */
-  protected function minimizeResource($theResource, $theFullPathName)
+  protected function minimizeResource($resource, $fullPathName)
   {
-    $resource = $theResource;
+    $ret = $resource;
 
     // If $theFullPathName is not set $theResource is concatenation of 2 or more optimized CSS file. There is no need to
     // convert relative paths and minimized $theResource again. Moreover, it is not possible to convert relative paths
     // since $theResource can be a concatenation of CSS files from different subdirectories.
-    if (isset($theFullPathName))
+    if (isset($fullPathName))
     {
-      $resource = $this->convertRelativePaths($theResource, $theFullPathName);
+      $ret = $this->convertRelativePaths($resource, $fullPathName);
 
       // Compress the CSS code.
-      if ($this->myMinimize)
+      if ($this->minimize)
       {
         $compressor = new \CSSmin(false);
 
-        $resource = $compressor->run($resource);
+        $ret = $compressor->run($ret);
       }
     }
 
-    return $resource;
+    return $ret;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -91,18 +93,18 @@ class OptimizeCssTask extends OptimizeResourceTask
    * </ul>
    * with the appropriate optimized method. Also, combines the multiple CSS files into a single CCS file.
    *
-   * @param string $theFilename The filename with the PHP code.
-   * @param string $thePhpCode  The PHP code.
+   * @param string $filename The filename with the PHP code.
+   * @param string $phpCode  The PHP code.
    *
    * @return string The modified PHP code.
    */
-  protected function processPhpSourceFile($theFilename, $thePhpCode)
+  protected function processPhpSourceFile($filename, $phpCode)
   {
     // If true the PHP code includes CSS files.
     $includes = false;
-    foreach ($this->myMethods as $method)
+    foreach ($this->methods as $method)
     {
-      if (stripos($thePhpCode, $method)!==false)
+      if (stripos($phpCode, $method)!==false)
       {
         $includes = true;
         break;
@@ -112,12 +114,12 @@ class OptimizeCssTask extends OptimizeResourceTask
     if ($includes)
     {
       // The PHP code includes CSS files.
-      $thePhpCode = $this->processPhpSourceFileReplaceMethod($theFilename, $thePhpCode);
+      $phpCode = $this->processPhpSourceFileReplaceMethod($filename, $phpCode);
 
-      $thePhpCode = $this->processPhpSourceFileCombine($thePhpCode);
+      $phpCode = $this->processPhpSourceFileCombine($phpCode);
     }
 
-    return $thePhpCode;
+    return $phpCode;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -126,13 +128,13 @@ class OptimizeCssTask extends OptimizeResourceTask
    * single call to {@link \SetBased\Abc\Page\Page::cssOptimizedAppendSource} and combines the multiple CSS files into a
    * single CCS file.
    *
-   * @param string $thePhpCode The PHP code.
+   * @param string $phpCode The PHP code.
    *
    * @return string The modified PHP code.
    */
-  protected function processPhpSourceFileCombine($thePhpCode)
+  protected function processPhpSourceFileCombine($phpCode)
   {
-    $lines    = explode("\n", $thePhpCode);
+    $lines    = explode("\n", $phpCode);
     $calls    = [];
     $groups   = [];
     $group    = [];
@@ -179,17 +181,17 @@ class OptimizeCssTask extends OptimizeResourceTask
    * {@link \SetBased\Abc\Page\Page::cssAppendSource) with calls to
    * {@link \SetBased\Abc\Page\Page::cssOptimizedAppendSource}.
    *
-   * @param string $theFilename The filename with the PHP code.
-   * @param string $thePhpCode  The PHP code.
+   * @param string $filename The filename with the PHP code.
+   * @param string $phpCode  The PHP code.
    *
    * @return string The modified PHP code.
    */
-  protected function processPhpSourceFileReplaceMethod($theFilename, $thePhpCode)
+  protected function processPhpSourceFileReplaceMethod($filename, $phpCode)
   {
-    $classes       = $this->getClasses($thePhpCode);
+    $classes       = $this->getClasses($phpCode);
     $current_class = '';
 
-    $lines = explode("\n", $thePhpCode);
+    $lines = explode("\n", $phpCode);
     foreach ($lines as $i => $line)
     {
       if (isset($classes[$i + 1]))
@@ -242,11 +244,11 @@ class OptimizeCssTask extends OptimizeResourceTask
       // Test for invalid usage of methods for including CSS files.
       else
       {
-        foreach ($this->myMethods as $method)
+        foreach ($this->methods as $method)
         {
           if (preg_match("/(->|::)($method)(\\()/", $line))
           {
-            $this->logError("Unexpected usage of method '%s' at line %s:%d.", $method, $theFilename, $i + 1);
+            $this->logError("Unexpected usage of method '%s' at line %s:%d.", $method, $filename, $i + 1);
           }
         }
       }
@@ -259,22 +261,21 @@ class OptimizeCssTask extends OptimizeResourceTask
   /**
    * In CSS code replace relative paths with absolute paths.
    *
-   * @param string $theCss          The CSS code.
-   * @param string $theFullPathName The full pathname of the CSS file.
+   * @param string $css          The CSS code.
+   * @param string $fullPathName The full pathname of the CSS file.
    *
    * @return string The modified CSS code.
    */
-  private function convertRelativePaths($theCss, $theFullPathName)
+  private function convertRelativePaths($css, $fullPathName)
   {
     // @todo fix URLs like url(test/test(1).jpg)
 
     $ccs = preg_replace_callback('/(url\([\'"]?)(([^()]|(?R))+)([\'"]?\))/i',
-      function ($matches) use ($theFullPathName)
+      function ($matches) use ($fullPathName)
       {
-        return $matches[1].\SetBased\Abc\Helper\Url::combine($this->getPathInResources($theFullPathName),
-                                                             $matches[2]).$matches[4];
+        return $matches[1].Url::combine($this->getPathInResources($fullPathName), $matches[2]).$matches[4];
       },
-                                 $theCss);
+                                 $css);
 
     return $ccs;
   }
@@ -284,21 +285,24 @@ class OptimizeCssTask extends OptimizeResourceTask
    * Replaces a group of multiple consecutive calls to {@link \SetBased\Abc\Page\Page::cssOptimizedAppendSource} in PHP
    * code with a single call.
    *
-   * @param string[]   $theLines The lines of the PHP code.
-   * @param int[]      $theGroup The group of of multiple consecutive calls to
+   * @param string[]   $lines    The lines of the PHP code.
+   * @param int[]      $group    The group of of multiple consecutive calls to
    *                             {@link \SetBased\Abc\Page\Page::cssOptimizedAppendSource}
-   * @param string[][] $theCalls The matches from preg_match.
+   * @param string[][] $calls    The matches from preg_match.
    */
-  private function processPhpSourceFileCombineGroup(&$theLines, $theGroup, $theCalls)
+  private function processPhpSourceFileCombineGroup(&$lines, $group, $calls)
   {
     $files                    = [];
     $file_info                = [];
     $file_info['content_opt'] = '';
-    foreach ($theGroup as $i)
+    foreach ($group as $i)
     {
-      $filename = $this->myParentResourceDirFullPath.$theCalls[$i][5];
-      $info     = $this->getResourceInfoByHash($filename);
-      $code     = $info['content_opt'];
+      $filename = $this->parentResourceDirFullPath.$calls[$i][5];
+
+      $this->logVerbose('Combining '.$filename);
+
+      $info = $this->getResourceInfoByHash($filename);
+      $code = $info['content_opt'];
 
       $file_info['content_opt'] .= $code;
       $files[] = $filename;
@@ -307,20 +311,20 @@ class OptimizeCssTask extends OptimizeResourceTask
 
     // Replace the multiple calls with one call in the PHP code.
     $first = true;
-    foreach ($theGroup as $i)
+    foreach ($group as $i)
     {
       if ($first)
       {
-        $matches    = $theCalls[$i];
+        $matches    = $calls[$i];
         $matches[5] = $file_info['path_name_in_sources_with_hash'];
         array_shift($matches);
-        $theLines[$i] = implode('', $matches);
+        $lines[$i] = implode('', $matches);
 
         $first = false;
       }
       else
       {
-        $theLines[$i] = '';
+        $lines[$i] = '';
       }
     }
   }
@@ -329,24 +333,24 @@ class OptimizeCssTask extends OptimizeResourceTask
   /**
    * Helper function for {@link processPhpSourceFileReplaceMethodHelper}.
    *
-   * @param string[] $theMatches         The matches as returned by preg_match.
-   * @param string   $theOptimizedMethod The appropriate optimized method.
-   * @param string   $theClassName       The current class name of the PHP code.
+   * @param string[] $matches         The matches as returned by preg_match.
+   * @param string   $optimizedMethod The appropriate optimized method.
+   * @param string   $className       The current class name of the PHP code.
    *
    * @return string
    * @throws BuildException
    */
-  private function processPhpSourceFileReplaceMethodHelper($theMatches, $theOptimizedMethod, $theClassName = null)
+  private function processPhpSourceFileReplaceMethodHelper($matches, $optimizedMethod, $className = null)
   {
-    if (isset($theClassName))
+    if (isset($className))
     {
-      $file_name = str_replace('\\', '/', $theClassName).$this->myExtension;
-      $full_path = $this->myResourceDirFullPath.'/'.$file_name;
+      $file_name = str_replace('\\', '/', $className).$this->extension;
+      $full_path = $this->resourceDirFullPath.'/'.$file_name;
     }
     else
     {
-      $file_name = $theMatches[5];
-      $full_path = $this->myParentResourceDirFullPath.'/'.$file_name;
+      $file_name = $matches[5];
+      $full_path = $this->parentResourceDirFullPath.'/'.$file_name;
     }
 
     if (!file_exists($full_path))
@@ -354,21 +358,21 @@ class OptimizeCssTask extends OptimizeResourceTask
       $this->logError("File '%s' not found.", $full_path);
     }
 
-    $real_path     = realpath($full_path);
-    $theMatches[3] = $theOptimizedMethod;
+    $real_path  = realpath($full_path);
+    $matches[3] = $optimizedMethod;
 
-    if (isset($theClassName))
+    if (isset($className))
     {
-      $theMatches[5] = "'".$this->getResourceInfo($real_path)['path_name_in_sources_with_hash']."'";
+      $matches[5] = "'".$this->getResourceInfo($real_path)['path_name_in_sources_with_hash']."'";
     }
     else
     {
-      $theMatches[5] = $this->getResourceInfo($real_path)['path_name_in_sources_with_hash'];
+      $matches[5] = $this->getResourceInfo($real_path)['path_name_in_sources_with_hash'];
     }
 
-    array_shift($theMatches);
+    array_shift($matches);
 
-    return implode('', $theMatches);
+    return implode('', $matches);
   }
 
   //--------------------------------------------------------------------------------------------------------------------

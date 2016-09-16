@@ -21,35 +21,35 @@ class OptimizeJsTask extends \OptimizeResourceTask
    *
    * @var string
    */
-  private $myCombineCommand;
+  private $combineCommand;
 
   /**
    * Methods for including JS files.
    *
    * @var array
    */
-  private $myMethods = ['jsAdmSetPageSpecificMain',
-                        'jsAdmOptimizedSetPageSpecificMain',
-                        'jsAdmPageSpecificFunctionCall',
-                        'jsAdmFunctionCall',
-                        'jsAdmOptimizedFunctionCall',
-                        'jsAdmStaticClassSpecificFunctionCall',
-                        'jsAdmStaticFunctionCall',
-                        'jsAdmStaticOptimizedFunctionCall'];
+  private $methods = ['jsAdmSetPageSpecificMain',
+                      'jsAdmOptimizedSetPageSpecificMain',
+                      'jsAdmPageSpecificFunctionCall',
+                      'jsAdmFunctionCall',
+                      'jsAdmOptimizedFunctionCall',
+                      'jsAdmStaticClassSpecificFunctionCall',
+                      'jsAdmStaticFunctionCall',
+                      'jsAdmStaticOptimizedFunctionCall'];
 
   /**
    * The command to minify JS.
    *
    * @var string
    */
-  private $myMinifyCommand;
+  private $minifyCommand;
 
   /**
    * The path to require.js relative to the parent resource path.
    *
    * @var string
    */
-  private $myRequireJsPath = 'js/require.js';
+  private $requireJsPath = 'js/require.js';
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -64,13 +64,13 @@ class OptimizeJsTask extends \OptimizeResourceTask
   /**
    * Returns the 'main' file of a page specific main JavaScript file.
    *
-   * @param string $theRealPath
+   * @param string $realPath
    *
    * @return string
    */
-  private static function getMainJsFileName($theRealPath)
+  private static function getMainJsFileName($realPath)
   {
-    $parts = pathinfo($theRealPath);
+    $parts = pathinfo($realPath);
 
     return $parts['dirname'].'/'.$parts['filename'].'.main.'.$parts['extension'];
   }
@@ -79,36 +79,36 @@ class OptimizeJsTask extends \OptimizeResourceTask
   /**
    * Setter for XML attribute combineCommand.
    *
-   * @param string $theCombineCommand The command to run r.js.
+   * @param string $combineCommand The command to run r.js.
    */
-  public function setCombineCommand($theCombineCommand)
+  public function setCombineCommand($combineCommand)
   {
-    $this->myCombineCommand = $theCombineCommand;
+    $this->combineCommand = $combineCommand;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Setter for XML attribute combineCommand.
    *
-   * @param string $theMinifyCommand The command to run r.js.
+   * @param string $minifyCommand The command to run r.js.
    */
-  public function setMinifyCommand($theMinifyCommand)
+  public function setMinifyCommand($minifyCommand)
   {
-    $this->myMinifyCommand = $theMinifyCommand;
+    $this->minifyCommand = $minifyCommand;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Minimizes JavaScript code.
    *
-   * @param string $theResource     The JavaScript code.
-   * @param string $theFullPathName The full pathname of the JavaScript file.
+   * @param string $resource     The JavaScript code.
+   * @param string $fullPathName The full pathname of the JavaScript file.
    *
    * @return string The minimized JavaScript code.
    */
-  protected function minimizeResource($theResource, $theFullPathName)
+  protected function minimizeResource($resource, $fullPathName)
   {
-    list($std_out, $std_err) = $this->runProcess($this->myMinifyCommand, $theResource);
+    list($std_out, $std_err) = $this->runProcess($this->minifyCommand, $resource);
 
     if ($std_err) $this->logInfo($std_err);
 
@@ -120,18 +120,18 @@ class OptimizeJsTask extends \OptimizeResourceTask
    * In PHP code replaces references to resource files (i.e. CSS or JS files) with references to the optimized versions
    * of the resource files.
    *
-   * @param string $theFilename The filename with the PHP code.
-   * @param string $thePhpCode  The PHP code.
+   * @param string $filename The filename with the PHP code.
+   * @param string $phpCode  The PHP code.
    *
    * @return string The modified PHP code.
    */
-  protected function processPhpSourceFile($theFilename, $thePhpCode)
+  protected function processPhpSourceFile($filename, $phpCode)
   {
     // If true the PHP code includes CSS files.
     $includes = false;
-    foreach ($this->myMethods as $method)
+    foreach ($this->methods as $method)
     {
-      if (stripos($thePhpCode, $method)!==false)
+      if (stripos($phpCode, $method)!==false)
       {
         $includes = true;
         break;
@@ -140,10 +140,10 @@ class OptimizeJsTask extends \OptimizeResourceTask
 
     if ($includes)
     {
-      $thePhpCode = $this->processPhpSourceFileReplaceMethod($theFilename, $thePhpCode);
+      $phpCode = $this->processPhpSourceFileReplaceMethod($filename, $phpCode);
     }
 
-    return $thePhpCode;
+    return $phpCode;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -158,17 +158,17 @@ class OptimizeJsTask extends \OptimizeResourceTask
    * </ul>
    * with the appropriate optimized method.
    *
-   * @param string $theFilename The filename with the PHP code.
-   * @param string $thePhpCode  The PHP code.
+   * @param string $filename The filename with the PHP code.
+   * @param string $phpCode  The PHP code.
    *
    * @return string The modified PHP code.
    */
-  protected function processPhpSourceFileReplaceMethod($theFilename, $thePhpCode)
+  protected function processPhpSourceFileReplaceMethod($filename, $phpCode)
   {
-    $classes       = $this->getClasses($thePhpCode);
+    $classes       = $this->getClasses($phpCode);
     $current_class = '';
 
-    $lines = explode("\n", $thePhpCode);
+    $lines = explode("\n", $phpCode);
     foreach ($lines as $i => $line)
     {
       if (isset($classes[$i + 1]))
@@ -232,11 +232,11 @@ class OptimizeJsTask extends \OptimizeResourceTask
       // Test for invalid usages of methods for calling/including JS.
       else
       {
-        foreach ($this->myMethods as $method)
+        foreach ($this->methods as $method)
         {
           if (preg_match("/(->|::)($method)(\\()/", $line))
           {
-            $this->logError("Unexpected usage of method '%s' at %s:%d.", $method, $theFilename, $i + 1);
+            $this->logError("Unexpected usage of method '%s' at %s:%d.", $method, $filename, $i + 1);
           }
         }
       }
@@ -250,26 +250,26 @@ class OptimizeJsTask extends \OptimizeResourceTask
    * Executes a command and writes data to the standard input and reads data from the standard output and error of the
    * process.
    *
-   * @param string $theCommand The command to run.
-   * @param string $theInput   The data to send to the process.
+   * @param string $command The command to run.
+   * @param string $input   The data to send to the process.
    *
    * @return string[] An array with two elements: the standard output and the standard error.
    * @throws BuildException
    */
-  protected function runProcess($theCommand, $theInput)
+  protected function runProcess($command, $input)
   {
     $descriptor_spec = [0 => ["pipe", "r"],
                         1 => ["pipe", "w"],
                         2 => ["pipe", "w"]];
 
-    $process = proc_open($theCommand, $descriptor_spec, $pipes);
-    if ($process===false) $this->logError("Unable to span process '%s'.", $theCommand);
+    $process = proc_open($command, $descriptor_spec, $pipes);
+    if ($process===false) $this->logError("Unable to span process '%s'.", $command);
 
     $write_pipes = [$pipes[0]];
     $read_pipes  = [$pipes[1], $pipes[2]];
     $std_out     = '';
     $std_err     = '';
-    $std_in      = $theInput;
+    $std_in      = $input;
     while (true)
     {
       $reads  = $read_pipes;
@@ -286,7 +286,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
           if ($read==$pipes[1])
           {
             $data = fread($read, self::BUFFER_SIZE);
-            if ($data===false) $this->logError("Unable to read standard output from command '%s'.", $theCommand);
+            if ($data===false) $this->logError("Unable to read standard output from command '%s'.", $command);
             if ($data==='')
             {
               fclose($pipes[1]);
@@ -300,7 +300,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
           if ($read==$pipes[2])
           {
             $data = fread($read, self::BUFFER_SIZE);
-            if ($data===false) $this->logError("Unable to read standard error from command '%s'.", $theCommand);
+            if ($data===false) $this->logError("Unable to read standard error from command '%s'.", $command);
             if ($data==='')
             {
               fclose($pipes[2]);
@@ -317,7 +317,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
       if (isset($writes[0]))
       {
         $bytes = fwrite($writes[0], $std_in);
-        if ($bytes===false) $this->logError("Unable to write to standard input of command '%s'.", $theCommand);
+        if ($bytes===false) $this->logError("Unable to write to standard input of command '%s'.", $command);
         if ($bytes==0)
         {
           fclose($writes[0]);
@@ -336,7 +336,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
     {
       if ($std_err!=='') $this->logInfo($std_err);
       else               $this->logInfo($std_out);
-      $this->logError("Error executing '%s'.", $theCommand);
+      $this->logError("Error executing '%s'.", $command);
     }
 
     return [$std_out, $std_err];
@@ -346,25 +346,25 @@ class OptimizeJsTask extends \OptimizeResourceTask
   /**
    * Setter for XML attribute requireJsPath.
    *
-   * @param string $theRequireJsPath The command to run r.js.
+   * @param string $requireJsPath The command to run r.js.
    */
-  protected function setRequireJsPath($theRequireJsPath)
+  protected function setRequireJsPath($requireJsPath)
   {
-    $this->myRequireJsPath = $theRequireJsPath;
+    $this->requireJsPath = $requireJsPath;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Combines all JavaScript files required by a main JavaScript file.
    *
-   * @param string $theRealPath The path to the main JavaScript file.
+   * @param string $realPath The path to the main JavaScript file.
    *
    * @return array The combined code and parts.
    * @throws BuildException
    */
-  private function combine($theRealPath)
+  private function combine($realPath)
   {
-    $config = $this->extractConfigFromMainFile(self::getMainJsFileName($theRealPath));
+    $config = $this->extractConfigFromMainFile(self::getMainJsFileName($realPath));
 
     // Create temporary file with config.
     $tmp_name1 = tempnam('.', 'abc_');
@@ -373,19 +373,19 @@ class OptimizeJsTask extends \OptimizeResourceTask
     fclose($handle);
 
     // Create temporary file for combined JavaScript code.
-    $tmp_name2 = tempnam($this->myResourceDirFullPath, 'abc_');
+    $tmp_name2 = tempnam($this->resourceDirFullPath, 'abc_');
 
     // Run r.js.
-    $command = $this->myCombineCommand;
+    $command = $this->combineCommand;
     $command .= ' -o '.escapeshellarg($tmp_name1);
-    $command .= ' baseUrl='.escapeshellarg($this->myResourceDirFullPath);
+    $command .= ' baseUrl='.escapeshellarg($this->resourceDirFullPath);
     $command .= ' optimize=none';
-    $command .= ' name='.escapeshellarg($this->getNamespaceFromResourceFilename($theRealPath));
+    $command .= ' name='.escapeshellarg($this->getNamespaceFromResourceFilename($realPath));
     $command .= ' out='.escapeshellarg($tmp_name2);
 
     $this->logVerbose("Execute: $command");
     exec($command, $output, $ret);
-    if ($ret!=0) $this->logError("Error executing '%s'.", $this->myCombineCommand);
+    if ($ret!=0) $this->logError("Error executing '%s'.", $this->combineCommand);
 
     foreach ($output as $line)
     {
@@ -409,7 +409,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
     if ($code===false) $this->logError("Unable to read file '%s'.", $tmp_name2);
 
     // Get require.js
-    $path       = $this->myParentResourceDirFullPath.'/'.$this->myRequireJsPath;
+    $path       = $this->parentResourceDirFullPath.'/'.$this->requireJsPath;
     $require_js = file_get_contents($path);
     if ($code===false) $this->logError("Unable to read file '%s'.", $path);
 
@@ -428,14 +428,14 @@ class OptimizeJsTask extends \OptimizeResourceTask
    * Creates file and minimizes in which all required JavaScript files of a page specific RequireJs file are combined,
    * see {@link \SetBased\Abc\Page\Page::jsAdmSetPageSpecificMain}.
    *
-   * @param string $theFullPath The path to the JavaScript file
+   * @param string $fullPath The path to the JavaScript file
    *
    * @return string
    * @throws BuildException
    */
-  private function combineAndMinimize($theFullPath)
+  private function combineAndMinimize($fullPath)
   {
-    $real_path = realpath($theFullPath);
+    $real_path = realpath($fullPath);
 
     $combine_info = $this->combine($real_path);
     $files_info   = $this->getMainWithHashedPaths($real_path);
@@ -449,15 +449,15 @@ class OptimizeJsTask extends \OptimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * @param string $theFilename
+   * @param string $filename
    */
-  private function extractConfigFromMainFile($theFilename)
+  private function extractConfigFromMainFile($filename)
   {
-    $main = file_get_contents($theFilename);
-    if ($main===false) $this->logError("Unable to read file '%s'.", $theFilename);
+    $main = file_get_contents($filename);
+    if ($main===false) $this->logError("Unable to read file '%s'.", $filename);
 
     preg_match('/^(.*requirejs.config)(.*}\))(.*)$/sm', $main, $matches);
-    if (!isset($matches[2])) $this->logError("Unable to fine 'requirejs.config' in file '%s'.", $theFilename);
+    if (!isset($matches[2])) $this->logError("Unable to fine 'requirejs.config' in file '%s'.", $filename);
 
     return $matches[2];
   }
@@ -466,16 +466,16 @@ class OptimizeJsTask extends \OptimizeResourceTask
   /**
    * Reads the main.js file and returns baseUrl and paths.
    *
-   * @param $theMainJsFile
+   * @param $mainJsFile
    *
    * @return array
    */
-  private function extractPaths($theMainJsFile)
+  private function extractPaths($mainJsFile)
   {
     $extract_script = __DIR__.'/../../lib/extract_config.js';
     $command        = 'node';
     $command .= ' '.escapeshellarg($extract_script);
-    $command .= ' '.escapeshellarg($theMainJsFile);
+    $command .= ' '.escapeshellarg($mainJsFile);
     $output = shell_exec($command);
     if ($output===null) $this->logError("Command '%s' return failed.", $command);
     $config = json_decode($output, true);
@@ -487,14 +487,14 @@ class OptimizeJsTask extends \OptimizeResourceTask
   /**
    * Returns the full path of a ADM JavaScript file based on a PHP class name.
    *
-   * @param string $theClassName The PHP class name.
+   * @param string $className The PHP class name.
    *
    * @return string
    */
-  private function getFullPathFromClassName($theClassName)
+  private function getFullPathFromClassName($className)
   {
-    $file_name = str_replace('\\', '/', $theClassName).$this->myExtension;
-    $full_path = $this->myResourceDirFullPath.'/'.$file_name;
+    $file_name = str_replace('\\', '/', $className).$this->extension;
+    $full_path = $this->resourceDirFullPath.'/'.$file_name;
 
     return $full_path;
   }
@@ -503,14 +503,14 @@ class OptimizeJsTask extends \OptimizeResourceTask
   /**
    * Returns the full path of a ADM JavaScript file based on a ADM namespace.
    *
-   * @param string $theNamespace The ADM namespace.
+   * @param string $namespace The ADM namespace.
    *
    * @return string
    */
-  private function getFullPathFromNamespace($theNamespace)
+  private function getFullPathFromNamespace($namespace)
   {
-    $file_name = $theNamespace.$this->myExtension;
-    $full_path = $this->myResourceDirFullPath.'/'.$file_name;
+    $file_name = $namespace.$this->extension;
+    $full_path = $this->resourceDirFullPath.'/'.$file_name;
 
     return $full_path;
   }
@@ -519,21 +519,21 @@ class OptimizeJsTask extends \OptimizeResourceTask
   /**
    * Rewrites paths in requirejs.config. Adds path names from namespaces and aliases to filenames with hashes.
    *
-   * @param string $theRealPath The filename of the main.js file.
+   * @param string $realPath The filename of the main.js file.
    *
    * @return string
    * @throws BuildException
    */
-  private function getMainWithHashedPaths($theRealPath)
+  private function getMainWithHashedPaths($realPath)
   {
-    $main_js_file = self::getMainJsFileName($theRealPath);
+    $main_js_file = self::getMainJsFileName($realPath);
     // Read the main file.
     $js = file_get_contents($main_js_file);
-    if ($js===false) $this->logError("Unable to read file '%s'.", $theRealPath);
+    if ($js===false) $this->logError("Unable to read file '%s'.", $realPath);
 
     // Extract paths from main.
     preg_match('/^(.*paths:[^{]*)({[^}]*})(.*)$/sm', $js, $matches);
-    if (!isset($matches[2])) $this->logError("Unable to find paths in '%s'.", $theRealPath);
+    if (!isset($matches[2])) $this->logError("Unable to find paths in '%s'.", $realPath);
 
     // @todo Remove from paths files already combined.
 
@@ -582,30 +582,30 @@ class OptimizeJsTask extends \OptimizeResourceTask
   /**
    * Returns the namespace in JS file based on PHP class name.
    *
-   * @param string $theClassName The PHP class name.
+   * @param string $className The PHP class name.
    *
    * @return string
    */
-  private function getNamespaceFromClassName($theClassName)
+  private function getNamespaceFromClassName($className)
   {
-    return str_replace('\\', '/', $theClassName);
+    return str_replace('\\', '/', $className);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Returns the namespace based on the name of a JavaScript file.
    *
-   * @param string $theResourceFilename The name of the JavaScript file.
+   * @param string $resourceFilename The name of the JavaScript file.
    *
    * @return string
    * @throws BuildException
    */
-  private function getNamespaceFromResourceFilename($theResourceFilename)
+  private function getNamespaceFromResourceFilename($resourceFilename)
   {
-    $name = $this->getPathInResources($theResourceFilename);
+    $name = $this->getPathInResources($resourceFilename);
 
     // Remove resource dir from name.
-    $len = strlen(trim($this->myResourceDir, '/'));
+    $len = strlen(trim($this->resourceDir, '/'));
     if ($len>0)
     {
       $name = substr($name, $len + 2);
@@ -622,33 +622,33 @@ class OptimizeJsTask extends \OptimizeResourceTask
   /**
    * Helper function for {@link processPhpSourceFileReplaceMethodHelper}.
    *
-   * @param string[] $theMatches         The matches as returned by preg_match.
-   * @param string   $theOptimizedMethod The appropriate optimized method.
-   * @param string   $theNameSpace       The current class name of the PHP code.
-   * @param string   $theFullPath        The full path to the JS source.
+   * @param string[] $matches         The matches as returned by preg_match.
+   * @param string   $optimizedMethod The appropriate optimized method.
+   * @param string   $namespace       The current class name of the PHP code.
+   * @param string   $fullPath        The full path to the JS source.
    *
    * @return string
    * @throws BuildException
    */
-  private function processPhpSourceFileReplaceMethodHelper($theMatches,
-                                                           $theOptimizedMethod,
-                                                           $theNameSpace = null,
-                                                           $theFullPath = null)
+  private function processPhpSourceFileReplaceMethodHelper($matches,
+                                                           $optimizedMethod,
+                                                           $namespace = null,
+                                                           $fullPath = null)
   {
-    $theMatches[3] = $theOptimizedMethod;
-    if (isset($theFullPath))
+    $matches[3] = $optimizedMethod;
+    if (isset($fullPath))
     {
-      $theMatches[5] = "'".$this->combineAndMinimize($theFullPath)."'";
-      $full_path     = $theFullPath;
+      $matches[5] = "'".$this->combineAndMinimize($fullPath)."'";
+      $full_path  = $fullPath;
     }
-    elseif (isset($theNameSpace))
+    elseif (isset($namespace))
     {
-      $theMatches[5] = "'".$theNameSpace."'";
-      $full_path     = $this->getFullPathFromNamespace($theNameSpace);
+      $matches[5] = "'".$namespace."'";
+      $full_path  = $this->getFullPathFromNamespace($namespace);
     }
     else
     {
-      $full_path = $this->getFullPathFromNamespace($theMatches[5]);
+      $full_path = $this->getFullPathFromNamespace($matches[5]);
     }
 
     if (!file_exists($full_path))
@@ -656,28 +656,28 @@ class OptimizeJsTask extends \OptimizeResourceTask
       $this->logError("File '%s' not found.", $full_path);
     }
 
-    array_shift($theMatches);
+    array_shift($matches);
 
-    return implode('', $theMatches);
+    return implode('', $matches);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Removes the .js (if any) extension form a filename.
    *
-   * @param $theFileName string Filename
+   * @param $filename string Filename
    *
    * @return string Filename without .js extension.
    */
-  private function removeJsExtension($theFileName)
+  private function removeJsExtension($filename)
   {
-    $extension = substr($theFileName, -strlen($this->myExtension));
-    if ($extension==$this->myExtension)
+    $extension = substr($filename, -strlen($this->extension));
+    if ($extension==$this->extension)
     {
-      return substr($theFileName, 0, -strlen($this->myExtension));
+      return substr($filename, 0, -strlen($this->extension));
     }
 
-    return $theFileName;
+    return $filename;
   }
 
   //--------------------------------------------------------------------------------------------------------------------

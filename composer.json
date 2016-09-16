@@ -4,8 +4,6 @@
   "type": "library",
   "keyword": ["abc", "phing", "extensions"],
   "license": "MIT",
-  "minimum-stability": "dev",
-  "prefer-stable": true,
   "require-dev": {
     "gajus/dindent": "2.*",
     "phing/phing": "*",
@@ -13,7 +11,8 @@
   },
   "require": {
     "php": ">=5.4.0",
-    "setbased/abc": "*",
+    "setbased/abc-url": "1.*",
+    "setbased/exception": "1.*",
     "tubalmartin/cssmin": "2.*"
   },
   "autoload": {

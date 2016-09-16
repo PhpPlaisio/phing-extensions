@@ -15,28 +15,28 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
    *
    * @var array
    */
-  private $myReplacePairs = [];
+  private $replacePairs = [];
 
   /**
    * The names of the sources files.
    *
    * @var array
    */
-  private $mySourceFileNames;
+  private $sourceFileNames;
 
   /**
    * Info about source files.
    *
    * @var array
    */
-  private $mySourceFilesInfo;
+  private $sourceFilesInfo;
 
   /**
    * The ID of the fileset with sources.
    *
    * @var string
    */
-  private $mySourcesFilesetId;
+  private $sourcesFilesetId;
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -63,7 +63,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
     $this->processResourceFiles();
 
     // Create pre-compressed versions of the optimized/minimized resource files.
-    if ($this->myGzipFlag) $this->gzipCompressOptimizedResourceFiles();
+    if ($this->gzipFlag) $this->gzipCompressOptimizedResourceFiles();
 
     // Remove original resource files that are optimized/minimized.
     $this->unlinkResourceFiles();
@@ -73,46 +73,46 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
   /**
    * Setter for XML attribute GZip.
    *
-   * @param $theGzipFlag bool.
+   * @param $gzipFlag bool.
    */
-  public function setGzip($theGzipFlag = false)
+  public function setGzip($gzipFlag = false)
   {
-    $this->myGzipFlag = (boolean)$theGzipFlag;
+    $this->gzipFlag = (boolean)$gzipFlag;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Setter for XML attribute preserveLastModified.
    *
-   * @param $thePreserveLastModifiedFlag bool
+   * @param $preserveLastModifiedFlag bool
    */
-  public function setPreserveLastModified($thePreserveLastModifiedFlag)
+  public function setPreserveLastModified($preserveLastModifiedFlag)
   {
-    $this->myPreserveModificationTime = (boolean)$thePreserveLastModifiedFlag;
+    $this->preserveModificationTime = (boolean)$preserveLastModifiedFlag;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Setter for XML attribute sources.
    *
-   * @param $theSources string The ID of the fileset with source files.
+   * @param $sources string The ID of the fileset with source files.
    */
-  public function setSources($theSources)
+  public function setSources($sources)
   {
-    $this->mySourcesFilesetId = $theSources;
+    $this->sourcesFilesetId = $sources;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Returns an array with classes and namespaces defined in PHP code.
    *
-   * @param string $thePhpCode The PHP code.
+   * @param string $phpCode The PHP code.
    *
    * @return array
    */
-  protected function getClasses($thePhpCode)
+  protected function getClasses($phpCode)
   {
-    $tokens = token_get_all($thePhpCode);
+    $tokens = token_get_all($phpCode);
 
     $mode      = '';
     $namespace = '';
@@ -190,9 +190,9 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
     parent::prepareProjectData();
 
     // Get file list form the project by fileset ID.
-    $sources                 = $this->getProject()->getReference($this->mySourcesFilesetId);
-    $this->mySourceFileNames = $sources->getDirectoryScanner($this->getProject())->getIncludedFiles();
-    $suc                     = ksort($this->mySourceFileNames);
+    $sources               = $this->getProject()->getReference($this->sourcesFilesetId);
+    $this->sourceFileNames = $sources->getDirectoryScanner($this->getProject())->getIncludedFiles();
+    $suc                   = ksort($this->sourceFileNames);
     if ($suc===false) $this->logError("ksort failed.");
   }
   //--------------------------------------------------------------------------------------------------------------------
@@ -200,12 +200,12 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
    * In PHP code replaces references to resource files (i.e. CSS or JS files) with references to the optimized versions
    * of the resource files.
    *
-   * @param string $theFilename The filename with the PHP code.
-   * @param string $thePhpCode  The PHP code.
+   * @param string $filename The filename with the PHP code.
+   * @param string $phpCode  The PHP code.
    *
    * @return string The modified PHP code.
    */
-  abstract protected function processPhpSourceFile($theFilename, $thePhpCode);
+  abstract protected function processPhpSourceFile($filename, $phpCode);
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -216,16 +216,16 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
     $this->logVerbose('Get resource files info.');
 
     // Get the base dir of the sources.
-    $dir = $this->getProject()->getReference($this->mySourcesFilesetId)->getDir($this->getProject());
+    $dir = $this->getProject()->getReference($this->sourcesFilesetId)->getDir($this->getProject());
 
-    foreach ($this->mySourceFileNames as $theFileName)
+    foreach ($this->sourceFileNames as $theFileName)
     {
-      $filename                            = $dir.'/'.$theFileName;
-      $real_path                           = realpath($filename);
-      $this->mySourceFilesInfo[$real_path] = $filename;
+      $filename                          = $dir.'/'.$theFileName;
+      $real_path                         = realpath($filename);
+      $this->sourceFilesInfo[$real_path] = $filename;
     }
 
-    $suc = ksort($this->mySourceFilesInfo);
+    $suc = ksort($this->sourceFilesInfo);
     if ($suc===false) $this->logError("ksort failed.");
   }
 
@@ -233,20 +233,20 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
   /**
    * Returns the maximum mtime of a sources file and its referenced optimized/minimized resource files.
    *
-   * @param $theSourceFilename string The name of the source file.
-   * @param $theContent        string The content of the source file with renamed references to resource files.
+   * @param $sourceFilename string The name of the source file.
+   * @param $content        string The content of the source file with renamed references to resource files.
    *
    * @return int The max mtime.
    */
-  private function getMaxModificationTime($theSourceFilename, $theContent)
+  private function getMaxModificationTime($sourceFilename, $content)
   {
     $times = [];
 
-    $time = filemtime($theSourceFilename);
-    if ($time===false) $this->logError("Unable to get mtime of file '%s'.", $theSourceFilename);
+    $time = filemtime($sourceFilename);
+    if ($time===false) $this->logError("Unable to get mtime of file '%s'.", $sourceFilename);
     $times[] = $time;
 
-    $resource_files_info = $this->getResourceFilesInSource($theContent);
+    $resource_files_info = $this->getResourceFilesInSource($content);
     foreach ($resource_files_info as $resource_file_info)
     {
       $info = $this->getResourceInfoByHash($resource_file_info['full_path_name_with_hash']);
@@ -262,16 +262,16 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
   /**
    * Returns an array with info about resource files referenced from a source file.
    *
-   * @param $theSourceFileContent string Content of updated source file.
+   * @param $sourceFileContent string Content of updated source file.
    *
    * @return array
    */
-  private function getResourceFilesInSource($theSourceFileContent)
+  private function getResourceFilesInSource($sourceFileContent)
   {
     $resource_files = [];
     foreach ($this->getResourcesInfo() as $file_info)
     {
-      if (strpos($theSourceFileContent, $file_info['path_name_in_sources_with_hash'])!==false)
+      if (strpos($sourceFileContent, $file_info['path_name_in_sources_with_hash'])!==false)
       {
         $resource_files[] = $file_info;
       }
@@ -321,7 +321,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
         }
 
         // If required preserve mtime.
-        if ($this->myPreserveModificationTime)
+        if ($this->preserveModificationTime)
         {
           $info  = $this->getResourceInfoByHash($file_info['full_path_name_with_hash']);
           $mtime = $info['mtime'];
@@ -330,7 +330,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
 
         // If required preserve file permissions.
         clearstatcache();
-        if ($this->myPreserveModificationTime && fileperms($file_info['full_path_name_with_hash'])!==false)
+        if ($this->preserveModificationTime && fileperms($file_info['full_path_name_with_hash'])!==false)
         {
           $this->setFilePermissions($file_info['full_path_name_with_hash'].'.gz', $file_info['full_path_name_with_hash']);
         }
@@ -349,13 +349,13 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
 
     foreach ($this->getResourcesInfo() as $file_info)
     {
-      $this->myReplacePairs["'".$file_info['path_name_in_sources']."'"] = "'".$file_info['path_name_in_sources_with_hash']."'";
-      $this->myReplacePairs['"'.$file_info['path_name_in_sources'].'"'] = '"'.$file_info['path_name_in_sources_with_hash'].'"';
+      $this->replacePairs["'".$file_info['path_name_in_sources']."'"] = "'".$file_info['path_name_in_sources_with_hash']."'";
+      $this->replacePairs['"'.$file_info['path_name_in_sources'].'"'] = '"'.$file_info['path_name_in_sources_with_hash'].'"';
 
       if (isset($file_info['path_name_in_sources_alternative']))
       {
-        $this->myReplacePairs["'".$file_info['path_name_in_sources_alternative']."'"] = "'".$file_info['path_name_in_sources_with_hash']."'";
-        $this->myReplacePairs['"'.$file_info['path_name_in_sources_alternative'].'"'] = '"'.$file_info['path_name_in_sources_with_hash'].'"';
+        $this->replacePairs["'".$file_info['path_name_in_sources_alternative']."'"] = "'".$file_info['path_name_in_sources_with_hash']."'";
+        $this->replacePairs['"'.$file_info['path_name_in_sources_alternative'].'"'] = '"'.$file_info['path_name_in_sources_with_hash'].'"';
       }
     }
   }
@@ -379,7 +379,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
   {
     $this->logVerbose('Replace references to resource files with references to optimized/minimized resource files.');
 
-    foreach ($this->mySourceFilesInfo as $source_filename)
+    foreach ($this->sourceFilesInfo as $source_filename)
     {
       $this->logVerbose("Processing %s.", $source_filename);
 
@@ -394,14 +394,14 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
         $new_content = $this->processPhpSourceFile($source_filename, $new_content);
       }
 
-      $new_content = strtr($new_content, $this->myReplacePairs);
+      $new_content = strtr($new_content, $this->replacePairs);
 
       if ($content!=$new_content)
       {
         $time = null;
 
         // If required determine the latest modification time of the source file and its referenced resource files.
-        if ($this->myPreserveModificationTime)
+        if ($this->preserveModificationTime)
         {
           $time = $this->getMaxModificationTime($source_filename, $new_content);
         }
@@ -413,7 +413,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
 
         // If required set the mtime to the latest modification time of the source file and its referenced resource
         // files.
-        if ($this->myPreserveModificationTime)
+        if ($this->preserveModificationTime)
         {
           $status = touch($source_filename, $time);
           if ($status===false) $this->logError("Unable to set mtime for file '%s'.", $source_filename);
