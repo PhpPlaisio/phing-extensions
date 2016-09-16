@@ -30,6 +30,13 @@ class OptimizeCssTask extends OptimizeResourceTask
                       'cssStaticAppendSource',
                       'cssStaticOptimizedAppendSource'];
 
+  /**
+   * The command to minify CSS.
+   *
+   * @var string
+   */
+  private $minifyCommand = '/usr/bin/csso';
+
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * OptimizeCssTask constructor.
@@ -61,22 +68,22 @@ class OptimizeCssTask extends OptimizeResourceTask
    */
   protected function minimizeResource($resource, $fullPathName)
   {
-    $ret = $resource;
-
-    // If $theFullPathName is not set $theResource is concatenation of 2 or more optimized CSS file. There is no need to
-    // convert relative paths and minimized $theResource again. Moreover, it is not possible to convert relative paths
-    // since $theResource can be a concatenation of CSS files from different subdirectories.
+    // If $theFullPathName is not set $resource is concatenation of 2 or more optimized CSS file. There is no need to
+    // convert relative paths and minimized $resource again. Moreover, it is not possible to convert relative paths
+    // since $resource can be a concatenation of CSS files from different subdirectories.
     if (isset($fullPathName))
     {
-      $ret = $this->convertRelativePaths($resource, $fullPathName);
+      $css = $this->convertRelativePaths($resource, $fullPathName);
 
-      // Compress the CSS code.
-      if ($this->minimize)
-      {
-        $compressor = new \CSSmin(false);
+      list($std_out, $std_err) = $this->runProcess($this->minifyCommand, $css);
 
-        $ret = $compressor->run($ret);
-      }
+      if ($std_err) $this->logInfo($std_err);
+
+      $ret = $std_out;
+    }
+    else
+    {
+      $ret = $resource;
     }
 
     return $ret;

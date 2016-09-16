@@ -10,7 +10,7 @@ class TestPage extends SetBased\Abc\Page\Page
   {
     parent::__construct();
 
-    $this->cssOptimizedAppendSource('/css/ff3f38f38d725ca0c1172fbc4ca3ce0f.0.css');
+    $this->cssOptimizedAppendSource('/css/7224b5fd2f9d756a6ac576bbe070efba.0.css');
 
   }
 

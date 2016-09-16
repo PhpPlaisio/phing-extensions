@@ -11,6 +11,13 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * The size of buffers for reading stdout and stderr of sub-processes.
+   *
+   * @var int
+   */
+  const BUFFER_SIZE = 8000;
+
+  /**
    * Map from the original references to resource files to new references (which includes a hash).
    *
    * @var array
@@ -209,6 +216,103 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Executes a command and writes data to the standard input and reads data from the standard output and error of the
+   * process.
+   *
+   * @param string $command The command to run.
+   * @param string $input   The data to send to the process.
+   *
+   * @return string[] An array with two elements: the standard output and the standard error.
+   * @throws BuildException
+   */
+  protected function runProcess($command, $input)
+  {
+    $descriptor_spec = [0 => ["pipe", "r"],
+                        1 => ["pipe", "w"],
+                        2 => ["pipe", "w"]];
+
+    $process = proc_open($command, $descriptor_spec, $pipes);
+    if ($process===false) $this->logError("Unable to span process '%s'.", $command);
+
+    $write_pipes = [$pipes[0]];
+    $read_pipes  = [$pipes[1], $pipes[2]];
+    $std_out     = '';
+    $std_err     = '';
+    $std_in      = $input;
+    while (true)
+    {
+      $reads  = $read_pipes;
+      $writes = $write_pipes;
+      $except = null;
+
+      if (!$reads && !$writes) break;
+
+      stream_select($reads, $writes, $except, 1);
+      if ($reads)
+      {
+        foreach ($reads as $read)
+        {
+          if ($read==$pipes[1])
+          {
+            $data = fread($read, self::BUFFER_SIZE);
+            if ($data===false) $this->logError("Unable to read standard output from command '%s'.", $command);
+            if ($data==='')
+            {
+              fclose($pipes[1]);
+              unset($read_pipes[0]);
+            }
+            else
+            {
+              $std_out .= $data;
+            }
+          }
+          if ($read==$pipes[2])
+          {
+            $data = fread($read, self::BUFFER_SIZE);
+            if ($data===false) $this->logError("Unable to read standard error from command '%s'.", $command);
+            if ($data==='')
+            {
+              fclose($pipes[2]);
+              unset($read_pipes[1]);
+            }
+            else
+            {
+              $std_err .= $data;
+            }
+          }
+        }
+      }
+
+      if (isset($writes[0]))
+      {
+        $bytes = fwrite($writes[0], $std_in);
+        if ($bytes===false) $this->logError("Unable to write to standard input of command '%s'.", $command);
+        if ($bytes==0)
+        {
+          fclose($writes[0]);
+          unset($write_pipes[0]);
+        }
+        else
+        {
+          $std_in = substr($std_in, $bytes);
+        }
+      }
+    }
+
+    // Close the process and it return value.
+    $ret = proc_close($process);
+    if ($ret!=0)
+    {
+      if ($std_err!=='') $this->logInfo($std_err);
+      else               $this->logInfo($std_out);
+      $this->logError("Error executing '%s'.", $command);
+    }
+
+    return [$std_out, $std_err];
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    *  Gets full path for each source file in the source fileset.
    */
   private function getInfoSourceFiles()
@@ -369,6 +473,8 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
     // Save all optimized resource files.
     $this->saveOptimizedResourceFiles();
   }
+
+
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
