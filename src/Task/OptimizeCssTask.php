@@ -286,16 +286,25 @@ class OptimizeCssTask extends OptimizeResourceTask
    */
   private function convertRelativePaths($css, $fullPathName)
   {
-    // @todo fix URLs like url(test/test(1).jpg)
+    // Note: URLs like url(test/test(1).jpg) i.e. URL with ( or ) in name, or not supported.
 
-    $ccs = preg_replace_callback('/(url\([\'"]?)(([^()]|(?R))+)([\'"]?\))/i',
+    // The pcre.backtrack_limit option can trigger a NULL return, with no errors. To prevent we reach this limit we
+    // split the CSS into an array of lines.
+    $lines = explode("\n", $css);
+
+    $lines = preg_replace_callback('/(url\([\'"]?)(([^()]|(?R))+)([\'"]?\))/i',
       function ($matches) use ($fullPathName)
       {
         return $matches[1].Url::combine($this->getPathInResources($fullPathName), $matches[2]).$matches[4];
       },
-                                 $css);
+                                   $lines);
 
-    return $ccs;
+    if ($lines===null)
+    {
+      $this->logError("Converting relative paths failed for '%s'", $fullPathName);
+    }
+
+    return implode("\n", $lines);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
