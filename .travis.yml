@@ -8,6 +8,7 @@ php:
   - nightly
   
 install:
+  - npm install -g csso
   - composer self-update
   - composer install
   -
