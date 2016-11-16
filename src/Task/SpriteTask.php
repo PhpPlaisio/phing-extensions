@@ -23,11 +23,32 @@ class SpriteTask extends \Task
   private $css = '';
 
   /**
+   * Image extension.
+   *
+   * @var string
+   */
+  private $extension = '';
+
+  /**
    * File name for result image.
    *
    * @var string
    */
   private $image = '';
+
+  /**
+   * Image height.
+   *
+   * @var int
+   */
+  private $imageHeight;
+
+  /**
+   * Image width.
+   *
+   * @var int
+   */
+  private $imageWidth;
 
   /**
    * Directory with images for concatenating.
@@ -56,27 +77,7 @@ class SpriteTask extends \Task
    */
   public function main()
   {
-    $imgArray  = [];
-    $extension = '';
-    $images    = glob($this->basedir.'/'.$this->images);
-
-    foreach ($images as $image)
-    {
-      if (!$extension)
-      {
-        $extension = pathinfo($image, PATHINFO_EXTENSION);
-      }
-      if ($extension!==pathinfo($image, PATHINFO_EXTENSION))
-      {
-        $this->log('Images have different extensions.', Project::MSG_ERR);
-        exit(0);
-      }
-      $imgArray[] = $image;
-    }
-    asort($imgArray);
-
-    $crc32 = $this->createSprite($imgArray);
-    $this->createCss($imgArray, $crc32);
+    $this->getImages();
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -143,15 +144,13 @@ class SpriteTask extends \Task
    */
   private function createCss($imgArray, $crc32)
   {
-    $x         = 32;
-    $y         = 32;
     $cssStyles = '';
     foreach ($imgArray as $file)
     {
       if ($cssStyles) $cssStyles .= ',';
-      $cssStyles .= '.my-icons-'.basename($file, '.png');
+      $cssStyles .= '.my-icons-'.basename($file, '.'.$this->extension);
     }
-    $cssStyles .= '{ background-image: url('.$this->basedir.'/'.basename($this->image, '.png').'-'.$crc32.'.png) no-repeat; }';
+    $cssStyles .= '{ background-image: url('.$this->basedir.'/'.basename($this->image, ',png').'-'.$crc32.'.png) no-repeat; }';
     $yi = 0;
     $xi = 0;
     foreach ($imgArray as $file)
@@ -161,7 +160,7 @@ class SpriteTask extends \Task
         $xi = 0;
         $yi++;
       }
-      $cssStyles .= '.my-icons-'.basename($file, '.png').' { background-position: -'.($x * $xi).'px -'.($y * $yi).'px; }';
+      $cssStyles .= '.my-icons-'.basename($file, '.'.$this->extension).' { background-position: -'.($this->imageWidth * $xi).'px -'.($this->imageHeight * $yi).'px; }';
       $xi++;
     }
     $fp = fopen($this->resourceroot.'/'.$this->css, 'w');
@@ -179,10 +178,7 @@ class SpriteTask extends \Task
    */
   private function createSprite($imgArray)
   {
-    $x = 32;
-    $y = 32;
-
-    $im = imagecreatetruecolor($x * 2, $y * 2);
+    $im = imagecreatetruecolor($this->imageWidth * 2, $this->imageHeight * 2);
 
     // Add alpha channel to image (transparency)
     imagesavealpha($im, true);
@@ -200,7 +196,7 @@ class SpriteTask extends \Task
         $xi = 0;
         $yi++;
       }
-      imagecopy($im, $im2, ($x * $xi), ($y * $yi), 0, 0, $x, $y);
+      imagecopy($im, $im2, ($this->imageWidth * $xi), ($this->imageHeight * $yi), 0, 0, $this->imageWidth, $this->imageHeight);
       $xi++;
     }
     // Save image to file
@@ -208,10 +204,55 @@ class SpriteTask extends \Task
     imagepng($im, $imagePath);
     $crc32 = crc32(file_get_contents($imagePath));
     unlink($imagePath);
-    imagepng($im, $this->resourceroot.'/'.basename($this->image, '.png').'-'.$crc32.'.'.pathinfo($this->image, PATHINFO_EXTENSION));
+    imagepng($im, $this->resourceroot.'/'.pathinfo($this->image, PATHINFO_DIRNAME).'/'.basename($this->image, '.png').'-'.$crc32.'.'.pathinfo($this->image, PATHINFO_EXTENSION));
     imagedestroy($im);
 
     return $crc32;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Read images for work.
+   */
+  private function getImages()
+  {
+    $imgArray = [];
+    $images   = glob($this->basedir.'/'.$this->images);
+
+    foreach ($images as $image)
+    {
+      $data   = getimagesize($image);
+      $width  = $data[0];
+      $height = $data[1];
+      if (!$this->imageHeight)
+      {
+        $this->imageHeight = $height;
+      }
+      if (!$this->imageWidth)
+      {
+        $this->imageWidth = $width;
+      }
+      if ($width!=$this->imageWidth || $this->imageHeight!=$height)
+      {
+        $this->log('Images have different sizes.', Project::MSG_ERR);
+        exit(0);
+      }
+
+      if (!$this->extension)
+      {
+        $this->extension = pathinfo($image, PATHINFO_EXTENSION);
+      }
+      if ($this->extension!==pathinfo($image, PATHINFO_EXTENSION))
+      {
+        $this->log('Images have different extensions.', Project::MSG_ERR);
+        exit(0);
+      }
+      $imgArray[] = $image;
+    }
+    asort($imgArray);
+
+    $crc32 = $this->createSprite($imgArray);
+    $this->createCss($imgArray, $crc32);
   }
 
   //--------------------------------------------------------------------------------------------------------------------

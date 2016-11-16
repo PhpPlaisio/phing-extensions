@@ -1,0 +1,14 @@
+<project name="ABC-Phing" default="build" basedir=".">
+    <taskdef name="sprite" classname="../../src.Task.SpriteTask" />
+    <property name="VERSION" value="0.0.0"/>
+    <property name="RELEASE" value="0.0.0"/>
+    <property name="PRE_RELEASE" value=""/>
+
+    <!-- Runs all unit tests -->
+    <target name="sprite">
+        <sprite resourceroot="www" basedir="www/images" images="my-icons/*.*" image="images/my-icons.png" css="css/my-icons.css"/>
+    </target>
+
+    <target name="build" depends="sprite">
+    </target>
+</project>
