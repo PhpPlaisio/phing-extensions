@@ -1,5 +1,5 @@
 <project name="abc-phing" default="build" basedir=".">
-    <taskdef name="optimizeCss" classname="../../src.Task.OptimizeCssTask"/>
+    <taskdef name="optimizeCss" classname="../../../src.Task.OptimizeCssTask"/>
     <property name="BUILD_DIR" value="./build"/>
     <property name="CSS_DIR" value="www/css"/>
 
