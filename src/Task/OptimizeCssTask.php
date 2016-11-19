@@ -360,12 +360,11 @@ class OptimizeCssTask extends OptimizeResourceTask
   /**
    * Helper function for {@link processPhpSourceFileReplaceMethodHelper}.
    *
-   * @param string[] $matches         The matches as returned by preg_match.
-   * @param string   $optimizedMethod The appropriate optimized method.
-   * @param string   $className       The current class name of the PHP code.
+   * @param string[]    $matches         The matches as returned by preg_match.
+   * @param string      $optimizedMethod The appropriate optimized method.
+   * @param string|null $className       The current class name of the PHP code.
    *
    * @return string
-   * @throws BuildException
    */
   private function processPhpSourceFileReplaceMethodHelper($matches, $optimizedMethod, $className = null)
   {

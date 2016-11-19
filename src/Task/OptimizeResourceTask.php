@@ -166,7 +166,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
         }
         else
         {
-          throw new LogicException("Unexpected token %s", print_r($token, true));
+          throw new LogicException('Unexpected token %s', print_r($token, true));
         }
       }
 
@@ -201,7 +201,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
     $sources               = $this->getProject()->getReference($this->sourcesFilesetId);
     $this->sourceFileNames = $sources->getDirectoryScanner($this->getProject())->getIncludedFiles();
     $suc                   = ksort($this->sourceFileNames);
-    if ($suc===false) $this->logError("ksort failed.");
+    if ($suc===false) $this->logError('ksort failed.');
   }
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -228,9 +228,9 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
    */
   protected function runProcess($command, $input)
   {
-    $descriptor_spec = [0 => ["pipe", "r"],
-                        1 => ["pipe", "w"],
-                        2 => ["pipe", "w"]];
+    $descriptor_spec = [0 => ['pipe', 'r'],
+                        1 => ['pipe', 'w'],
+                        2 => ['pipe', 'w']];
 
     $process = proc_open($command, $descriptor_spec, $pipes);
     if ($process===false) $this->logError("Unable to span process '%s'.", $command);
@@ -331,7 +331,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
     }
 
     $suc = ksort($this->sourceFilesInfo);
-    if ($suc===false) $this->logError("ksort failed.");
+    if ($suc===false) $this->logError('ksort failed.');
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -488,7 +488,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
 
     foreach ($this->sourceFilesInfo as $source_filename)
     {
-      $this->logVerbose("Processing %s.", $source_filename);
+      $this->logVerbose('Processing %s.', $source_filename);
 
       $content = file_get_contents($source_filename);
       if ($content===false) $this->logError("Unable to read file '%s'.", $source_filename);
