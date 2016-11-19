@@ -2,7 +2,11 @@
   "name": "setbased/abc-phing",
   "description": "Phing Extensions for SetBased ABC Framework",
   "type": "library",
-  "keyword": ["abc", "phing", "extensions"],
+  "keyword": [
+    "abc",
+    "phing",
+    "extensions"
+  ],
   "license": "MIT",
   "require-dev": {
     "phing/phing": "*",

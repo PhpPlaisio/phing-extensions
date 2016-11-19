@@ -11,7 +11,8 @@
 
     <!-- Runs ApiGen -->
     <target name="apigen">
-        <exec command="apigen generate --todo --tree --source src --destination doc/api" passthru="true" checkreturn="true"/>
+        <exec command="apigen generate --todo --tree --source src --destination doc/api" passthru="true"
+              checkreturn="true"/>
     </target>
 
     <!-- Runs all unit tests -->
@@ -21,7 +22,8 @@
 
     <!-- Runs PHP code sniffer -->
     <target name="phpcs">
-        <exec command="bin/phpcs --standard=vendor/setbased/php-coding-standards/ruleset.xml src/" passthru="true" checkreturn="true"/>
+        <exec command="bin/phpcs --standard=vendor/setbased/php-coding-standards/ruleset.xml src/" passthru="true"
+              checkreturn="true"/>
     </target>
 
     <!-- Creates a new version/release. -->

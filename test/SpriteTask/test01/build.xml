@@ -1,0 +1,10 @@
+<project name="ABC-Phing" default="build" basedir=".">
+    <taskdef name="sprite" classname="../../../src.Task.SpriteTask" />
+
+    <target name="sprite">
+        <sprite resourceroot="www" basedir="www/images" images="my-icons/*.*" image="images/my-icons.png" css="css/my-icons.css"/>
+    </target>
+
+    <target name="build" depends="sprite">
+    </target>
+</project>
