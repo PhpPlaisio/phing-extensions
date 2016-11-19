@@ -153,6 +153,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
         elseif (is_array($token) && $token[0]==T_WHITESPACE)
         {
           // Ignore whitespace.
+          ;
         }
         elseif ($token===';')
         {
@@ -241,14 +242,14 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
     $std_in      = $input;
     while (true)
     {
+      if (empty($read_pipes) && empty($write_pipes)) break;
+
       $reads  = $read_pipes;
       $writes = $write_pipes;
       $except = null;
 
-      if (!$reads && !$writes) break;
-
       stream_select($reads, $writes, $except, 1);
-      if ($reads)
+      if (!empty($reads))
       {
         foreach ($reads as $read)
         {

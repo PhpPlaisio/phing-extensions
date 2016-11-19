@@ -168,7 +168,7 @@ class OptimizeCssTask extends OptimizeResourceTask
 
         if ($previous + 1!=$i)
         {
-          if ($group)
+          if (!empty($group))
           {
             $groups[] = $group;
             $group    = [];
@@ -179,7 +179,7 @@ class OptimizeCssTask extends OptimizeResourceTask
         $previous = $i;
       }
     }
-    if ($group) $groups[] = $group;
+    if (!empty($group)) $groups[] = $group;
 
     // Combine groups with 2 or more CSS files to one file.
     foreach ($groups as $group)
