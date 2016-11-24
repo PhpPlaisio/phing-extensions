@@ -30,6 +30,13 @@ class SpriteTask extends \Task
   private $extension = '';
 
   /**
+   * If set stop build on errors.
+   *
+   * @var bool
+   */
+  private $haltOnError = true;
+
+  /**
    * File name for result image.
    *
    * @var string
@@ -137,6 +144,36 @@ class SpriteTask extends \Task
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Prints an error message and depending on HaltOnError throws an exception.
+   *
+   * @param mixed ...$param The arguments as for [sprintf](http://php.net/manual/function.sprintf.php)
+   *
+   * @throws \BuildException
+   */
+  protected function logError()
+  {
+    $args   = func_get_args();
+    $format = array_shift($args);
+
+    foreach ($args as &$arg)
+    {
+      if (!is_scalar($arg)) $arg = var_export($arg, true);
+    }
+
+    if ($this->haltOnError) throw new \BuildException(vsprintf($format, $args));
+
+    if (sizeof($args)==0)
+    {
+      $this->log($format, \Project::MSG_ERR);
+    }
+    else
+    {
+      $this->log(vsprintf($format, $args), \Project::MSG_ERR);
+    }
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Create css file for work with sprite.
    *
    * @param array  $imgArray Array with paths for images.
@@ -234,8 +271,7 @@ class SpriteTask extends \Task
       }
       if ($width!=$this->imageWidth || $this->imageHeight!=$height)
       {
-        $this->log('Images have different sizes.', Project::MSG_ERR);
-        exit(0);
+        $this->logError('Images have different sizes.');
       }
 
       if (!$this->extension)
@@ -244,8 +280,7 @@ class SpriteTask extends \Task
       }
       if ($this->extension!==pathinfo($image, PATHINFO_EXTENSION))
       {
-        $this->log('Images have different extensions.', Project::MSG_ERR);
-        exit(0);
+        $this->logError('Images have different extensions.');
       }
       $imgArray[] = $image;
     }
