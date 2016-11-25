@@ -16,6 +16,7 @@
   "require": {
     "php": ">=5.4.0",
     "setbased/abc-url": "1.*",
+    "setbased/helper-code-store": "*",
     "setbased/exception": "1.*"
   },
   "autoload": {
