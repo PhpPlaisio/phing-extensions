@@ -30,6 +30,13 @@ class SpriteTask extends \Task
   private $extension = '';
 
   /**
+   * If set stop build on errors.
+   *
+   * @var bool
+   */
+  private $haltOnError = true;
+
+  /**
    * File name for result image.
    *
    * @var string
@@ -169,6 +176,36 @@ class SpriteTask extends \Task
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Prints an error message and depending on HaltOnError throws an exception.
+   *
+   * @param mixed ...$param The arguments as for [sprintf](http://php.net/manual/function.sprintf.php)
+   *
+   * @throws \BuildException
+   */
+  protected function logError()
+  {
+    $args   = func_get_args();
+    $format = array_shift($args);
+
+    foreach ($args as &$arg)
+    {
+      if (!is_scalar($arg)) $arg = var_export($arg, true);
+    }
+
+    if ($this->haltOnError) throw new \BuildException(vsprintf($format, $args));
+
+    if (sizeof($args)==0)
+    {
+      $this->log($format, \Project::MSG_ERR);
+    }
+    else
+    {
+      $this->log(vsprintf($format, $args), \Project::MSG_ERR);
+    }
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Create css file for work with sprite.
    *
    * @param array  $imgArray Array with paths for images.
@@ -253,8 +290,10 @@ class SpriteTask extends \Task
     $images = glob($this->basedir.'/'.$this->images);
 
     $this->checkSizes($images);
+        $this->logError('Images have different sizes.');
 
     asort($images);
+        $this->logError('Images have different extensions.');
 
     return $images;
   }
