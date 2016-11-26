@@ -62,7 +62,7 @@ class SpriteTask extends \Task
    *
    * @var string
    */
-  private $resourceroot = '';
+  private $resourceRoot = '';
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -131,11 +131,11 @@ class SpriteTask extends \Task
   /**
    * Setter for resourceroot.
    *
-   * @param mixed $resourceroot
+   * @param mixed $resourceRoot
    */
-  public function setResourceroot($resourceroot)
+  public function setResourceRoot($resourceRoot)
   {
-    $this->resourceroot = $resourceroot;
+    $this->resourceRoot = $resourceRoot;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -195,7 +195,7 @@ class SpriteTask extends \Task
       $cssStyles .= '.my-icons-'.basename($file, '.'.pathinfo($file, PATHINFO_EXTENSION)).' { background-position: -'.($this->imageWidth * $xi).'px -'.($this->imageHeight * $yi).'px; }';
       $xi++;
     }
-    $fp = fopen($this->resourceroot.'/'.$this->css, 'w');
+    $fp = fopen($this->resourceRoot.'/'.$this->css, 'w');
     fwrite($fp, $cssStyles);
     fclose($fp);
   }
@@ -232,11 +232,11 @@ class SpriteTask extends \Task
       $xi++;
     }
     // Save image to file
-    $imagePath = $this->resourceroot.'/'.$this->image;
+    $imagePath = $this->resourceRoot.'/'.$this->image;
     imagepng($im, $imagePath);
     $crc32 = crc32(file_get_contents($imagePath));
     unlink($imagePath);
-    imagepng($im, $this->resourceroot.'/'.pathinfo($this->image, PATHINFO_DIRNAME).'/'.basename($this->image, '.png').'-'.$crc32.'.'.pathinfo($this->image, PATHINFO_EXTENSION));
+    imagepng($im, $this->resourceRoot.'/'.pathinfo($this->image, PATHINFO_DIRNAME).'/'.basename($this->image, '.png').'-'.$crc32.'.'.pathinfo($this->image, PATHINFO_EXTENSION));
     imagedestroy($im);
 
     return $crc32;
