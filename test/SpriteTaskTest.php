@@ -27,8 +27,8 @@ class SpriteTaskTest extends PHPUnit_Framework_TestCase
     chdir(__DIR__."/SpriteTask/test02");
     exec('../../../bin/phing sprite');
 
-    $this->assertFileNotExists('www/css/my-icons.css');
-    $this->assertFileNotExists('www/images/my-icons-644553912.png');
+    $this->assertFileExists('www/css/my-icons.css');
+    $this->assertFileExists('www/images/my-icons-644553912.png');
   }
 
   //--------------------------------------------------------------------------------------------------------------------
