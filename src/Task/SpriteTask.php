@@ -23,13 +23,6 @@ class SpriteTask extends \Task
   private $css = '';
 
   /**
-   * Image extension.
-   *
-   * @var string
-   */
-  private $extension = '';
-
-  /**
    * If set stop build on errors.
    *
    * @var bool
@@ -71,6 +64,13 @@ class SpriteTask extends \Task
    */
   private $resourceRoot = '';
 
+  /**
+   * Sprite name.
+   *
+   * @var string
+   */
+  private $spriteName = '';
+
   //--------------------------------------------------------------------------------------------------------------------
   /**
    *  Called by the project to let the task do it's work. This method may be
@@ -78,7 +78,7 @@ class SpriteTask extends \Task
    *  example, if target1 and target2 both depend on target3, then running
    *  <em>phing target1 target2</em> will run all tasks in target3 twice.
    *
-   *  Should throw a BuildException if someting goes wrong with the build
+   *  Should throw a BuildException if something goes wrong with the build
    *
    *  This is here. Must be overloaded by real tasks.
    */
@@ -86,8 +86,8 @@ class SpriteTask extends \Task
   {
     $images = $this->getImages();
 
-    $crc32 = $this->createSprite($images);
-    $this->createCss($images, $crc32);
+    $this->createSprite($images);
+    $this->createCss($images);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -147,35 +147,6 @@ class SpriteTask extends \Task
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Check sizes.
-   *
-   * @param array $images Images.
-   */
-  private function checkSizes($images)
-  {
-    foreach ($images as $image)
-    {
-      $data   = getimagesize($image);
-      $width  = $data[0];
-      $height = $data[1];
-      if (!$this->imageHeight)
-      {
-        $this->imageHeight = $height;
-      }
-      if (!$this->imageWidth)
-      {
-        $this->imageWidth = $width;
-      }
-      if ($width!=$this->imageWidth || $this->imageHeight!=$height)
-      {
-        $this->log('Images have different sizes.', Project::MSG_ERR);
-        exit(0);
-      }
-    }
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
    * Prints an error message and depending on HaltOnError throws an exception.
    *
    * @param mixed ...$param The arguments as for [sprintf](http://php.net/manual/function.sprintf.php)
@@ -206,12 +177,39 @@ class SpriteTask extends \Task
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Check sizes.
+   *
+   * @param array $images Images.
+   */
+  private function checkSizes($images)
+  {
+    foreach ($images as $image)
+    {
+      $data   = getimagesize($image);
+      $width  = $data[0];
+      $height = $data[1];
+      if (!$this->imageHeight)
+      {
+        $this->imageHeight = $height;
+      }
+      if (!$this->imageWidth)
+      {
+        $this->imageWidth = $width;
+      }
+      if ($width!=$this->imageWidth || $this->imageHeight!=$height)
+      {
+        $this->logError('Images have different sizes.');
+      }
+    }
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Create css file for work with sprite.
    *
-   * @param array  $imgArray Array with paths for images.
-   * @param string $crc32    Hash from new sprite.
+   * @param array $imgArray Array with paths for images.
    */
-  private function createCss($imgArray, $crc32)
+  private function createCss($imgArray)
   {
     $cssStyles = '';
     foreach ($imgArray as $file)
@@ -219,7 +217,7 @@ class SpriteTask extends \Task
       if ($cssStyles) $cssStyles .= ',';
       $cssStyles .= '.my-icons-'.basename($file, '.'.pathinfo($file, PATHINFO_EXTENSION));
     }
-    $cssStyles .= '{ background-image: url('.$this->basedir.'/'.basename($this->image, ',png').'-'.$crc32.'.png) no-repeat; }';
+    $cssStyles .= '{ background-image: url(/'.pathinfo($this->image, PATHINFO_DIRNAME).'/'.$this->spriteName.') no-repeat; }';
     $yi = 0;
     $xi = 0;
     foreach ($imgArray as $file)
@@ -273,10 +271,24 @@ class SpriteTask extends \Task
     imagepng($im, $imagePath);
     $crc32 = crc32(file_get_contents($imagePath));
     unlink($imagePath);
-    imagepng($im, $this->resourceRoot.'/'.pathinfo($this->image, PATHINFO_DIRNAME).'/'.basename($this->image, '.png').'-'.$crc32.'.'.pathinfo($this->image, PATHINFO_EXTENSION));
+    $this->createSpriteName($crc32);
+    imagepng($im, $this->resourceRoot.'/'.pathinfo($this->image, PATHINFO_DIRNAME).'/'.$this->spriteName);
     imagedestroy($im);
 
     return $crc32;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Return name for sprite image.
+   *
+   * @param string $crc32 Hash from new sprite.
+   *
+   * @return string
+   */
+  private function createSpriteName($crc32)
+  {
+    $this->spriteName = basename($this->image, '.png').'-'.$crc32.'.'.pathinfo($this->image, PATHINFO_EXTENSION);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -290,10 +302,6 @@ class SpriteTask extends \Task
     $images = glob($this->basedir.'/'.$this->images);
 
     $this->checkSizes($images);
-        $this->logError('Images have different sizes.');
-
-    asort($images);
-        $this->logError('Images have different extensions.');
 
     return $images;
   }
