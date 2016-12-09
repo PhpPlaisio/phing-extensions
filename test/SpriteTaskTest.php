@@ -45,6 +45,19 @@ class SpriteTaskTest extends PHPUnit_Framework_TestCase
   }
 
   //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Test for five images.
+   */
+  public function testSprite04()
+  {
+    chdir(__DIR__."/SpriteTask/test04");
+    exec('../../../bin/phing sprite');
+
+    $this->assertFileExists('www/css/my-icons.css');
+    $this->assertFileExists('www/images/my-icons-3277839285.png');
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
 }
 
 //----------------------------------------------------------------------------------------------------------------------

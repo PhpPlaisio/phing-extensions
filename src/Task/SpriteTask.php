@@ -86,8 +86,9 @@ class SpriteTask extends \Task
   {
     $images = $this->getImages();
 
-    $crc32 = $this->createSprite($images);
-    $this->createCss($images, $crc32);
+    $cellCount = $this->calculateCellCount($images);
+    $crc32     = $this->createSprite($images, $cellCount);
+    $this->createCss($images, $crc32, $cellCount);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -147,35 +148,6 @@ class SpriteTask extends \Task
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Check sizes.
-   *
-   * @param array $images Images.
-   */
-  private function checkSizes($images)
-  {
-    foreach ($images as $image)
-    {
-      $data   = getimagesize($image);
-      $width  = $data[0];
-      $height = $data[1];
-      if (!$this->imageHeight)
-      {
-        $this->imageHeight = $height;
-      }
-      if (!$this->imageWidth)
-      {
-        $this->imageWidth = $width;
-      }
-      if ($width!=$this->imageWidth || $this->imageHeight!=$height)
-      {
-        $this->log('Images have different sizes.', Project::MSG_ERR);
-        exit(0);
-      }
-    }
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
    * Prints an error message and depending on HaltOnError throws an exception.
    *
    * @param mixed ...$param The arguments as for [sprintf](http://php.net/manual/function.sprintf.php)
@@ -206,12 +178,65 @@ class SpriteTask extends \Task
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Calculate cells count for future square sprite.
+   *
+   * @param array $imgArray Array with paths for images.
+   *
+   * @return int
+   */
+  private function calculateCellCount($imgArray)
+  {
+    $cellCount = 0;
+    for ($c = 1; ; $c++)
+    {
+      if ($c * $c>=count($imgArray))
+      {
+        $cellCount = $c;
+        break;
+      }
+    }
+
+    return $cellCount;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Check sizes.
+   *
+   * @param array $images Images.
+   */
+  private function checkSizes($images)
+  {
+    foreach ($images as $image)
+    {
+      $data   = getimagesize($image);
+      $width  = $data[0];
+      $height = $data[1];
+      if (!$this->imageHeight)
+      {
+        $this->imageHeight = $height;
+      }
+      if (!$this->imageWidth)
+      {
+        $this->imageWidth = $width;
+      }
+      if ($width!=$this->imageWidth || $this->imageHeight!=$height)
+      {
+        $this->log('Images have different sizes.', Project::MSG_ERR);
+        exit(0);
+      }
+    }
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Create css file for work with sprite.
    *
-   * @param array  $imgArray Array with paths for images.
-   * @param string $crc32    Hash from new sprite.
+   * @param array  $imgArray  Array with paths for images.
+   * @param string $crc32     Hash from new sprite.
+   * @param  int   $cellCount Cells count for square sprite.
    */
-  private function createCss($imgArray, $crc32)
+  private function createCss($imgArray, $crc32, $cellCount)
   {
     $cssStyles = '';
     foreach ($imgArray as $file)
@@ -224,7 +249,7 @@ class SpriteTask extends \Task
     $xi = 0;
     foreach ($imgArray as $file)
     {
-      if ($xi==2)
+      if ($xi==$cellCount)
       {
         $xi = 0;
         $yi++;
@@ -241,13 +266,14 @@ class SpriteTask extends \Task
   /**
    * Create one square sprite from images.
    *
-   * @param array $imgArray Array with paths for images.
+   * @param array $imgArray  Array with paths for images.
+   * @param  int  $cellCount Cells count for square sprite.
    *
    * @return int
    */
-  private function createSprite($imgArray)
+  private function createSprite($imgArray, $cellCount)
   {
-    $im = imagecreatetruecolor($this->imageWidth * 2, $this->imageHeight * 2);
+    $im = imagecreatetruecolor($this->imageWidth * $cellCount, $this->imageHeight * $cellCount);
 
     // Add alpha channel to image (transparency)
     imagesavealpha($im, true);
@@ -260,7 +286,7 @@ class SpriteTask extends \Task
     foreach ($imgArray as $file)
     {
       $im2 = imagecreatefrompng($file);
-      if ($xi==2)
+      if ($xi==$cellCount)
       {
         $xi = 0;
         $yi++;
@@ -290,10 +316,6 @@ class SpriteTask extends \Task
     $images = glob($this->basedir.'/'.$this->images);
 
     $this->checkSizes($images);
-        $this->logError('Images have different sizes.');
-
-    asort($images);
-        $this->logError('Images have different extensions.');
 
     return $images;
   }
