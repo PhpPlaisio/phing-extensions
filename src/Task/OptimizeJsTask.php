@@ -92,6 +92,17 @@ class OptimizeJsTask extends \OptimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Setter for XML attribute requireJsPath.
+   *
+   * @param string $requireJsPath The command to run r.js.
+   */
+  public function setRequireJsPath($requireJsPath)
+  {
+    $this->requireJsPath = $requireJsPath;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Minimizes JavaScript code.
    *
    * @param string $resource     The JavaScript code.
@@ -236,17 +247,6 @@ class OptimizeJsTask extends \OptimizeResourceTask
     }
 
     return implode("\n", $lines);
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
-   * Setter for XML attribute requireJsPath.
-   *
-   * @param string $requireJsPath The command to run r.js.
-   */
-  protected function setRequireJsPath($requireJsPath)
-  {
-    $this->requireJsPath = $requireJsPath;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
