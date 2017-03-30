@@ -8,6 +8,7 @@ php:
   - nightly
   
 before_install:
+  - sudo apt-get install npm
   - sudo npm install -g csso-cli
     
 install:
