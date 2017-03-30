@@ -5,8 +5,9 @@
   "keyword": ["abc", "phing", "extensions"],
   "license": "MIT",
   "require-dev": {
-    "phing/phing": "*",
+    "phing/phing": "2.*",
     "phpunit/phpunit": "5.*",
+    "setbased/helper-program-execution": "1.*",
     "setbased/phing-extensions": "2.*"
   },
   "require": {

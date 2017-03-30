@@ -1,5 +1,7 @@
 <?php
 //----------------------------------------------------------------------------------------------------------------------
+use SetBased\Helper\ProgramExecution;
+
 require_once 'OptimizeResourceTask.php';
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -36,6 +38,13 @@ class OptimizeJsTask extends \OptimizeResourceTask
    * @var string
    */
   private $minifyCommand = '/usr/bin/uglifyjs - -c -m';
+
+  /**
+   * The path to the node program.
+   *
+   * @var string
+   */
+  private $nodePath = '/usr/bin/node';
 
   /**
    * The path to require.js relative to the parent resource path.
@@ -88,6 +97,17 @@ class OptimizeJsTask extends \OptimizeResourceTask
   public function setMinifyCommand($minifyCommand)
   {
     $this->minifyCommand = $minifyCommand;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Setter for XML attribute nodePath.
+   *
+   * @param string $nodePath The command to run r.js.
+   */
+  public function setNodePath($nodePath)
+  {
+    $this->nodePath = $nodePath;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -272,22 +292,14 @@ class OptimizeJsTask extends \OptimizeResourceTask
     $tmp_name2 = tempnam($this->resourceDirFullPath, 'abc_');
 
     // Run r.js.
-    $command = $this->combineCommand;
-    $command .= ' -o '.escapeshellarg($tmp_name1);
-    $command .= ' baseUrl='.escapeshellarg($this->resourceDirFullPath);
-    $command .= ' optimize=none';
-    $command .= ' name='.escapeshellarg($this->getNamespaceFromResourceFilename($realPath));
-    $command .= ' out='.escapeshellarg($tmp_name2);
-
-    $this->logVerbose('Execute: %s', $command);
-    exec($command, $output, $ret);
-    if ($ret!=0) $this->logError("Error executing '%s'.", $this->combineCommand);
-
-    foreach ($output as $line)
-    {
-      $this->logInfo($line);
-    }
-    if ($ret!=0) $this->logError("RequireJS optimizer failed.");
+    $command = [$this->combineCommand,
+                '-o',
+                $tmp_name1,
+                'baseUrl='.$this->resourceDirFullPath,
+                'optimize=none',
+                'name='.$this->getNamespaceFromResourceFilename($realPath),
+                'out='.$tmp_name2];
+    $output  = $this->execCommand($command);
 
     // Get all files of the combined code.
     $parts   = [];
@@ -345,6 +357,37 @@ class OptimizeJsTask extends \OptimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Executes an external program.
+   *
+   * @param string[] $command The command as array.
+   *
+   * @return string[] The output of the command.
+   */
+  private function execCommand($command)
+  {
+    $this->logVerbose('Execute: %s', implode(' ', $command));
+    list($output, $ret) = ProgramExecution::exec1($command, null);
+    if ($ret!=0)
+    {
+      foreach ($output as $line)
+      {
+        $this->logInfo($line);
+      }
+      $this->logError("Error executing '%s'.", implode(' ', $command));
+    }
+    else
+    {
+      foreach ($output as $line)
+      {
+        $this->logVerbose($line);
+      }
+    }
+
+    return $output;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * @param string $filename
    */
   private function extractConfigFromMainFile($filename)
@@ -368,13 +411,11 @@ class OptimizeJsTask extends \OptimizeResourceTask
    */
   private function extractPaths($mainJsFile)
   {
-    $extract_script = __DIR__.'/../../lib/extract_config.js';
-    $command        = 'node';
-    $command .= ' '.escapeshellarg($extract_script);
-    $command .= ' '.escapeshellarg($mainJsFile);
-    $output = shell_exec($command);
-    if ($output===null) $this->logError("Command '%s' return failed.", $command);
-    $config = json_decode($output, true);
+    $command = [$this->nodePath,
+                __DIR__.'/../../lib/extract_config.js',
+                $mainJsFile];
+    $output  = $this->execCommand($command);
+    $config  = json_decode(implode(PHP_EOL, $output), true);
 
     return [$config['baseUrl'], $config['paths']];
   }
