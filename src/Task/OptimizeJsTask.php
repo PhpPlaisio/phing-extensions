@@ -25,12 +25,9 @@ class OptimizeJsTask extends \OptimizeResourceTask
    */
   private $methods = ['jsAdmSetPageSpecificMain',
                       'jsAdmOptimizedSetPageSpecificMain',
-                      'jsAdmPageSpecificFunctionCall',
+                      'jsAdmClassSpecificFunctionCall',
                       'jsAdmFunctionCall',
-                      'jsAdmOptimizedFunctionCall',
-                      'jsAdmStaticClassSpecificFunctionCall',
-                      'jsAdmStaticFunctionCall',
-                      'jsAdmStaticOptimizedFunctionCall'];
+                      'jsAdmOptimizedFunctionCall'];
 
   /**
    * The command to minify JS.
@@ -174,11 +171,9 @@ class OptimizeJsTask extends \OptimizeResourceTask
   /**
    * Replaces calls to methods:
    * <ul>
-   * <li>{@link \SetBased\Abc\Page\Page::jsAdmSetPageSpecificMain)
-   * <li>{@link \SetBased\Abc\Page\Page::jsAdmPageSpecificFunctionCall)
-   * <li>{@link \SetBased\Abc\Page\Page::jsAdmFunctionCall)
-   * <li>{@link \SetBased\Abc\Page\Page::jsAdmStaticClassSpecificFunctionCall)
-   * <li>{@link \SetBased\Abc\Page\Page::jsAdmStaticFunctionCall)
+   * <li>{@link \SetBased\Abc\Helper\WebAssets::jsAdmSetPageSpecificMain)
+   * <li>{@link \SetBased\Abc\Helper\WebAssets::jsAdmClassSpecificFunctionCall)
+   * <li>{@link \SetBased\Abc\Helper\WebAssets::jsAdmFunctionCall)
    * </ul>
    * with the appropriate optimized method.
    *
@@ -204,10 +199,10 @@ class OptimizeJsTask extends \OptimizeResourceTask
       }
 
       // Don't process the class that defines the jsAdm* methods.
-      if ($current_class=='SetBased\\Abc\\Page\\Page') continue;
+      if ($current_class=='\\SetBased\\Abc\\Helper\\WebAssets') continue;
 
       // Replace calls to jsAdmSetPageSpecificMain with jsAdmOptimizedSetPageSpecificMain.
-      if (preg_match('/^(\s*)(\$this->)(jsAdmSetPageSpecificMain)(\(\s*)(__CLASS__)(\s*\)\s*;)(.*)$/',
+      if (preg_match('/^(\s*)(Abc::\$assets->)(jsAdmSetPageSpecificMain)(\(\s*)(__CLASS__)(\s*\)\s*;)(.*)$/',
                      $line,
                      $matches))
       {
@@ -218,7 +213,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
       }
 
       // Replace calls to jsAdmPageSpecificFunctionCall with jsAdmOptimizedFunctionCall.
-      elseif (preg_match('/^(\s*)(\$this->)(jsAdmPageSpecificFunctionCall)(\(\s*)(__CLASS__)(.*)$/',
+      elseif (preg_match('/^(\s*)(Abc::\$assets->)(jsAdmClassSpecificFunctionCall)(\(\s*)(__CLASS__)(.*)$/',
                          $line,
                          $matches))
       {
@@ -228,29 +223,11 @@ class OptimizeJsTask extends \OptimizeResourceTask
       }
 
       // Replace calls to jsAdmFunctionCall with jsAdmOptimizedFunctionCall.
-      elseif (preg_match('/^(\s*)(\$this->)(jsAdmFunctionCall)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"].*)$/',
+      elseif (preg_match('/^(\s*)(Abc::\$assets->)(jsAdmFunctionCall)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"].*)$/',
                          $line,
                          $matches))
       {
         $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($matches, 'jsAdmOptimizedFunctionCall');
-      }
-
-      // Replace calls to Page::jsAdmStaticClassSpecificFunctionCall with Page::jsAdmStaticOptimizedFunctionCall.
-      elseif (preg_match('/^(\s*)(Page::)(jsAdmStaticClassSpecificFunctionCall)(\(\s*)(__CLASS__)(.*)$/',
-                         $line,
-                         $matches))
-      {
-        $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($matches,
-                                                                    'jsAdmStaticOptimizedFunctionCall',
-                                                                    $this->getNamespaceFromClassName($current_class));
-      }
-
-      // Replace calls to Page::jsAdmStaticFunctionCall with Page::jsAdmStaticOptimizedFunctionCall.
-      elseif (preg_match('/^(\s*)(Page::)(jsAdmStaticFunctionCall)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"].*)$/',
-                         $line,
-                         $matches))
-      {
-        $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($matches, 'jsAdmStaticOptimizedFunctionCall');
       }
 
       // Test for invalid usages of methods for calling/including JS.
@@ -334,7 +311,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Creates file and minimizes in which all required JavaScript files of a page specific RequireJs file are combined,
-   * see {@link \SetBased\Abc\Page\Page::jsAdmSetPageSpecificMain}.
+   * see {@link \SetBased\Abc\Helper\WebAssets::jsAdmSetPageSpecificMain}.
    *
    * @param string $fullPath The path to the JavaScript file
    *

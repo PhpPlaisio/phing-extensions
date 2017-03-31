@@ -10,8 +10,8 @@ class TestPage extends SetBased\Abc\Page\Page
   {
     parent::__construct();
 
-    $this->cssAppendSource('/css/style1.css');
-    $this->cssAppendSource('/css/test/style2.css');
+    Abc::$assets->cssAppendSource('/style1.css');
+    Abc::$assets->cssAppendSource('/test/style2.css');
   }
 
   //--------------------------------------------------------------------------------------------------------------------

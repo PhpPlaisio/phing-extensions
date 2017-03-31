@@ -1,9 +1,12 @@
 <?php
 //----------------------------------------------------------------------------------------------------------------------
+namespace SetBased\Abc\Phing\Test;
+
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * Unit Tests for testing optimize_css Task.
  */
-class OptimizeCssTest extends PHPUnit_Framework_TestCase
+class OptimizeCssTest extends \PHPUnit_Framework_TestCase
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -17,7 +20,7 @@ class OptimizeCssTest extends PHPUnit_Framework_TestCase
   {
     $rootpath = getcwd().'/'.$theFolder;
     $array    = [];
-    $files    = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($rootpath));
+    $files    = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($rootpath));
     foreach ($files as $fullpath => $file)
     {
       if ($file->isFile())

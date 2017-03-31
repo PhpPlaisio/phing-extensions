@@ -20,6 +20,11 @@
       "SetBased\\Abc\\Phing\\": "src/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "SetBased\\Abc\\Phing\\Test\\": "test"
+    }
+  },
   "config": {
     "bin-dir": "bin"
   }
