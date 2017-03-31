@@ -199,7 +199,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
       }
 
       // Don't process the class that defines the jsAdm* methods.
-      if ($current_class=='\\SetBased\\Abc\\Helper\\WebAssets') continue;
+      if ($current_class=='SetBased\\Abc\\Helper\\WebAssets') continue;
 
       // Replace calls to jsAdmSetPageSpecificMain with jsAdmOptimizedSetPageSpecificMain.
       if (preg_match('/^(\s*)(Abc::\$assets->)(jsAdmSetPageSpecificMain)(\(\s*)(__CLASS__)(\s*\)\s*;)(.*)$/',
