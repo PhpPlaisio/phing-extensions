@@ -216,7 +216,7 @@ class OptimizeCssTask extends OptimizeResourceTask
       }
 
       // Don't process the class that defines the css* methods.
-      if ($current_class=='\\SetBased\\Abc\\Helper\\WebAssets') continue;
+      if ($current_class=='SetBased\\Abc\\Helper\\WebAssets') continue;
 
       // Replace calls to cssAppendPageSpecificSource with cssOptimizedAppendSource.
       if (preg_match('/^(\s*)(Abc::\$assets->)(cssAppendClassSpecificSource)(\(\s*)(__CLASS__)(\s*\)\s*;)(.*)$/',
