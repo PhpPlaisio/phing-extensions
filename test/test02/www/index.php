@@ -1,5 +1,11 @@
 <?php
 //----------------------------------------------------------------------------------------------------------------------
+use SetBased\Abc\Abc;
+
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * Class TestPage.
+ */
 class TestPage extends SetBased\Abc\Page\Page
 {
   //--------------------------------------------------------------------------------------------------------------------
@@ -10,19 +16,17 @@ class TestPage extends SetBased\Abc\Page\Page
   {
     parent::__construct();
 
-    Abc::$assets->cssAppendSource('/style1.css');
-    Abc::$assets->cssAppendSource('/test/style2.css');
+    Abc::$assets->cssAppendSource('style1.css');
+    Abc::$assets->cssAppendSource('/css/test/style2.css');
   }
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Must be implemented in child classes to echo the actual page content, i.e. the inner HTML of the body tag.
-   *
-   * @return null
    */
   public function echoPage()
   {
-    // TODO: Implement echoPage() method.
+    echo 'Hello, world';
   }
 
   //--------------------------------------------------------------------------------------------------------------------
