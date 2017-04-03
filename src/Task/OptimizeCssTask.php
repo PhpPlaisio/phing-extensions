@@ -353,7 +353,15 @@ class OptimizeCssTask extends OptimizeResourceTask
     {
       $file_name = $matches[5];
     }
-    $full_path = $this->resourceDirFullPath.'/'.$file_name;
+
+    if (substr($file_name,0,1)=='/')
+    {
+      $full_path = $this->parentResourceDirFullPath .'/'. $file_name;
+    }
+    else
+    {
+      $full_path = $this->resourceDirFullPath .'/'. $file_name;
+    }
 
     if (!file_exists($full_path))
     {
