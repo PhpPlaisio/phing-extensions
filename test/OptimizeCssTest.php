@@ -2,11 +2,12 @@
 //----------------------------------------------------------------------------------------------------------------------
 namespace SetBased\Abc\Phing\Test;
 
-//----------------------------------------------------------------------------------------------------------------------
+use PHPUnit\Framework\TestCase;
+
 /**
  * Unit Tests for testing optimize_css Task.
  */
-class OptimizeCssTest extends \PHPUnit_Framework_TestCase
+class OptimizeCssTest extends TestCase
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
