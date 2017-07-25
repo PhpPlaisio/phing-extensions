@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Unit Tests for testing optimize_css Task.
  */
-class OptimizeCssTest extends TestCase
+class OptimizeCssTaskTest extends TestCase
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -16,7 +16,6 @@ class OptimizeCssTest extends TestCase
    */
   public function testOptimizeCss01()
   {
-    $this->markTestSkipped('/usr/bin/csso library required.');
     chdir(__DIR__."/test01");
     exec('../../bin/phing optimize_css');
 
@@ -38,7 +37,6 @@ class OptimizeCssTest extends TestCase
    */
   public function testOptimizeCss02()
   {
-    $this->markTestSkipped('/usr/bin/csso library required.');
     chdir(__DIR__."/test02");
     exec('../../bin/phing -verbose optimize_css');
 

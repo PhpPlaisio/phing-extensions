@@ -15,7 +15,6 @@
         <exec command="bin/phpunit --bootstrap=test/bootstrap.php test" passthru="true" checkreturn="true"/>
     </target>
 
-              checkreturn="true"/>
     <target name="build" depends="unit">
     </target>
 </project>
