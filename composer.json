@@ -9,19 +9,25 @@
   ],
   "license": "MIT",
   "require-dev": {
-    "phing/phing": "*",
-    "phpunit/phpunit": "*",
-    "setbased/phing-extensions": "2.*"
+    "phing/phing": "^2.0",
+    "phpunit/phpunit": "^6.0",
+    "setbased/helper-program-execution": "^1.0",
+    "setbased/phing-extensions": "^2.0"
   },
   "require": {
-    "php": ">=5.4.0",
-    "setbased/abc-url": "1.*",
-    "setbased/helper-code-store": "*",
-    "setbased/exception": "1.*"
+    "php": ">=7.0.0",
+    "setbased/abc": "^0.9.0",
+    "setbased/abc-url": "^1.0",
+    "setbased/exception": "^1.0"
   },
   "autoload": {
     "psr-4": {
       "SetBased\\Abc\\Phing\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "SetBased\\Abc\\Phing\\Test\\": "test"
     }
   },
   "config": {

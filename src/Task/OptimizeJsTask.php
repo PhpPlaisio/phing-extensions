@@ -1,5 +1,7 @@
 <?php
 //----------------------------------------------------------------------------------------------------------------------
+use SetBased\Helper\ProgramExecution;
+
 require_once 'OptimizeResourceTask.php';
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -23,12 +25,9 @@ class OptimizeJsTask extends \OptimizeResourceTask
    */
   private $methods = ['jsAdmSetPageSpecificMain',
                       'jsAdmOptimizedSetPageSpecificMain',
-                      'jsAdmPageSpecificFunctionCall',
+                      'jsAdmClassSpecificFunctionCall',
                       'jsAdmFunctionCall',
-                      'jsAdmOptimizedFunctionCall',
-                      'jsAdmStaticClassSpecificFunctionCall',
-                      'jsAdmStaticFunctionCall',
-                      'jsAdmStaticOptimizedFunctionCall'];
+                      'jsAdmOptimizedFunctionCall'];
 
   /**
    * The command to minify JS.
@@ -36,6 +35,13 @@ class OptimizeJsTask extends \OptimizeResourceTask
    * @var string
    */
   private $minifyCommand = '/usr/bin/uglifyjs - -c -m';
+
+  /**
+   * The path to the node program.
+   *
+   * @var string
+   */
+  private $nodePath = '/usr/bin/node';
 
   /**
    * The path to require.js relative to the parent resource path.
@@ -92,6 +98,28 @@ class OptimizeJsTask extends \OptimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Setter for XML attribute nodePath.
+   *
+   * @param string $nodePath The command to run r.js.
+   */
+  public function setNodePath($nodePath)
+  {
+    $this->nodePath = $nodePath;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Setter for XML attribute requireJsPath.
+   *
+   * @param string $requireJsPath The command to run r.js.
+   */
+  public function setRequireJsPath($requireJsPath)
+  {
+    $this->requireJsPath = $requireJsPath;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Minimizes JavaScript code.
    *
    * @param string $resource     The JavaScript code.
@@ -143,11 +171,9 @@ class OptimizeJsTask extends \OptimizeResourceTask
   /**
    * Replaces calls to methods:
    * <ul>
-   * <li>{@link \SetBased\Abc\Page\Page::jsAdmSetPageSpecificMain)
-   * <li>{@link \SetBased\Abc\Page\Page::jsAdmPageSpecificFunctionCall)
-   * <li>{@link \SetBased\Abc\Page\Page::jsAdmFunctionCall)
-   * <li>{@link \SetBased\Abc\Page\Page::jsAdmStaticClassSpecificFunctionCall)
-   * <li>{@link \SetBased\Abc\Page\Page::jsAdmStaticFunctionCall)
+   * <li>{@link \SetBased\Abc\Helper\WebAssets::jsAdmSetPageSpecificMain)
+   * <li>{@link \SetBased\Abc\Helper\WebAssets::jsAdmClassSpecificFunctionCall)
+   * <li>{@link \SetBased\Abc\Helper\WebAssets::jsAdmFunctionCall)
    * </ul>
    * with the appropriate optimized method.
    *
@@ -173,10 +199,10 @@ class OptimizeJsTask extends \OptimizeResourceTask
       }
 
       // Don't process the class that defines the jsAdm* methods.
-      if ($current_class=='SetBased\\Abc\\Page\\Page') continue;
+      if ($current_class=='SetBased\\Abc\\Helper\\WebAssets') continue;
 
       // Replace calls to jsAdmSetPageSpecificMain with jsAdmOptimizedSetPageSpecificMain.
-      if (preg_match('/^(\s*)(\$this->)(jsAdmSetPageSpecificMain)(\(\s*)(__CLASS__)(\s*\)\s*;)(.*)$/',
+      if (preg_match('/^(\s*)(Abc::\$assets->)(jsAdmSetPageSpecificMain)(\(\s*)(__CLASS__)(\s*\)\s*;)(.*)$/',
                      $line,
                      $matches))
       {
@@ -187,7 +213,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
       }
 
       // Replace calls to jsAdmPageSpecificFunctionCall with jsAdmOptimizedFunctionCall.
-      elseif (preg_match('/^(\s*)(\$this->)(jsAdmPageSpecificFunctionCall)(\(\s*)(__CLASS__)(.*)$/',
+      elseif (preg_match('/^(\s*)(Abc::\$assets->)(jsAdmClassSpecificFunctionCall)(\(\s*)(__CLASS__)(.*)$/',
                          $line,
                          $matches))
       {
@@ -197,29 +223,11 @@ class OptimizeJsTask extends \OptimizeResourceTask
       }
 
       // Replace calls to jsAdmFunctionCall with jsAdmOptimizedFunctionCall.
-      elseif (preg_match('/^(\s*)(\$this->)(jsAdmFunctionCall)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"].*)$/',
+      elseif (preg_match('/^(\s*)(Abc::\$assets->)(jsAdmFunctionCall)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"].*)$/',
                          $line,
                          $matches))
       {
         $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($matches, 'jsAdmOptimizedFunctionCall');
-      }
-
-      // Replace calls to Page::jsAdmStaticClassSpecificFunctionCall with Page::jsAdmStaticOptimizedFunctionCall.
-      elseif (preg_match('/^(\s*)(Page::)(jsAdmStaticClassSpecificFunctionCall)(\(\s*)(__CLASS__)(.*)$/',
-                         $line,
-                         $matches))
-      {
-        $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($matches,
-                                                                    'jsAdmStaticOptimizedFunctionCall',
-                                                                    $this->getNamespaceFromClassName($current_class));
-      }
-
-      // Replace calls to Page::jsAdmStaticFunctionCall with Page::jsAdmStaticOptimizedFunctionCall.
-      elseif (preg_match('/^(\s*)(Page::)(jsAdmStaticFunctionCall)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"].*)$/',
-                         $line,
-                         $matches))
-      {
-        $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($matches, 'jsAdmStaticOptimizedFunctionCall');
       }
 
       // Test for invalid usages of methods for calling/including JS.
@@ -236,17 +244,6 @@ class OptimizeJsTask extends \OptimizeResourceTask
     }
 
     return implode("\n", $lines);
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
-   * Setter for XML attribute requireJsPath.
-   *
-   * @param string $requireJsPath The command to run r.js.
-   */
-  protected function setRequireJsPath($requireJsPath)
-  {
-    $this->requireJsPath = $requireJsPath;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -272,22 +269,14 @@ class OptimizeJsTask extends \OptimizeResourceTask
     $tmp_name2 = tempnam($this->resourceDirFullPath, 'abc_');
 
     // Run r.js.
-    $command = $this->combineCommand;
-    $command .= ' -o '.escapeshellarg($tmp_name1);
-    $command .= ' baseUrl='.escapeshellarg($this->resourceDirFullPath);
-    $command .= ' optimize=none';
-    $command .= ' name='.escapeshellarg($this->getNamespaceFromResourceFilename($realPath));
-    $command .= ' out='.escapeshellarg($tmp_name2);
-
-    $this->logVerbose('Execute: %s', $command);
-    exec($command, $output, $ret);
-    if ($ret!=0) $this->logError("Error executing '%s'.", $this->combineCommand);
-
-    foreach ($output as $line)
-    {
-      $this->logInfo($line);
-    }
-    if ($ret!=0) $this->logError("RequireJS optimizer failed.");
+    $command = [$this->combineCommand,
+                '-o',
+                $tmp_name1,
+                'baseUrl='.$this->resourceDirFullPath,
+                'optimize=none',
+                'name='.$this->getNamespaceFromResourceFilename($realPath),
+                'out='.$tmp_name2];
+    $output  = $this->execCommand($command);
 
     // Get all files of the combined code.
     $parts   = [];
@@ -322,7 +311,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Creates file and minimizes in which all required JavaScript files of a page specific RequireJs file are combined,
-   * see {@link \SetBased\Abc\Page\Page::jsAdmSetPageSpecificMain}.
+   * see {@link \SetBased\Abc\Helper\WebAssets::jsAdmSetPageSpecificMain}.
    *
    * @param string $fullPath The path to the JavaScript file
    *
@@ -341,6 +330,37 @@ class OptimizeJsTask extends \OptimizeResourceTask
     $file_info = $this->store($js_raw, $real_path, $combine_info['parts'], 'full_path_name');
 
     return $file_info['path_name_in_sources_with_hash'];
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Executes an external program.
+   *
+   * @param string[] $command The command as array.
+   *
+   * @return string[] The output of the command.
+   */
+  private function execCommand($command)
+  {
+    $this->logVerbose('Execute: %s', implode(' ', $command));
+    list($output, $ret) = ProgramExecution::exec1($command, null);
+    if ($ret!=0)
+    {
+      foreach ($output as $line)
+      {
+        $this->logInfo($line);
+      }
+      $this->logError("Error executing '%s'.", implode(' ', $command));
+    }
+    else
+    {
+      foreach ($output as $line)
+      {
+        $this->logVerbose($line);
+      }
+    }
+
+    return $output;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -368,13 +388,11 @@ class OptimizeJsTask extends \OptimizeResourceTask
    */
   private function extractPaths($mainJsFile)
   {
-    $extract_script = __DIR__.'/../../lib/extract_config.js';
-    $command        = 'node';
-    $command .= ' '.escapeshellarg($extract_script);
-    $command .= ' '.escapeshellarg($mainJsFile);
-    $output = shell_exec($command);
-    if ($output===null) $this->logError("Command '%s' return failed.", $command);
-    $config = json_decode($output, true);
+    $command = [$this->nodePath,
+                __DIR__.'/../../lib/extract_config.js',
+                $mainJsFile];
+    $output  = $this->execCommand($command);
+    $config  = json_decode(implode(PHP_EOL, $output), true);
 
     return [$config['baseUrl'], $config['paths']];
   }

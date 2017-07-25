@@ -1,12 +1,17 @@
 <?php
 //----------------------------------------------------------------------------------------------------------------------
+namespace SetBased\Abc\Phing\Test;
+
+use PHPUnit\Framework\TestCase;
+
 /**
  * Unit Tests for testing optimize_css Task.
  */
-class OptimizeCssTaskTest extends PHPUnit_Framework_TestCase
+class OptimizeCssTest extends TestCase
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
+    $files    = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($rootpath));
    * Optimizing all files inside folder test01 and then compare files.
    */
   public function testOptimizeCss01()
