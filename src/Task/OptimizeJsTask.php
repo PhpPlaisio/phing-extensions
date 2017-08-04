@@ -202,7 +202,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
       if ($current_class=='SetBased\\Abc\\Helper\\WebAssets') continue;
 
       // Replace calls to jsAdmSetPageSpecificMain with jsAdmOptimizedSetPageSpecificMain.
-      if (preg_match('/^(\s*)(Abc::\$assets->)(jsAdmSetPageSpecificMain)(\(\s*)(__CLASS__)(\s*\)\s*;)(.*)$/',
+      if (preg_match('/^(\s*)(Abc::\$assets->)(jsAdmSetPageSpecificMain)(\(\s*)(__CLASS__|__TRAIT__)(\s*\)\s*;)(.*)$/',
                      $line,
                      $matches))
       {
@@ -213,7 +213,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
       }
 
       // Replace calls to jsAdmPageSpecificFunctionCall with jsAdmOptimizedFunctionCall.
-      elseif (preg_match('/^(\s*)(Abc::\$assets->)(jsAdmClassSpecificFunctionCall)(\(\s*)(__CLASS__)(.*)$/',
+      elseif (preg_match('/^(\s*)(Abc::\$assets->)(jsAdmClassSpecificFunctionCall)(\(\s*)(__CLASS__|__TRAIT__)(.*)$/',
                          $line,
                          $matches))
       {

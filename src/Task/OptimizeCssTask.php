@@ -163,7 +163,7 @@ class OptimizeCssTask extends OptimizeResourceTask
 
         if ($previous + 1!=$i)
         {
-          if (!empty($group))
+          if ($group)
           {
             $groups[] = $group;
             $group    = [];
@@ -174,7 +174,7 @@ class OptimizeCssTask extends OptimizeResourceTask
         $previous = $i;
       }
     }
-    if (!empty($group)) $groups[] = $group;
+    if ($group) $groups[] = $group;
 
     // Combine groups with 2 or more CSS files to one file.
     foreach ($groups as $group)
@@ -219,7 +219,7 @@ class OptimizeCssTask extends OptimizeResourceTask
       if ($current_class=='SetBased\\Abc\\Helper\\WebAssets') continue;
 
       // Replace calls to cssAppendPageSpecificSource with cssOptimizedAppendSource.
-      if (preg_match('/^(\s*)(Abc::\$assets->)(cssAppendClassSpecificSource)(\(\s*)(__CLASS__)(\s*\)\s*;)(.*)$/',
+      if (preg_match('/^(\s*)(Abc::\$assets->)(cssAppendClassSpecificSource)(\(\s*)(__CLASS__|__TRAIT__)(\s*\)\s*;)(.*)$/',
                      $line,
                      $matches))
       {
@@ -337,9 +337,9 @@ class OptimizeCssTask extends OptimizeResourceTask
   /**
    * Helper function for {@link processPhpSourceFileReplaceMethodHelper}.
    *
-   * @param string[]    $matches         The matches as returned by preg_match.
-   * @param string      $optimizedMethod The appropriate optimized method.
-   * @param string|null $className       The current class name of the PHP code.
+   * @param string[] $matches         The matches as returned by preg_match.
+   * @param string   $optimizedMethod The appropriate optimized method.
+   * @param string   $className       The current class name of the PHP code.
    *
    * @return string
    */

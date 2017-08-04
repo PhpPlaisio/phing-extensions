@@ -135,7 +135,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
       }
 
       // If this token is the class declaring, then flag that the next tokens will be the class name
-      if (is_array($token) && $token[0]==T_CLASS)
+      if (is_array($token) && ($token[0]==T_CLASS || $token[0]==T_TRAIT))
       {
         $mode = 'class';
         continue;
@@ -153,7 +153,6 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
         elseif (is_array($token) && $token[0]==T_WHITESPACE)
         {
           // Ignore whitespace.
-          ;
         }
         elseif ($token===';')
         {
@@ -166,7 +165,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
         }
         else
         {
-          throw new LogicException('Unexpected token %s', print_r($token, true));
+          throw new LogicException("Unexpected token %s", print_r($token, true));
         }
       }
 
@@ -201,7 +200,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
     $sources               = $this->getProject()->getReference($this->sourcesFilesetId);
     $this->sourceFileNames = $sources->getDirectoryScanner($this->getProject())->getIncludedFiles();
     $suc                   = ksort($this->sourceFileNames);
-    if ($suc===false) $this->logError('ksort failed.');
+    if ($suc===false) $this->logError("ksort failed.");
   }
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -228,9 +227,9 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
    */
   protected function runProcess($command, $input)
   {
-    $descriptor_spec = [0 => ['pipe', 'r'],
-                        1 => ['pipe', 'w'],
-                        2 => ['pipe', 'w']];
+    $descriptor_spec = [0 => ["pipe", "r"],
+                        1 => ["pipe", "w"],
+                        2 => ["pipe", "w"]];
 
     $process = proc_open($command, $descriptor_spec, $pipes);
     if ($process===false) $this->logError("Unable to span process '%s'.", $command);
@@ -242,14 +241,14 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
     $std_in      = $input;
     while (true)
     {
-      if (empty($read_pipes) && empty($write_pipes)) break;
-
       $reads  = $read_pipes;
       $writes = $write_pipes;
       $except = null;
 
+      if (!$reads && !$writes) break;
+
       stream_select($reads, $writes, $except, 1);
-      if (!empty($reads))
+      if ($reads)
       {
         foreach ($reads as $read)
         {
@@ -331,7 +330,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
     }
 
     $suc = ksort($this->sourceFilesInfo);
-    if ($suc===false) $this->logError('ksort failed.');
+    if ($suc===false) $this->logError("ksort failed.");
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -488,7 +487,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
 
     foreach ($this->sourceFilesInfo as $source_filename)
     {
-      $this->logVerbose('Processing %s.', $source_filename);
+      $this->logVerbose("Processing %s.", $source_filename);
 
       $content = file_get_contents($source_filename);
       if ($content===false) $this->logError("Unable to read file '%s'.", $source_filename);
