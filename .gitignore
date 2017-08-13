@@ -1,10 +1,7 @@
-.idea
-bin/phing
-bin/phpcbf
-bin/phpcs
-bin/phpunit
+/.idea/
+/bin/
+/doc/api/
+/vendor/
+/test/test01/build/
+/test/test02/build/
 composer.lock
-doc/api
-vendor
-test/test01/build
-test/test02/build
