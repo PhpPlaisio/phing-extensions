@@ -1,11 +1,11 @@
 {
   "name": "setbased/abc-phing",
-  "description": "ABC Framework: Phing Extensions for SetBased",
+  "description": "ABC-Framework: Phing Extensions for SetBased",
   "type": "library",
   "keyword": [
     "ABC-Framework",
-    "phing",
-    "extensions"
+    "Phing",
+    "Extensions"
   ],
   "license": "MIT",
   "require-dev": {
