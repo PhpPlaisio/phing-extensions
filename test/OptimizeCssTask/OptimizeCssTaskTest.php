@@ -2,12 +2,10 @@
 //----------------------------------------------------------------------------------------------------------------------
 namespace SetBased\Abc\Phing\Test\OptimizeCssTask;
 
-use PHPUnit\Framework\TestCase;
-
 /**
  * Unit Tests for testing optimize_css Task.
  */
-class OptimizeCssTaskTest extends TestCase
+class OptimizeCssTaskTest extends \BuildFileTest
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -16,8 +14,9 @@ class OptimizeCssTaskTest extends TestCase
    */
   public function testOptimizeCss01()
   {
-    chdir(__DIR__."/test01");
-    exec('../../../bin/phing optimize_css');
+    $this->configureProject(__DIR__.'/test01/build.xml');
+    $this->project->setBasedir(__DIR__.'/test01');
+    $this->executeTarget('optimize_css');
 
     $build    = $this->getFilesById('build');
     $expected = $this->getFilesById('expected');
@@ -37,8 +36,13 @@ class OptimizeCssTaskTest extends TestCase
    */
   public function testOptimizeCss02()
   {
-    chdir(__DIR__."/test02");
-    exec('../../../bin/phing -verbose optimize_css');
+    $this->configureProject(__DIR__.'/test02/build.xml');
+    $this->project->setBasedir(__DIR__.'/test02');
+    $this->executeTarget('optimize_css');
+
+
+    $this->configureProject('build.xml');
+    $this->executeTarget('optimize_css');
 
     $build    = $this->getFilesById('build');
     $expected = $this->getFilesById('expected');

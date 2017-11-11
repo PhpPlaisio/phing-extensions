@@ -1,7 +1,9 @@
 /.idea/
 /bin/
+/composer.lock
 /doc/api/
+/test/OptimizeCssTask/test01/build/
+/test/OptimizeCssTask/test02/build/
+/test/coverage.xml
+/test/report/
 /vendor/
-/test/test01/build/
-/test/test02/build/
-composer.lock
