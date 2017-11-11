@@ -10,6 +10,7 @@ before_install:
   - sudo npm install -g csso-cli
     
 install:
+  - npm install -g csso
   - composer self-update
   - composer install
 
