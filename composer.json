@@ -1,6 +1,6 @@
 {
   "name": "setbased/abc-phing",
-  "description": "ABC-Framework: Phing Extensions for SetBased",
+  "description": "ABC-Framework: Phing Extensions",
   "type": "library",
   "keyword": [
     "ABC-Framework",
@@ -27,7 +27,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "SetBased\\Abc\\Phing\\Test\\": "test"
+      "SetBased\\Abc\\Phing\\Test\\": "test/"
     }
   },
   "config": {

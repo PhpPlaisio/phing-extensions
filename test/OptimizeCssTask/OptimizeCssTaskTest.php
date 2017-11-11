@@ -1,6 +1,6 @@
 <?php
 //----------------------------------------------------------------------------------------------------------------------
-namespace SetBased\Abc\Phing\Test;
+namespace SetBased\Abc\Phing\Test\OptimizeCssTask;
 
 use PHPUnit\Framework\TestCase;
 
@@ -17,7 +17,7 @@ class OptimizeCssTaskTest extends TestCase
   public function testOptimizeCss01()
   {
     chdir(__DIR__."/test01");
-    exec('../../bin/phing optimize_css');
+    exec('../../../bin/phing optimize_css');
 
     $build    = $this->getFilesById('build');
     $expected = $this->getFilesById('expected');
@@ -38,7 +38,7 @@ class OptimizeCssTaskTest extends TestCase
   public function testOptimizeCss02()
   {
     chdir(__DIR__."/test02");
-    exec('../../bin/phing -verbose optimize_css');
+    exec('../../../bin/phing -verbose optimize_css');
 
     $build    = $this->getFilesById('build');
     $expected = $this->getFilesById('expected');
@@ -64,7 +64,7 @@ class OptimizeCssTaskTest extends TestCase
   {
     $rootpath = getcwd().'/'.$theFolder;
     $array    = [];
-    $files    = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($rootpath));
+    $files    = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($rootpath));
     foreach ($files as $fullpath => $file)
     {
       if ($file->isFile())
