@@ -1,5 +1,7 @@
 build:
     tests:
+        before:
+            - npm install -g csso
         override:
             -
                 command: './bin/phing unit'
