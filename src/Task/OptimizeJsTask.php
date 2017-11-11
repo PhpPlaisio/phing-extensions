@@ -171,9 +171,9 @@ class OptimizeJsTask extends \OptimizeResourceTask
   /**
    * Replaces calls to methods:
    * <ul>
-   * <li>{@link \SetBased\Abc\Helper\WebAssets::jsAdmSetPageSpecificMain)
-   * <li>{@link \SetBased\Abc\Helper\WebAssets::jsAdmClassSpecificFunctionCall)
-   * <li>{@link \SetBased\Abc\Helper\WebAssets::jsAdmFunctionCall)
+   * <li>{@link SetBased\Abc\WebAssets\WebAssets::jsAdmSetPageSpecificMain)
+   * <li>{@link SetBased\Abc\WebAssets\WebAssets::jsAdmClassSpecificFunctionCall)
+   * <li>{@link SetBased\Abc\WebAssets\WebAssets::jsAdmFunctionCall)
    * </ul>
    * with the appropriate optimized method.
    *
@@ -199,10 +199,10 @@ class OptimizeJsTask extends \OptimizeResourceTask
       }
 
       // Don't process the class that defines the jsAdm* methods.
-      if ($current_class=='SetBased\\Abc\\Helper\\WebAssets') continue;
+      if (in_array($current_class, $this->webAssetsClasses)) continue;
 
       // Replace calls to jsAdmSetPageSpecificMain with jsAdmOptimizedSetPageSpecificMain.
-      if (preg_match('/^(\s*)(Abc::\$assets->)(jsAdmSetPageSpecificMain)(\(\s*)(__CLASS__)(\s*\)\s*;)(.*)$/',
+      if (preg_match('/^(\s*)(Abc::\$assets->)(jsAdmSetPageSpecificMain)(\(\s*)(__CLASS__|__TRAIT__)(\s*\)\s*;)(.*)$/',
                      $line,
                      $matches))
       {
@@ -213,7 +213,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
       }
 
       // Replace calls to jsAdmPageSpecificFunctionCall with jsAdmOptimizedFunctionCall.
-      elseif (preg_match('/^(\s*)(Abc::\$assets->)(jsAdmClassSpecificFunctionCall)(\(\s*)(__CLASS__)(.*)$/',
+      elseif (preg_match('/^(\s*)(Abc::\$assets->)(jsAdmClassSpecificFunctionCall)(\(\s*)(__CLASS__|__TRAIT__)(.*)$/',
                          $line,
                          $matches))
       {
@@ -311,7 +311,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Creates file and minimizes in which all required JavaScript files of a page specific RequireJs file are combined,
-   * see {@link \SetBased\Abc\Helper\WebAssets::jsAdmSetPageSpecificMain}.
+   * see {@link \SetBased\Abc\WebAssets\WebAssets::jsAdmSetPageSpecificMain}.
    *
    * @param string $fullPath The path to the JavaScript file
    *

@@ -49,9 +49,13 @@
         </fileset>
 
         <!-- Include the optimized CSS file from the PHP code. -->
-        <optimizeCss sources="php-sources" resources="css-sources"
-                     parentResourceDir="www" resourceDir="css"
-                     preserveLastModified="true" gzip="false"
+        <optimizeCss sources="php-sources"
+                     resources="css-sources"
+                     parentResourceDir="www"
+                     resourceDir="css"
+                     preserveLastModified="true"
+                     gzip="false"
+                     webAssetsClasses="SetBased\Abc\WebAssets\WebAssets SetBased\Abc\WebAssets\CoreWebAssets"
                      minimize="false"/>
     </target>
 

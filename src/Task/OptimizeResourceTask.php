@@ -18,6 +18,13 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
   const BUFFER_SIZE = 8000;
 
   /**
+   * The list of the web asset classes, interfaces and traits.
+   *
+   * @var string[]
+   */
+  protected $webAssetsClasses;
+
+  /**
    * Map from the original references to resource files to new references (which includes a hash).
    *
    * @var array
@@ -111,6 +118,17 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Setter for XML attribute webAssetsClasses.
+   *
+   * @param string $webAssetsClasses A space separated list of the web asset classes, interfaces and traits.
+   */
+  public function setWebAssetsClasses($webAssetsClasses)
+  {
+    $this->webAssetsClasses = explode(' ', $webAssetsClasses);
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Returns an array with classes and namespaces defined in PHP code.
    *
    * @param string $phpCode The PHP code.
@@ -135,7 +153,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
       }
 
       // If this token is the class declaring, then flag that the next tokens will be the class name
-      if (is_array($token) && $token[0]==T_CLASS)
+      if (is_array($token) && in_array($token[0], [T_CLASS, T_INTERFACE, T_TRAIT]))
       {
         $mode = 'class';
         continue;

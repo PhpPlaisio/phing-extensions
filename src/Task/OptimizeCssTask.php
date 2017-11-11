@@ -101,8 +101,8 @@ class OptimizeCssTask extends OptimizeResourceTask
   /**
    * Replaces in PHP code calls to methods:
    * <ul>
-   * <li>{@link \SetBased\Abc\Helper\WebAssets::cssAppendSource) and
-   * <li>{@link \SetBased\Abc\Helper\WebAssets::cssAppendClassSpecificSource)
+   * <li>{@link SetBased\Abc\WebAssets\WebAssets::cssAppendSource) and
+   * <li>{@link SetBased\Abc\WebAssets\WebAssets::cssAppendClassSpecificSource)
    * </ul>
    * with the appropriate optimized method. Also, combines the multiple CSS files into a single CCS file.
    *
@@ -137,8 +137,8 @@ class OptimizeCssTask extends OptimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Replaces multiple consecutive calls to {@link \SetBased\Abc\Helper\WebAssets::cssOptimizedAppendSource} in PHP
-   * code with a single call to {@link \SetBased\Abc\Helper\WebAssets::cssOptimizedAppendSource} and combines the
+   * Replaces multiple consecutive calls to {@link SetBased\Abc\WebAssets\WebAssets::cssOptimizedAppendSource} in PHP
+   * code with a single call to {@link SetBased\Abc\WebAssets\WebAssets::cssOptimizedAppendSource} and combines the
    * multiple CSS files into a single CCS file.
    *
    * @param string $phpCode The PHP code.
@@ -190,9 +190,9 @@ class OptimizeCssTask extends OptimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Replaces calls to methods {@link \SetBased\Abc\Helper\WebAssets::cssAppendPageSpecificSource) and
-   * {@link \SetBased\Abc\Helper\WebAssets::cssAppendSource) with calls to
-   * {@link \SetBased\Abc\Helper\WebAssets::cssOptimizedAppendSource}.
+   * Replaces calls to methods {@link SetBased\Abc\WebAssets\WebAssets::cssAppendPageSpecificSource) and
+   * {@link SetBased\Abc\WebAssets\WebAssets::cssAppendSource) with calls to
+   * {@link SetBased\Abc\WebAssets\WebAssets::cssOptimizedAppendSource}.
    *
    * @param string $filename The filename with the PHP code.
    * @param string $phpCode  The PHP code.
@@ -216,10 +216,10 @@ class OptimizeCssTask extends OptimizeResourceTask
       }
 
       // Don't process the class that defines the css* methods.
-      if ($current_class=='SetBased\\Abc\\Helper\\WebAssets') continue;
+      if (in_array($current_class, $this->webAssetsClasses)) continue;
 
       // Replace calls to cssAppendPageSpecificSource with cssOptimizedAppendSource.
-      if (preg_match('/^(\s*)(Abc::\$assets->)(cssAppendClassSpecificSource)(\(\s*)(__CLASS__)(\s*\)\s*;)(.*)$/',
+      if (preg_match('/^(\s*)(Abc::\$assets->)(cssAppendClassSpecificSource)(\(\s*)(__CLASS__|__TRAIT__)(\s*\)\s*;)(.*)$/',
                      $line,
                      $matches))
       {
@@ -286,12 +286,12 @@ class OptimizeCssTask extends OptimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Replaces a group of multiple consecutive calls to {@link \SetBased\Abc\Helper\WebAssets::cssOptimizedAppendSource}
+   * Replaces a group of multiple consecutive calls to {@link SetBased\Abc\WebAssets\WebAssets::cssOptimizedAppendSource}
    * in PHP code with a single call.
    *
    * @param string[]   $lines    The lines of the PHP code.
    * @param int[]      $group    The group of of multiple consecutive calls to
-   *                             {@link \SetBased\Abc\Helper\WebAssets::cssOptimizedAppendSource}
+   *                             {@link SetBased\Abc\WebAssets\WebAssets::cssOptimizedAppendSource}
    * @param string[][] $calls    The matches from preg_match.
    */
   private function processPhpSourceFileCombineGroup(&$lines, $group, $calls)
