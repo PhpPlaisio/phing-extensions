@@ -3,6 +3,7 @@
 use SetBased\Exception\FallenException;
 
 //----------------------------------------------------------------------------------------------------------------------
+
 /**
  * Abstract parent class for tasks for optimizing resources (i.e. CSS and JS files). This class does the housekeeping
  * of resources.
@@ -102,6 +103,7 @@ abstract class ResourceStoreTask extends \Task
   private $resourcesFilesetId;
 
   //--------------------------------------------------------------------------------------------------------------------
+
   /**
    * Object constructor.
    *
@@ -320,7 +322,7 @@ abstract class ResourceStoreTask extends \Task
 
     if ($this->haltOnError) throw new \BuildException(vsprintf($format, $args));
 
-   if (sizeof($args)==0)
+    if (sizeof($args)==0)
     {
       $this->log($format, \Project::MSG_ERR);
     }
@@ -386,12 +388,12 @@ abstract class ResourceStoreTask extends \Task
   /**
    * Minimizes JavaScript or CSS code.
    *
-   * @param string $resource     The JavaScript or CSS code.
-   * @param string $fullPathName The full pathname of the JavaScript or CSS file.
+   * @param string      $resource     The JavaScript or CSS code.
+   * @param string|null $fullPathName The full pathname of the JavaScript or CSS file.
    *
    * @return string The minimized JavaScript or CSS code.
    */
-  abstract protected function minimizeResource($resource, $fullPathName);
+  abstract protected function minimizeResource(string $resource, ?string $fullPathName): string;
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -488,16 +490,15 @@ abstract class ResourceStoreTask extends \Task
    * Minimize resource, create hash based on optimized content. Add resource info into array.
    *
    * @param string       $resource     The (actual content) of the resource.
-   * @param string       $fullPathName The full pathname of the file where the resource is stored.
+   * @param string|null  $fullPathName The full pathname of the file where the resource is stored.
    * @param string|array $parts        Array with original resource files.
    * @param string       $getInfoBy    Flag for look in source with hash or without
    *
    * @return array
-   * @throws BuildException
    */
   protected function store($resource, $fullPathName, $parts, $getInfoBy)
   {
-    if (isset($fullPathName)) $this->logInfo("Minimizing '%s'", $fullPathName);
+    if ($fullPathName!==null) $this->logInfo("Minimizing '%s'", $fullPathName);
 
     $content_opt = $this->minimizeResource($resource, $fullPathName);
 

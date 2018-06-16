@@ -1,8 +1,7 @@
 <?php
-//----------------------------------------------------------------------------------------------------------------------
+
 require_once 'ResourceStoreTask.php';
 
-//----------------------------------------------------------------------------------------------------------------------
 /**
  * Abstract parent class for optimizing/minimizing resources (i.e. CSS and JS files) and modifying references to those
  * resources.
@@ -22,7 +21,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
    *
    * @var string[]
    */
-  protected $webAssetsClasses;
+  protected $webAssetsClasses = [];
 
   /**
    * Map from the original references to resource files to new references (which includes a hash).
@@ -53,6 +52,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
   private $sourcesFilesetId;
 
   //--------------------------------------------------------------------------------------------------------------------
+
   /**
    * Main method of this Phing task.
    */
@@ -89,9 +89,9 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
    *
    * @param $gzipFlag bool.
    */
-  public function setGzip($gzipFlag = false)
+  public function setGzip(bool $gzipFlag = false): void
   {
-    $this->gzipFlag = (boolean)$gzipFlag;
+    $this->gzipFlag = $gzipFlag;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -100,7 +100,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
    *
    * @param $preserveLastModifiedFlag bool
    */
-  public function setPreserveLastModified($preserveLastModifiedFlag)
+  public function setPreserveLastModified(bool $preserveLastModifiedFlag): void
   {
     $this->preserveModificationTime = (boolean)$preserveLastModifiedFlag;
   }
@@ -109,9 +109,9 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
   /**
    * Setter for XML attribute sources.
    *
-   * @param $sources string The ID of the fileset with source files.
+   * @param string $sources The ID of the fileset with source files.
    */
-  public function setSources($sources)
+  public function setSources(string $sources): void
   {
     $this->sourcesFilesetId = $sources;
   }
@@ -122,7 +122,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
    *
    * @param string $webAssetsClasses A space separated list of the web asset classes, interfaces and traits.
    */
-  public function setWebAssetsClasses($webAssetsClasses)
+  public function setWebAssetsClasses(string $webAssetsClasses): void
   {
     $this->webAssetsClasses = explode(' ', $webAssetsClasses);
   }
@@ -135,7 +135,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
    *
    * @return array
    */
-  protected function getClasses($phpCode)
+  protected function getClasses(string $phpCode): array
   {
     $tokens = token_get_all($phpCode);
 
@@ -210,7 +210,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
   /**
    * Get info about all source, resource files and directories.
    */
-  protected function prepareProjectData()
+  protected function prepareProjectData(): void
   {
     parent::prepareProjectData();
 
@@ -230,7 +230,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
    *
    * @return string The modified PHP code.
    */
-  abstract protected function processPhpSourceFile($filename, $phpCode);
+  abstract protected function processPhpSourceFile(string $filename, string $phpCode): string;
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -243,7 +243,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
    * @return string[] An array with two elements: the standard output and the standard error.
    * @throws BuildException
    */
-  protected function runProcess($command, $input)
+  protected function runProcess(string $command, string $input): array
   {
     $descriptor_spec = [0 => ["pipe", "r"],
                         1 => ["pipe", "w"],
@@ -333,7 +333,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
   /**
    *  Gets full path for each source file in the source fileset.
    */
-  private function getInfoSourceFiles()
+  private function getInfoSourceFiles(): void
   {
     $this->logVerbose('Get resource files info.');
 
@@ -355,12 +355,12 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
   /**
    * Returns the maximum mtime of a sources file and its referenced optimized/minimized resource files.
    *
-   * @param $sourceFilename string The name of the source file.
-   * @param $content        string The content of the source file with renamed references to resource files.
+   * @param string $sourceFilename The name of the source file.
+   * @param string $content        The content of the source file with renamed references to resource files.
    *
    * @return int The max mtime.
    */
-  private function getMaxModificationTime($sourceFilename, $content)
+  private function getMaxModificationTime(string $sourceFilename, string $content): int
   {
     $times = [];
 
@@ -384,11 +384,11 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
   /**
    * Returns an array with info about resource files referenced from a source file.
    *
-   * @param $sourceFileContent string Content of updated source file.
+   * @param string $sourceFileContent Content of updated source file.
    *
    * @return array
    */
-  private function getResourceFilesInSource($sourceFileContent)
+  private function getResourceFilesInSource(string $sourceFileContent): array
   {
     $resource_files = [];
     foreach ($this->getResourcesInfo() as $file_info)
@@ -408,7 +408,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
    *
    * @throws BuildException
    */
-  private function gzipCompressOptimizedResourceFiles()
+  private function gzipCompressOptimizedResourceFiles(): void
   {
     $this->logInfo('Gzip compressing files.');
 
@@ -465,7 +465,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
    * Prepares place holders with resource file names and references to optimized/minimized resource file names (with
    * includes a hash).
    */
-  private function preparePlaceHolders()
+  private function preparePlaceHolders(): void
   {
     $this->logVerbose('Prepare place holders.');
 
@@ -486,20 +486,18 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
   /**
    * Minimizes/optimizes the resource files and removes original resources files from the build dir.
    */
-  private function processResourceFiles()
+  private function processResourceFiles(): void
   {
     // Save all optimized resource files.
     $this->saveOptimizedResourceFiles();
   }
-
-
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Replaces references to resource files in source files with the hashed filename op the optimized/minimized
    * resources.
    */
-  private function processingSourceFiles()
+  private function processingSourceFiles(): void
   {
     $this->logVerbose('Replace references to resource files with references to optimized/minimized resource files.');
 

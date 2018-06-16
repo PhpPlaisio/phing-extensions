@@ -1,10 +1,9 @@
 <?php
-//----------------------------------------------------------------------------------------------------------------------
+
 use SetBased\Abc\Helper\Url;
 
 require_once 'OptimizeResourceTask.php';
 
-//----------------------------------------------------------------------------------------------------------------------
 /**
  * Class for optimizing and combining CSS files.
  */
@@ -35,6 +34,7 @@ class OptimizeCssTask extends OptimizeResourceTask
   private $minifyCommand = '/usr/bin/csso';
 
   //--------------------------------------------------------------------------------------------------------------------
+
   /**
    * OptimizeCssTask constructor.
    */
@@ -49,7 +49,7 @@ class OptimizeCssTask extends OptimizeResourceTask
    *
    * @param string $minifyCommand The command to run csso.
    */
-  public function setMinifyCommand($minifyCommand)
+  public function setMinifyCommand(string $minifyCommand): void
   {
     $this->minifyCommand = $minifyCommand;
   }
@@ -60,21 +60,21 @@ class OptimizeCssTask extends OptimizeResourceTask
    *
    * @param bool $minimize
    */
-  public function setMinimize($minimize)
+  public function setMinimize(bool $minimize): void
   {
-    $this->minimize = (boolean)$minimize;
+    $this->minimize = $minimize;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Minimizes CSS code.
    *
-   * @param string $resource     The CSS code.
-   * @param string $fullPathName The full pathname of the CSS file.
+   * @param string      $resource     The CSS code.
+   * @param string|null $fullPathName The full pathname of the CSS file.
    *
    * @return string The minimized CSS code.
    */
-  protected function minimizeResource($resource, $fullPathName)
+  protected function minimizeResource(string $resource, ?string $fullPathName): string
   {
     // If $theFullPathName is not set $resource is concatenation of 2 or more optimized CSS file. There is no need to
     // convert relative paths and minimized $resource again. Moreover, it is not possible to convert relative paths
@@ -111,7 +111,7 @@ class OptimizeCssTask extends OptimizeResourceTask
    *
    * @return string The modified PHP code.
    */
-  protected function processPhpSourceFile($filename, $phpCode)
+  protected function processPhpSourceFile(string $filename, string $phpCode): string
   {
     // If true the PHP code includes CSS files.
     $includes = false;
@@ -270,8 +270,7 @@ class OptimizeCssTask extends OptimizeResourceTask
     $lines = explode("\n", $css);
 
     $lines = preg_replace_callback('/(url\([\'"]?)(([^()]|(?R))+)([\'"]?\))/i',
-      function ($matches) use ($fullPathName)
-      {
+      function ($matches) use ($fullPathName) {
         return $matches[1].Url::combine($this->getPathInResources($fullPathName), $matches[2]).$matches[4];
       },
                                    $lines);
@@ -286,8 +285,8 @@ class OptimizeCssTask extends OptimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Replaces a group of multiple consecutive calls to {@link SetBased\Abc\WebAssets\WebAssets::cssOptimizedAppendSource}
-   * in PHP code with a single call.
+   * Replaces a group of multiple consecutive calls to {@link
+   * SetBased\Abc\WebAssets\WebAssets::cssOptimizedAppendSource} in PHP code with a single call.
    *
    * @param string[]   $lines    The lines of the PHP code.
    * @param int[]      $group    The group of of multiple consecutive calls to
@@ -309,7 +308,7 @@ class OptimizeCssTask extends OptimizeResourceTask
       $code = $info['content_opt'];
 
       $file_info['content_opt'] .= $code;
-      $files[] = $filename;
+      $files[]                  = $filename;
     }
     $file_info = $this->store($file_info['content_opt'], null, $files, 'full_path_name_with_hash');
 
@@ -354,13 +353,13 @@ class OptimizeCssTask extends OptimizeResourceTask
       $file_name = $matches[5];
     }
 
-    if (substr($file_name,0,1)=='/')
+    if (substr($file_name, 0, 1)=='/')
     {
-      $full_path = $this->parentResourceDirFullPath .'/'. $file_name;
+      $full_path = $this->parentResourceDirFullPath.'/'.$file_name;
     }
     else
     {
-      $full_path = $this->resourceDirFullPath .'/'. $file_name;
+      $full_path = $this->resourceDirFullPath.'/'.$file_name;
     }
 
     if (!file_exists($full_path))
