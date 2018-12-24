@@ -1,5 +1,5 @@
 <?php
-//----------------------------------------------------------------------------------------------------------------------
+
 namespace SetBased\Abc\Phing\Test\OptimizeCssTask;
 
 /**
@@ -9,7 +9,6 @@ class OptimizeCssTaskTest extends \BuildFileTest
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
-    $files    = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($rootpath));
    * Optimizing all files inside folder test01 and then compare files.
    */
   public function testOptimizeCss01()
@@ -40,7 +39,6 @@ class OptimizeCssTaskTest extends \BuildFileTest
     $this->project->setBasedir(__DIR__.'/test02');
     $this->executeTarget('optimize_css');
 
-
     $this->configureProject('build.xml');
     $this->executeTarget('optimize_css');
 
@@ -60,24 +58,24 @@ class OptimizeCssTaskTest extends \BuildFileTest
   /**
    * Get all files from directory and subdirectories.
    *
-   * @param $theFolder string Expected or build folder
+   * @param string $folder Expected or build folder
    *
    * @return array
    */
-  private function getFilesById($theFolder)
+  private function getFilesById($folder)
   {
-    $rootpath = getcwd().'/'.$theFolder;
-    $array    = [];
-    $files    = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($rootpath));
-    foreach ($files as $fullpath => $file)
+    $root_path = getcwd().'/'.$folder;
+    $array     = [];
+    $files     = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root_path));
+    foreach ($files as $full_path => $file)
     {
       if ($file->isFile())
       {
-        $content = file_get_contents($fullpath);
-        if ($content===false) print_r("\nUnable to read file '%s'.\n", $fullpath);
+        $content = file_get_contents($full_path);
+        if ($content===false) print_r("\nUnable to read file '%s'.\n", $full_path);
         if (preg_match('/(\/\*\s?)(ID:\s?)([^\s].+)(\s?\*\/)/', $content, $match))
         {
-          $array[$match[3]] = $fullpath;
+          $array[$match[3]] = $full_path;
         }
       }
     }
