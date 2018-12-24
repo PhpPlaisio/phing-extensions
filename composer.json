@@ -2,7 +2,7 @@
   "name": "setbased/abc-phing",
   "description": "ABC-Framework: Phing Extensions",
   "type": "library",
-  "keyword": [
+  "keywords": [
     "ABC-Framework",
     "Phing",
     "Extensions"
