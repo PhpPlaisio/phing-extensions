@@ -1,8 +1,6 @@
 <?php
-//----------------------------------------------------------------------------------------------------------------------
-use SetBased\Exception\FallenException;
 
-//----------------------------------------------------------------------------------------------------------------------
+use SetBased\Exception\FallenException;
 
 /**
  * Abstract parent class for tasks for optimizing resources (i.e. CSS and JS files). This class does the housekeeping

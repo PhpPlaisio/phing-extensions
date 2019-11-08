@@ -1,13 +1,12 @@
 build:
-    tests:
-        before:
-            - curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
-            - sudo apt-get install -y nodejs
-            - sudo npm install -g csso-cli
-            - sudo npm install -g csso
-        override:
-            -
-                command: './bin/phing unit'
-                coverage:
-                    file: 'test/coverage.xml'
-                    format: 'php-clover'
+  tests:
+    before:
+      - curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+      - sudo apt-get install -y nodejs
+      - sudo npm install -g csso-cli
+      - sudo npm install -g csso
+    override:
+      - command: './bin/phing unit'
+        coverage:
+          file: 'test/coverage.xml'
+          format: 'php-clover'
