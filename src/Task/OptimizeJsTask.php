@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 use SetBased\Helper\ProgramExecution;
 
@@ -171,9 +172,9 @@ class OptimizeJsTask extends \OptimizeResourceTask
   /**
    * Replaces calls to methods:
    * <ul>
-   * <li>{@link SetBased\Abc\WebAssets\WebAssets::jsAdmSetPageSpecificMain)
-   * <li>{@link SetBased\Abc\WebAssets\WebAssets::jsAdmClassSpecificFunctionCall)
-   * <li>{@link SetBased\Abc\WebAssets\WebAssets::jsAdmFunctionCall)
+   * <li>{@link Plaisio\WebAssets\WebAssets::jsAdmSetPageSpecificMain)
+   * <li>{@link Plaisio\WebAssets\WebAssets::jsAdmClassSpecificFunctionCall)
+   * <li>{@link Plaisio\WebAssets\WebAssets::jsAdmFunctionCall)
    * </ul>
    * with the appropriate optimized method.
    *
@@ -310,7 +311,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Creates file and minimizes in which all required JavaScript files of a page specific RequireJs file are combined,
-   * see {@link \SetBased\Abc\WebAssets\WebAssets::jsAdmSetPageSpecificMain}.
+   * see {@link \Plaisio\WebAssets\WebAssets::jsAdmSetPageSpecificMain}.
    *
    * @param string $fullPath The path to the JavaScript file
    *

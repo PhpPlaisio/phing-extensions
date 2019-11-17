@@ -1,6 +1,7 @@
 <?php
+declare(strict_types=1);
 
-use SetBased\Abc\Helper\Url;
+use Plaisio\Helper\Url;
 
 require_once 'OptimizeResourceTask.php';
 
@@ -101,8 +102,8 @@ class OptimizeCssTask extends OptimizeResourceTask
   /**
    * Replaces in PHP code calls to methods:
    * <ul>
-   * <li>{@link SetBased\Abc\WebAssets\WebAssets::cssAppendSource) and
-   * <li>{@link SetBased\Abc\WebAssets\WebAssets::cssAppendClassSpecificSource)
+   * <li>{@link Plaisio\WebAssets\WebAssets::cssAppendSource) and
+   * <li>{@link Plaisio\WebAssets\WebAssets::cssAppendClassSpecificSource)
    * </ul>
    * with the appropriate optimized method. Also, combines the multiple CSS files into a single CCS file.
    *
@@ -137,8 +138,8 @@ class OptimizeCssTask extends OptimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Replaces multiple consecutive calls to {@link SetBased\Abc\WebAssets\WebAssets::cssOptimizedAppendSource} in PHP
-   * code with a single call to {@link SetBased\Abc\WebAssets\WebAssets::cssOptimizedAppendSource} and combines the
+   * Replaces multiple consecutive calls to {@link Plaisio\WebAssets\WebAssets::cssOptimizedAppendSource} in PHP
+   * code with a single call to {@link Plaisio\WebAssets\WebAssets::cssOptimizedAppendSource} and combines the
    * multiple CSS files into a single CCS file.
    *
    * @param string $phpCode The PHP code.
@@ -190,9 +191,9 @@ class OptimizeCssTask extends OptimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Replaces calls to methods {@link SetBased\Abc\WebAssets\WebAssets::cssAppendPageSpecificSource) and
-   * {@link SetBased\Abc\WebAssets\WebAssets::cssAppendSource) with calls to
-   * {@link SetBased\Abc\WebAssets\WebAssets::cssOptimizedAppendSource}.
+   * Replaces calls to methods {@link Plaisio\WebAssets\WebAssets::cssAppendPageSpecificSource) and
+   * {@link Plaisio\WebAssets\WebAssets::cssAppendSource) with calls to
+   * {@link Plaisio\WebAssets\WebAssets::cssOptimizedAppendSource}.
    *
    * @param string $filename The filename with the PHP code.
    * @param string $phpCode  The PHP code.
@@ -286,11 +287,11 @@ class OptimizeCssTask extends OptimizeResourceTask
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Replaces a group of multiple consecutive calls to {@link
-   * SetBased\Abc\WebAssets\WebAssets::cssOptimizedAppendSource} in PHP code with a single call.
+   * Plaisio\WebAssets\WebAssets::cssOptimizedAppendSource} in PHP code with a single call.
    *
    * @param string[]   $lines    The lines of the PHP code.
    * @param int[]      $group    The group of of multiple consecutive calls to
-   *                             {@link SetBased\Abc\WebAssets\WebAssets::cssOptimizedAppendSource}
+   *                             {@link Plaisio\WebAssets\WebAssets::cssOptimizedAppendSource}
    * @param string[][] $calls    The matches from preg_match.
    */
   private function processPhpSourceFileCombineGroup(&$lines, $group, $calls)

@@ -1,17 +1,16 @@
 {
-  "name": "setbased/abc-phing",
-  "description": "ABC-Framework: Phing Extensions",
+  "name": "plaisio/phing-extensions",
+  "description": "PhpPlaisio: Phing Extensions",
   "type": "library",
   "keywords": [
-    "ABC-Framework",
-    "Phing",
-    "Extensions"
+    "PhpPlaisio",
+    "Phing Extensions"
   ],
   "license": "MIT",
   "require": {
     "php": ">=7.1.0",
-    "setbased/abc": "^0.10.0",
-    "setbased/abc-url": "^2.0.0",
+    "plaisio/helper-url": "^1.0.0",
+    "plaisio/kernel": "^1.0.0",
     "setbased/exception": "^2.0.0"
   },
   "require-dev": {
@@ -22,12 +21,12 @@
   },
   "autoload": {
     "psr-4": {
-      "SetBased\\Abc\\Phing\\": "src/"
+      "Plaisio\\Phing\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "SetBased\\Abc\\Phing\\Test\\": "test/"
+      "Plaisio\\Phing\\Test\\": "test/"
     }
   },
   "config": {

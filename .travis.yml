@@ -3,12 +3,12 @@ php:
   - '7.1'
   - '7.2'
   - '7.3'
-  
+
 before_install:
   - curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
   - sudo apt-get install -y nodejs
   - sudo npm install -g csso-cli
-    
+
 install:
   - npm install -g csso
   - composer self-update

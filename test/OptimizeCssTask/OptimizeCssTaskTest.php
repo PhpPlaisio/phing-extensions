@@ -1,6 +1,6 @@
 <?php
 
-namespace SetBased\Abc\Phing\Test\OptimizeCssTask;
+namespace Plaisio\Phing\Test\OptimizeCssTask;
 
 /**
  * Unit Tests for testing optimize_css Task.
