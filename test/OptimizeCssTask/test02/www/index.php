@@ -1,6 +1,7 @@
 <?php
-//----------------------------------------------------------------------------------------------------------------------
-use Plaisio\Abc;
+declare(strict_types=1);
+
+use Plaisio\Kernel\Nub;
 
 /**
  * Class TestPage.
@@ -15,8 +16,8 @@ class TestPage extends Plaisio\Page\Page
   {
     parent::__construct();
 
-    Abc::$assets->cssAppendSource('style1.css');
-    Abc::$assets->cssAppendSource('/css/test/style2.css');
+    Nub::$assets->cssAppendSource('style1.css');
+    Nub::$assets->cssAppendSource('/css/test/style2.css');
   }
 
   //--------------------------------------------------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-<project name="abc-phing" default="build" basedir=".">
+<project name="PhpPlaisio" default="build" basedir=".">
     <taskdef name="optimizeCss" classname="../../../src.Task.OptimizeCssTask"/>
     <property name="BUILD_DIR" value="./build"/>
     <property name="CSS_DIR" value="www/css"/>
@@ -55,7 +55,7 @@
                      resourceDir="css"
                      preserveLastModified="true"
                      gzip="false"
-                     webAssetsClasses="SetBased\Abc\WebAssets\WebAssets SetBased\Abc\WebAssets\CoreWebAssets"
+                     webAssetsClasses="Plaisio\WebAssets\WebAssets Plaisio\WebAssets\CoreWebAssets"
                      minimize="false"/>
     </target>
 
