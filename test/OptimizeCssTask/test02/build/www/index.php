@@ -2,11 +2,13 @@
 declare(strict_types=1);
 
 use Plaisio\Kernel\Nub;
+use Plaisio\Page\CorePage;
+use Plaisio\Response\Response;
 
 /**
  * Class TestPage.
  */
-class TestPage extends Plaisio\Page\Page
+class TestPage extends CorePage
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -22,11 +24,11 @@ class TestPage extends Plaisio\Page\Page
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Must be implemented in child classes to echo the actual page content, i.e. the inner HTML of the body tag.
+   * @inheritDoc
    */
-  public function echoPage()
+  public function handleRequest(): Response
   {
-    echo 'Hello, world';
+    throw new LogicException('Not implemented');
   }
 
   //--------------------------------------------------------------------------------------------------------------------

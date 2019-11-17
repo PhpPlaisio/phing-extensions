@@ -17,6 +17,7 @@
   "require-dev": {
     "phing/phing": "^2.0.0",
     "phpunit/phpunit": "^7.0.0 || ^8.0.0",
+    "plaisio/page-core": "^1.0.0",
     "setbased/helper-program-execution": "^1.0.0",
     "setbased/phing-extensions": "^2.0.0"
   },
