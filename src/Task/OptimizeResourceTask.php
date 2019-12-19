@@ -171,7 +171,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
       {
         $this->logInfo($line);
       }
-      $this->logError("Error executing '%s'.", implode(' ', $command));
+      $this->logError("Error executing '%s'", implode(' ', $command));
     }
     else
     {
@@ -236,7 +236,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
         }
         elseif ($token==='{')
         {
-          throw new LogicException('Bracketed syntax for namespace not supported.');
+          throw new LogicException('Bracketed syntax for namespace not supported');
         }
         else
         {
@@ -274,7 +274,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
     $sources               = $this->getProject()->getReference($this->sourcesFilesetId);
     $this->sourceFileNames = $sources->getDirectoryScanner($this->getProject())->getIncludedFiles();
     $suc                   = ksort($this->sourceFileNames);
-    if ($suc===false) $this->logError("ksort failed.");
+    if ($suc===false) $this->logError("ksort failed");
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -307,7 +307,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
                         2 => ["pipe", "w"]];
 
     $process = proc_open($command, $descriptor_spec, $pipes);
-    if ($process===false) $this->logError("Unable to span process '%s'.", $command);
+    if ($process===false) $this->logError("Unable to span process '%s'", $command);
 
     $write_pipes = [$pipes[0]];
     $read_pipes  = [$pipes[1], $pipes[2]];
@@ -330,7 +330,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
           if ($read==$pipes[1])
           {
             $data = fread($read, self::BUFFER_SIZE);
-            if ($data===false) $this->logError("Unable to read standard output from command '%s'.", $command);
+            if ($data===false) $this->logError("Unable to read standard output from command '%s'", $command);
             if ($data==='')
             {
               fclose($pipes[1]);
@@ -344,7 +344,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
           if ($read==$pipes[2])
           {
             $data = fread($read, self::BUFFER_SIZE);
-            if ($data===false) $this->logError("Unable to read standard error from command '%s'.", $command);
+            if ($data===false) $this->logError("Unable to read standard error from command '%s'", $command);
             if ($data==='')
             {
               fclose($pipes[2]);
@@ -361,7 +361,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
       if (isset($writes[0]))
       {
         $bytes = fwrite($writes[0], $std_in);
-        if ($bytes===false) $this->logError("Unable to write to standard input of command '%s'.", $command);
+        if ($bytes===false) $this->logError("Unable to write to standard input of command '%s'", $command);
         if ($bytes==0)
         {
           fclose($writes[0]);
@@ -380,7 +380,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
     {
       if ($std_err!=='') $this->logInfo($std_err);
       else               $this->logInfo($std_out);
-      $this->logError("Error executing '%s'.", $command);
+      $this->logError("Error executing '%s'", $command);
     }
 
     return [$std_out, $std_err];
@@ -443,7 +443,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
     }
 
     $suc = ksort($this->sourceFilesInfo);
-    if ($suc===false) $this->logError("ksort failed.");
+    if ($suc===false) $this->logError("ksort failed");
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -460,7 +460,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
     $times = [];
 
     $time = filemtime($sourceFilename);
-    if ($time===false) $this->logError("Unable to get mtime of file '%s'.", $sourceFilename);
+    if ($time===false) $this->logError("Unable to get mtime of file '%s'", $sourceFilename);
     $times[] = $time;
 
     $resource_files_info = $this->getResourceFilesInSource($content);
@@ -468,7 +468,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
     {
       $info = $this->getResourceInfoByHash($resource_file_info['full_path_name_with_hash']);
       $time = $info['mtime'];
-      if ($time===false) $this->logError("Unable to get mtime for file '%s'.", $resource_file_info);
+      if ($time===false) $this->logError("Unable to get mtime for file '%s'", $resource_file_info);
       $times[] = $time;
     }
 
@@ -511,20 +511,20 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
     {
       $gzipPath = $resourcePath.'.gz';
 
-      $this->logVerbose("Gzip compressing file '%s' to '%s'.", $resourcePath, $gzipPath);
+      $this->logVerbose("Gzip compressing file '%s' to '%s'", $resourcePath, $gzipPath);
 
       // Get data from the file.
       $data_opt = file_get_contents($resourcePath);
       if ($data_opt===false)
       {
-        $this->logError("Can not read the file '%s' or file does not exist.", $resourcePath);
+        $this->logError("Can not read the file '%s' or file does not exist", $resourcePath);
       }
 
       // Compress data with gzip
       $data_gzip = gzencode($data_opt, 9);
       if ($data_gzip===false)
       {
-        $this->logError("Can not write the file '%s' or file does not exist.", $gzipPath);
+        $this->logError("Can not write the file '%s' or file does not exist", $gzipPath);
       }
 
       if (strlen($data_gzip)<strlen($data_opt))
@@ -559,7 +559,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
    */
   private function preparePlaceHolders(): void
   {
-    $this->logVerbose('Prepare place holders.');
+    $this->logVerbose('Prepare place holders');
 
     foreach ($this->getResourcesInfo() as $file_info)
     {
@@ -591,14 +591,14 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
    */
   private function processingSourceFiles(): void
   {
-    $this->logVerbose('Replace references to resource files with references to optimized/minimized resource files.');
+    $this->logVerbose('Replace references to resource files with references to optimized/minimized resource files');
 
     foreach ($this->sourceFilesInfo as $source_filename)
     {
-      $this->logVerbose("Processing %s.", $source_filename);
+      $this->logVerbose('Processing %s', $source_filename);
 
       $content = file_get_contents($source_filename);
-      if ($content===false) $this->logError("Unable to read file '%s'.", $source_filename);
+      if ($content===false) $this->logError("Unable to read file '%s'", $source_filename);
 
       $new_content = $content;
 
@@ -622,15 +622,15 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
 
         // Write sources file with modified references to resource files.
         $status = file_put_contents($source_filename, $new_content);
-        if ($status===false) $this->logError("Updating file '%s' failed.", $source_filename);
-        $this->logInfo("Updated file '%s'.", $source_filename);
+        if ($status===false) $this->logError("Updating file '%s' failed", $source_filename);
+        $this->logInfo("Updated file '%s'", $source_filename);
 
         // If required set the mtime to the latest modification time of the source file and its referenced resource
         // files.
         if ($this->preserveModificationTime)
         {
           $status = touch($source_filename, $time);
-          if ($status===false) $this->logError("Unable to set mtime for file '%s'.", $source_filename);
+          if ($status===false) $this->logError("Unable to set mtime for file '%s'", $source_filename);
         }
       }
     }

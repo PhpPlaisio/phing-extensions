@@ -243,7 +243,7 @@ class OptimizeCssTask extends OptimizeResourceTask
         {
           if (preg_match("/(->|::)($method)(\\()/", $line))
           {
-            $this->logError("Unexpected usage of method '%s' at line %s:%d.", $method, $filename, $i + 1);
+            $this->logError("Unexpected usage of method '%s' at line %s:%d", $method, $filename, $i + 1);
           }
         }
       }
@@ -364,7 +364,7 @@ class OptimizeCssTask extends OptimizeResourceTask
 
     if (!file_exists($full_path))
     {
-      $this->logError("File '%s' not found.", $full_path);
+      $this->logError("File '%s' not found", $full_path);
     }
 
     $real_path  = realpath($full_path);

@@ -235,7 +235,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
         {
           if (preg_match("/(->|::)($method)(\\()/", $line))
           {
-            $this->logError("Unexpected usage of method '%s' at %s:%d.", $method, $filename, $i + 1);
+            $this->logError("Unexpected usage of method '%s' at %s:%d", $method, $filename, $i + 1);
           }
         }
       }
@@ -288,12 +288,12 @@ class OptimizeJsTask extends \OptimizeResourceTask
 
     // Get the combined the JavaScript code.
     $code = file_get_contents($tmp_name2);
-    if ($code===false) $this->logError("Unable to read file '%s'.", $tmp_name2);
+    if ($code===false) $this->logError("Unable to read file '%s'", $tmp_name2);
 
     // Get require.js
     $path       = $this->parentResourceDirFullPath.'/'.$this->requireJsPath;
     $require_js = file_get_contents($path);
-    if ($code===false) $this->logError("Unable to read file '%s'.", $path);
+    if ($code===false) $this->logError("Unable to read file '%s'", $path);
 
     // Combine require.js and all required includes.
     $code = $require_js.$code;
@@ -337,10 +337,10 @@ class OptimizeJsTask extends \OptimizeResourceTask
   private function extractConfigFromMainFile(string $filename): string
   {
     $main = file_get_contents($filename);
-    if ($main===false) $this->logError("Unable to read file '%s'.", $filename);
+    if ($main===false) $this->logError("Unable to read file '%s'", $filename);
 
     preg_match('/^(.*requirejs.config)(.*}\))(.*)$/sm', $main, $matches);
-    if (!isset($matches[2])) $this->logError("Unable to fine 'requirejs.config' in file '%s'.", $filename);
+    if (!isset($matches[2])) $this->logError("Unable to fine 'requirejs.config' in file '%s'", $filename);
 
     return $matches[2];
   }
@@ -409,11 +409,11 @@ class OptimizeJsTask extends \OptimizeResourceTask
     $main_js_file = self::getMainJsFileName($realPath);
     // Read the main file.
     $js = file_get_contents($main_js_file);
-    if ($js===false) $this->logError("Unable to read file '%s'.", $realPath);
+    if ($js===false) $this->logError("Unable to read file '%s'", $realPath);
 
     // Extract paths from main.
     preg_match('/^(.*paths:[^{]*)({[^}]*})(.*)$/sm', $js, $matches);
-    if (!isset($matches[2])) $this->logError("Unable to find paths in '%s'.", $realPath);
+    if (!isset($matches[2])) $this->logError("Unable to find paths in '%s'", $realPath);
 
     // @todo Remove from paths files already combined.
 
@@ -531,7 +531,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
 
     if (!file_exists($full_path))
     {
-      $this->logError("File '%s' not found.", $full_path);
+      $this->logError("File '%s' not found", $full_path);
     }
 
     array_shift($matches);

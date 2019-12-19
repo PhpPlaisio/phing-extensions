@@ -241,7 +241,7 @@ abstract class ResourceStoreTask extends \Task
   {
     if (strncmp($path, $this->parentResourceDirFullPath, strlen($this->parentResourceDirFullPath))!=0)
     {
-      throw new \BuildException(sprintf("Resource file '%s' is not under resource dir '%s'.",
+      throw new \BuildException(sprintf("Resource file '%s' is not under resource dir '%s'",
                                         $path,
                                         $this->parentResourceDirFullPath));
     }
@@ -430,7 +430,7 @@ abstract class ResourceStoreTask extends \Task
    */
   protected function prepareProjectData()
   {
-    $this->logVerbose('Get source and resource file names.');
+    $this->logVerbose('Get source and resource file names');
 
     // Get file list form the project by fileset ID.
     $resources               = $this->getProject()->getReference($this->resourcesFilesetId);
