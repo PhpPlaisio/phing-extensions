@@ -35,7 +35,6 @@ class OptimizeCssTask extends OptimizeResourceTask
   private $minifyCommand = '/usr/bin/csso';
 
   //--------------------------------------------------------------------------------------------------------------------
-
   /**
    * OptimizeCssTask constructor.
    */

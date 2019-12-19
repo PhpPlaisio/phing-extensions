@@ -1,8 +1,6 @@
 <?php
 declare(strict_types=1);
 
-use SetBased\Helper\ProgramExecution;
-
 require_once 'OptimizeResourceTask.php';
 
 /**
@@ -51,7 +49,6 @@ class OptimizeJsTask extends \OptimizeResourceTask
   private $requireJsPath = 'js/require.js';
 
   //--------------------------------------------------------------------------------------------------------------------
-
   /**
    * OptimizeJsTask constructor.
    */
@@ -329,37 +326,6 @@ class OptimizeJsTask extends \OptimizeResourceTask
     $file_info = $this->store($js_raw, $real_path, $combine_info['parts'], 'full_path_name');
 
     return $file_info['path_name_in_sources_with_hash'];
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
-   * Executes an external program.
-   *
-   * @param string[] $command The command as array.
-   *
-   * @return string[] The output of the command.
-   */
-  private function execCommand(array $command): array
-  {
-    $this->logVerbose('Execute: %s', implode(' ', $command));
-    list($output, $ret) = ProgramExecution::exec1($command, null);
-    if ($ret!=0)
-    {
-      foreach ($output as $line)
-      {
-        $this->logInfo($line);
-      }
-      $this->logError("Error executing '%s'.", implode(' ', $command));
-    }
-    else
-    {
-      foreach ($output as $line)
-      {
-        $this->logVerbose($line);
-      }
-    }
-
-    return $output;
   }
 
   //--------------------------------------------------------------------------------------------------------------------

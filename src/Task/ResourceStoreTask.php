@@ -11,6 +11,20 @@ abstract class ResourceStoreTask extends \Task
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * If set static Brotli compressed files of the optimized/minimized resources will be created.
+   *
+   * @var bool
+   */
+  protected $brotliFlag = false;
+
+  /**
+   * Path to the Brotli program.
+   *
+   * @var string
+   */
+  protected $brotliPath = 'brotli';
+
+  /**
    * The extension of the resource files (i.e. .js or .css).
    *
    * @var string
@@ -102,7 +116,6 @@ abstract class ResourceStoreTask extends \Task
   private $resourcesFilesetId;
 
   //--------------------------------------------------------------------------------------------------------------------
-
   /**
    * Object constructor.
    *
@@ -172,6 +185,23 @@ abstract class ResourceStoreTask extends \Task
     $path .= '/'.$fileInfo['hash'].'.'.$fileInfo['ordinal'].$this->extension;
 
     return $path;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Returns an array with all hashed resources.
+   *
+   * @return array
+   */
+  protected function getHashedResourceFilenames(): array
+  {
+    $paths = [];
+    foreach ($this->getResourcesInfo() as $info)
+    {
+      $paths[] = $info['full_path_name_with_hash'];
+    }
+
+    return array_unique($paths, SORT_STRING);
   }
 
   //--------------------------------------------------------------------------------------------------------------------

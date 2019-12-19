@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+use SetBased\Helper\ProgramExecution;
+
 require_once 'ResourceStoreTask.php';
 
 /**
@@ -79,6 +81,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
 
     // Create pre-compressed versions of the optimized/minimized resource files.
     if ($this->gzipFlag) $this->gzipCompressOptimizedResourceFiles();
+    if ($this->brotliFlag) $this->brotliCompressOptimizedResourceFiles();
 
     // Remove original resource files that are optimized/minimized.
     $this->unlinkResourceFiles();
@@ -86,9 +89,31 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Setter for XML attribute Brotli.
+   *
+   * @param bool $brotliFlag If set static Brotli compressed files of the optimized/minimized resources will be created.
+   */
+  public function setBrotli(bool $brotliFlag = false): void
+  {
+    $this->brotliFlag = $brotliFlag;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Setter for XML attribute BrotliPath.
+   *
+   * @param string $brotliPath Path to the Brotli program.
+   */
+  public function setBrotliPath(string $brotliPath): void
+  {
+    $this->brotliPath = $brotliPath;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Setter for XML attribute GZip.
    *
-   * @param $gzipFlag bool.
+   * @param $gzipFlag bool
    */
   public function setGzip(bool $gzipFlag = false): void
   {
@@ -126,6 +151,37 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
   public function setWebAssetsClasses(string $webAssetsClasses): void
   {
     $this->webAssetsClasses = explode(' ', $webAssetsClasses);
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Executes an external program.
+   *
+   * @param string[] $command The command as array.
+   *
+   * @return string[] The output of the command.
+   */
+  protected function execCommand(array $command): array
+  {
+    $this->logVerbose('Execute: %s', implode(' ', $command));
+    [$output, $ret] = ProgramExecution::exec1($command, null);
+    if ($ret!=0)
+    {
+      foreach ($output as $line)
+      {
+        $this->logInfo($line);
+      }
+      $this->logError("Error executing '%s'.", implode(' ', $command));
+    }
+    else
+    {
+      foreach ($output as $line)
+      {
+        $this->logVerbose($line);
+      }
+    }
+
+    return $output;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -206,7 +262,6 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
 
     return $classes;
   }
-
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Get info about all source, resource files and directories.
@@ -221,6 +276,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
     $suc                   = ksort($this->sourceFileNames);
     if ($suc===false) $this->logError("ksort failed.");
   }
+
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * In PHP code replaces references to resource files (i.e. CSS or JS files) with references to the optimized versions
@@ -332,11 +388,49 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Compresses optimized/minimized resource files with Brotli.
+   *
+   * @throws BuildException
+   */
+  private function brotliCompressOptimizedResourceFiles(): void
+  {
+    $this->logInfo('Brotli compressing files');
+
+    foreach ($this->getHashedResourceFilenames() as $resourcePath)
+    {
+      $brotliPath = $resourcePath.'.br';
+
+      $this->logVerbose("Brotli compressing file '%s' to '%s'", $resourcePath, $brotliPath);
+
+      $command = [$this->brotliPath, '--quality=11', '--keep', $resourcePath];
+      $this->execCommand($command);
+
+      if (filesize($resourcePath)<filesize($brotliPath))
+      {
+        $this->logVerbose('Compressed file larger than original file');
+
+        unlink($brotliPath);
+      }
+      else
+      {
+        if ($this->preserveModificationTime)
+        {
+          $info = $this->getResourceInfoByHash($resourcePath);
+          $this->setModificationTime($brotliPath, $info['mtime']);
+        }
+
+        $this->setFilePermissions($brotliPath, $resourcePath);
+      }
+    }
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    *  Gets full path for each source file in the source fileset.
    */
   private function getInfoSourceFiles(): void
   {
-    $this->logVerbose('Get resource files info.');
+    $this->logVerbose('Get source files info');
 
     // Get the base dir of the sources.
     $dir = $this->getProject()->getReference($this->sourcesFilesetId)->getDir($this->getProject());
@@ -411,52 +505,49 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
    */
   private function gzipCompressOptimizedResourceFiles(): void
   {
-    $this->logInfo('Gzip compressing files.');
+    $this->logInfo('Gzip compressing files');
 
-    foreach ($this->getResourcesInfo() as $file_info)
+    foreach ($this->getHashedResourceFilenames() as $resourcePath)
     {
-      $this->logVerbose("Gzip compressing file '%s' to '%s'.",
-                        $file_info['full_path_name_with_hash'],
-                        $file_info['full_path_name_with_hash'].'.gz');
+      $gzipPath = $resourcePath.'.gz';
+
+      $this->logVerbose("Gzip compressing file '%s' to '%s'.", $resourcePath, $gzipPath);
 
       // Get data from the file.
-      $data_opt = file_get_contents($file_info['full_path_name_with_hash']);
+      $data_opt = file_get_contents($resourcePath);
       if ($data_opt===false)
       {
-        $this->logError("Can not read the file '%s' or file does not exist.", $file_info['full_path_name_with_hash']);
+        $this->logError("Can not read the file '%s' or file does not exist.", $resourcePath);
       }
 
       // Compress data with gzip
       $data_gzip = gzencode($data_opt, 9);
       if ($data_gzip===false)
       {
-        $this->logError("Can not write the file '%s' or file does not exist.",
-                        $file_info['full_path_name_with_hash'].'.gz');
+        $this->logError("Can not write the file '%s' or file does not exist.", $gzipPath);
       }
 
       if (strlen($data_gzip)<strlen($data_opt))
       {
         // Write data to the file.
-        $status = file_put_contents($file_info['full_path_name_with_hash'].'.gz', $data_gzip);
+        $status = file_put_contents($gzipPath, $data_gzip);
         if ($status===false)
         {
-          $this->logError("Unable to write to file '%s", $file_info['full_path_name_with_hash'].'.gz');
+          $this->logError("Unable to write to file '%s", $gzipPath);
         }
 
         // If required preserve mtime.
         if ($this->preserveModificationTime)
         {
-          $info  = $this->getResourceInfoByHash($file_info['full_path_name_with_hash']);
-          $mtime = $info['mtime'];
-          $this->setModificationTime($file_info['full_path_name_with_hash'].'.gz', $mtime);
+          $info = $this->getResourceInfoByHash($resourcePath);
+          $this->setModificationTime($gzipPath, $info['mtime']);
         }
 
-        // If required preserve file permissions.
-        clearstatcache();
-        if ($this->preserveModificationTime && fileperms($file_info['full_path_name_with_hash'])!==false)
-        {
-          $this->setFilePermissions($file_info['full_path_name_with_hash'].'.gz', $file_info['full_path_name_with_hash']);
-        }
+        $this->setFilePermissions($gzipPath, $resourcePath);
+      }
+      else
+      {
+        $this->logVerbose('Compressed file larger than original file');
       }
     }
   }
