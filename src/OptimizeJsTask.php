@@ -1,8 +1,6 @@
 <?php
 declare(strict_types=1);
 
-namespace Plaisio\Phing\Task;
-
 /**
  * Class for optimizing and combining JS files.
  */

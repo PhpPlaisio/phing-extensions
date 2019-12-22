@@ -22,9 +22,7 @@
     "setbased/phing-extensions": "dev-master"
   },
   "autoload": {
-    "psr-4": {
-      "Plaisio\\Phing\\Task\\": "src/"
-    }
+    "classmap": ["src"]
   },
   "autoload-dev": {
     "psr-4": {

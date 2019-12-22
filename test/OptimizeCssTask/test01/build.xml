@@ -1,5 +1,5 @@
 <project name="PhpPlaisio" default="build" basedir=".">
-    <taskdef name="optimizeCss" classname="\Plaisio\Phing\Task\OptimizeCssTask"/>
+    <taskdef name="optimizeCss" classname="../../../src.OptimizeCssTask"/>
     <property name="BUILD_DIR" value="./build"/>
     <property name="CSS_DIR" value="www/css"/>
 
