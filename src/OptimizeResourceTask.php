@@ -1,15 +1,15 @@
 <?php
 declare(strict_types=1);
 
-use SetBased\Helper\ProgramExecution;
+namespace Plaisio\Phing\Task;
 
-require_once 'ResourceStoreTask.php';
+use SetBased\Helper\ProgramExecution;
 
 /**
  * Abstract parent class for optimizing/minimizing resources (i.e. CSS and JS files) and modifying references to those
  * resources.
  */
-abstract class OptimizeResourceTask extends \ResourceStoreTask
+abstract class OptimizeResourceTask extends ResourceStoreTask
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -55,7 +55,6 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
   private $sourcesFilesetId;
 
   //--------------------------------------------------------------------------------------------------------------------
-
   /**
    * Main method of this Phing task.
    */
@@ -128,7 +127,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
    */
   public function setPreserveLastModified(bool $preserveLastModifiedFlag): void
   {
-    $this->preserveModificationTime = (boolean)$preserveLastModifiedFlag;
+    $this->preserveModificationTime = $preserveLastModifiedFlag;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -236,11 +235,11 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
         }
         elseif ($token==='{')
         {
-          throw new LogicException('Bracketed syntax for namespace not supported');
+          throw new \LogicException('Bracketed syntax for namespace not supported');
         }
         else
         {
-          throw new LogicException("Unexpected token %s", print_r($token, true));
+          throw new \LogicException("Unexpected token %s", print_r($token, true));
         }
       }
 
@@ -298,7 +297,8 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
    * @param string $input   The data to send to the process.
    *
    * @return string[] An array with two elements: the standard output and the standard error.
-   * @throws BuildException
+   *
+   * @throws \BuildException
    */
   protected function runProcess(string $command, string $input): array
   {
@@ -390,7 +390,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
   /**
    * Compresses optimized/minimized resource files with Brotli.
    *
-   * @throws BuildException
+   * @throws \BuildException
    */
   private function brotliCompressOptimizedResourceFiles(): void
   {
@@ -501,7 +501,7 @@ abstract class OptimizeResourceTask extends \ResourceStoreTask
   /**
    * Compresses optimized/minimized resource files with gzip.
    *
-   * @throws BuildException
+   * @throws \BuildException
    */
   private function gzipCompressOptimizedResourceFiles(): void
   {

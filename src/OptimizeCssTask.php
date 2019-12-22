@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-use Plaisio\Helper\Url;
+namespace Plaisio\Phing\Task;
 
-require_once 'OptimizeResourceTask.php';
+use Plaisio\Helper\Url;
 
 /**
  * Class for optimizing and combining CSS files.
@@ -35,6 +35,7 @@ class OptimizeCssTask extends OptimizeResourceTask
   private $minifyCommand = '/usr/bin/csso';
 
   //--------------------------------------------------------------------------------------------------------------------
+
   /**
    * OptimizeCssTask constructor.
    */
@@ -83,7 +84,7 @@ class OptimizeCssTask extends OptimizeResourceTask
     {
       $css = $this->convertRelativePaths($resource, $fullPathName);
 
-      list($std_out, $std_err) = $this->runProcess($this->minifyCommand, $css);
+      [$std_out, $std_err] = $this->runProcess($this->minifyCommand, $css);
 
       if ($std_err) $this->logInfo($std_err);
 
@@ -145,7 +146,7 @@ class OptimizeCssTask extends OptimizeResourceTask
    *
    * @return string The modified PHP code.
    */
-  protected function processPhpSourceFileCombine($phpCode)
+  protected function processPhpSourceFileCombine(string $phpCode): string
   {
     $lines    = explode("\n", $phpCode);
     $calls    = [];
@@ -199,7 +200,7 @@ class OptimizeCssTask extends OptimizeResourceTask
    *
    * @return string The modified PHP code.
    */
-  protected function processPhpSourceFileReplaceMethod($filename, $phpCode)
+  protected function processPhpSourceFileReplaceMethod(string $filename, string $phpCode): string
   {
     $classes       = $this->getClasses($phpCode);
     $current_class = '';
@@ -261,7 +262,7 @@ class OptimizeCssTask extends OptimizeResourceTask
    *
    * @return string The modified CSS code.
    */
-  private function convertRelativePaths($css, $fullPathName)
+  private function convertRelativePaths(string $css, string $fullPathName): string
   {
     // Note: URLs like url(test/test(1).jpg) i.e. URL with ( or ) in name, or not supported.
 
@@ -293,7 +294,7 @@ class OptimizeCssTask extends OptimizeResourceTask
    *                             {@link Plaisio\WebAssets\WebAssets::cssOptimizedAppendSource}
    * @param string[][] $calls    The matches from preg_match.
    */
-  private function processPhpSourceFileCombineGroup(&$lines, $group, $calls)
+  private function processPhpSourceFileCombineGroup(array &$lines, array $group, array $calls): void
   {
     $files                    = [];
     $file_info                = [];
@@ -336,13 +337,15 @@ class OptimizeCssTask extends OptimizeResourceTask
   /**
    * Helper function for {@link processPhpSourceFileReplaceMethodHelper}.
    *
-   * @param string[] $matches         The matches as returned by preg_match.
-   * @param string   $optimizedMethod The appropriate optimized method.
-   * @param string   $className       The current class name of the PHP code.
+   * @param string[]    $matches         The matches as returned by preg_match.
+   * @param string      $optimizedMethod The appropriate optimized method.
+   * @param string|null $className       The current class name of the PHP code.
    *
    * @return string
    */
-  private function processPhpSourceFileReplaceMethodHelper($matches, $optimizedMethod, $className = null)
+  private function processPhpSourceFileReplaceMethodHelper(array $matches,
+                                                           string $optimizedMethod,
+                                                           ?string $className = null): string
   {
     if (isset($className))
     {

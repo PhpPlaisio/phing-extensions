@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+namespace Plaisio\Phing\Task;
+
 use SetBased\Exception\FallenException;
 
 /**
@@ -116,12 +118,13 @@ abstract class ResourceStoreTask extends \Task
   private $resourcesFilesetId;
 
   //--------------------------------------------------------------------------------------------------------------------
+
   /**
    * Object constructor.
    *
    * @param string $extension The extension of the resource files (i.e. .js or .css).
    */
-  public function __construct($extension)
+  public function __construct(string $extension)
   {
     $this->resourceFilesInfo = [];
     $this->extension         = $extension;
@@ -131,20 +134,20 @@ abstract class ResourceStoreTask extends \Task
   /**
    * Setter for XML attribute haltOnError.
    *
-   * @param $haltOnError
+   * @param bool $haltOnError If set stop build on errors.
    */
-  public function setHaltOnError($haltOnError)
+  public function setHaltOnError(bool $haltOnError): void
   {
-    $this->haltOnError = (boolean)$haltOnError;
+    $this->haltOnError = $haltOnError;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Setter for XML attribute parentResourceDir.
    *
-   * @param $parentResourceDir string The path to the resource dir.
+   * @param string $parentResourceDir The path to the resource dir.
    */
-  public function setParentResourceDir($parentResourceDir)
+  public function setParentResourceDir(string $parentResourceDir)
   {
     $this->parentResourceDir = $parentResourceDir;
   }
@@ -153,9 +156,9 @@ abstract class ResourceStoreTask extends \Task
   /**
    * Setter for XML attribute resourceDir.
    *
-   * @param $resourceDir string The directory of the resource files relative tot the parent resource dir.
+   * @param string $resourceDir The directory of the resource files relative tot the parent resource dir.
    */
-  public function setResourceDir($resourceDir)
+  public function setResourceDir(string $resourceDir)
   {
     $this->resourceDir = $resourceDir;
   }
@@ -164,9 +167,9 @@ abstract class ResourceStoreTask extends \Task
   /**
    * Setter for XML attribute resource.
    *
-   * @param $resources string The ID of the fileset with resource files.
+   * @param string $resources The ID of the fileset with resource files.
    */
-  public function setResources($resources)
+  public function setResources(string $resources)
   {
     $this->resourcesFilesetId = $resources;
   }
@@ -175,11 +178,11 @@ abstract class ResourceStoreTask extends \Task
   /**
    * Returns the full path with hash of an resource file.
    *
-   * @param array $fileInfo An element from {@link $myResourceFilesInfo}.
+   * @param array $fileInfo An element from {@link $resourceFilesInfo}.
    *
    * @return string
    */
-  protected function getFullPathNameWithHash($fileInfo)
+  protected function getFullPathNameWithHash(array $fileInfo): string
   {
     $path = $this->resourceDirFullPath;
     $path .= '/'.$fileInfo['hash'].'.'.$fileInfo['ordinal'].$this->extension;
@@ -208,7 +211,7 @@ abstract class ResourceStoreTask extends \Task
   /**
    * Get info about each file in the fileset.
    */
-  protected function getInfoResourceFiles()
+  protected function getInfoResourceFiles(): void
   {
     $this->logVerbose('Get resource files info');
 
@@ -235,9 +238,10 @@ abstract class ResourceStoreTask extends \Task
    * @param $path string The full path name of resource file.
    *
    * @return string The path name relative to the parent resource directory.
+   *
    * @throws \BuildException
    */
-  protected function getPathInResources($path)
+  protected function getPathInResources(string $path): string
   {
     if (strncmp($path, $this->parentResourceDirFullPath, strlen($this->parentResourceDirFullPath))!=0)
     {
@@ -259,7 +263,7 @@ abstract class ResourceStoreTask extends \Task
    *
    * @return string
    */
-  protected function getPathInResourcesWithHash($baseUrl, $resourcePathName)
+  protected function getPathInResourcesWithHash(string $baseUrl, string $resourcePathName): string
   {
     foreach ($this->resourceFilesInfo as $info)
     {
@@ -276,12 +280,13 @@ abstract class ResourceStoreTask extends \Task
   /**
    * Returns the resource info based on the full path of the resource.
    *
-   * @param $fullPathName
+   * @param string $fullPathName
    *
-   * @return array
-   * @throws BuildException
+   * @return array|null
+   *
+   * @throws \BuildException
    */
-  protected function getResourceInfo($fullPathName)
+  protected function getResourceInfo(string $fullPathName): ?array
   {
     foreach ($this->resourceFilesInfo as $info)
     {
@@ -303,7 +308,8 @@ abstract class ResourceStoreTask extends \Task
    * @param $fullPathNameWithHash
    *
    * @return array
-   * @throws BuildException
+   *
+   * @throws \BuildException
    */
   protected function getResourceInfoByHash($fullPathNameWithHash)
   {
@@ -326,7 +332,7 @@ abstract class ResourceStoreTask extends \Task
    *
    * @return array
    */
-  protected function getResourcesInfo()
+  protected function getResourcesInfo(): array
   {
     return $this->resourceFilesInfo;
   }
@@ -339,7 +345,7 @@ abstract class ResourceStoreTask extends \Task
    *
    * @throws \BuildException
    */
-  protected function logError()
+  protected function logError(): void
   {
     $args   = func_get_args();
     $format = array_shift($args);
@@ -367,7 +373,7 @@ abstract class ResourceStoreTask extends \Task
    *
    * @param mixed ...$param The arguments as for [sprintf](http://php.net/manual/function.sprintf.php)
    */
-  protected function logInfo()
+  protected function logInfo(): void
   {
     $args   = func_get_args();
     $format = array_shift($args);
@@ -393,7 +399,7 @@ abstract class ResourceStoreTask extends \Task
    *
    * @param mixed ...$param The arguments as for [sprintf](http://php.net/manual/function.sprintf.php)
    */
-  protected function logVerbose()
+  protected function logVerbose(): void
   {
     $args   = func_get_args();
     $format = array_shift($args);
@@ -428,7 +434,7 @@ abstract class ResourceStoreTask extends \Task
   /**
    * Get info about all source, resource files and directories.
    */
-  protected function prepareProjectData()
+  protected function prepareProjectData(): void
   {
     $this->logVerbose('Get source and resource file names');
 
@@ -448,9 +454,9 @@ abstract class ResourceStoreTask extends \Task
    * Enhance all elements in {@link $this->myResourceFilesInfo} with an ordinal to prevent hash collisions. (In most
    * cases this ordinal will be 0.)
    *
-   * @throws BuildException
+   * @throws \BuildException
    */
-  protected function saveOptimizedResourceFiles()
+  protected function saveOptimizedResourceFiles(): void
   {
     $this->logInfo("Saving minimized files");
 
@@ -481,12 +487,12 @@ abstract class ResourceStoreTask extends \Task
   /**
    * Sets the mode of a file.
    *
-   * @param $destinationFilename string The full file name of destination file.
-   * @param $referenceFilename
+   * @param string $destinationFilename The full file name of destination file.
+   * @param string $referenceFilename
    *
-   * @throws BuildException
+   * @throws \BuildException
    */
-  protected function setFilePermissions($destinationFilename, $referenceFilename)
+  protected function setFilePermissions(string $destinationFilename, string $referenceFilename): void
   {
     clearstatcache();
     $perms = fileperms($referenceFilename);
@@ -500,12 +506,12 @@ abstract class ResourceStoreTask extends \Task
   /**
    * Copy the mtime form the source file to the destination file.
    *
-   * @param $destinationFilename string The full file name of destination file.
-   * @param $newMtime
+   * @param string $destinationFilename The full file name of destination file.
+   * @param int    $newMtime            The new Mtime.
    *
-   * @throws BuildException
+   * @throws \BuildException
    */
-  protected function setModificationTime($destinationFilename, $newMtime)
+  protected function setModificationTime(string $destinationFilename, int $newMtime): void
   {
     $status = touch($destinationFilename, $newMtime);
     if ($status===false)
@@ -521,11 +527,11 @@ abstract class ResourceStoreTask extends \Task
    * @param string       $resource     The (actual content) of the resource.
    * @param string|null  $fullPathName The full pathname of the file where the resource is stored.
    * @param string|array $parts        Array with original resource files.
-   * @param string       $getInfoBy    Flag for look in source with hash or without
+   * @param string|null  $getInfoBy    Flag for look in source with hash or without
    *
    * @return array
    */
-  protected function store($resource, $fullPathName, $parts, $getInfoBy)
+  protected function store(string $resource, ?string $fullPathName, $parts, ?string $getInfoBy): array
   {
     if ($fullPathName!==null) $this->logInfo("Minimizing '%s'", $fullPathName);
 
@@ -542,13 +548,13 @@ abstract class ResourceStoreTask extends \Task
       $file_info['hash'].'.'.$file_info['ordinal'].$this->extension;
     $file_info['path_name_in_sources_with_hash'] = $this->getPathInResources($file_info['full_path_name_with_hash']);
 
-    if (isset($fullPathName))
+    if ($fullPathName!==null)
     {
       $file_info['full_path_name']       = $fullPathName;
       $file_info['path_name_in_sources'] = $this->getPathInResources($fullPathName);
     }
 
-    if (isset($parts))
+    if ($parts!==null)
     {
       $file_info['mtime'] = $this->getMaxMtime($parts, $getInfoBy);
     }
@@ -562,7 +568,7 @@ abstract class ResourceStoreTask extends \Task
   /**
    * Removes resource files that have been optimized/minimized.
    */
-  protected function unlinkResourceFiles()
+  protected function unlinkResourceFiles(): void
   {
     $this->logInfo("Removing resource files");
     $count = 0;
@@ -589,11 +595,11 @@ abstract class ResourceStoreTask extends \Task
    * Return mtime if $theParts is one file or return max mtime if array
    *
    * @param array|string $parts
-   * @param string       $getInfoBy Flag for look in source with hash or without hash.
+   * @param string|null  $getInfoBy Flag for look in source with hash or without hash.
    *
    * @return int mtime
    */
-  private function getMaxMtime($parts, $getInfoBy)
+  private function getMaxMtime($parts, ?string $getInfoBy): int
   {
     $mtime = [];
     if (is_array($parts))
@@ -611,7 +617,7 @@ abstract class ResourceStoreTask extends \Task
             break;
 
           default:
-            throw new FallenException('$theGetInfoBy', $getInfoBy);
+            throw new FallenException('getInfoBy', $getInfoBy);
         }
         $mtime[] = $info['mtime'];
       }

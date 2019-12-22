@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-require_once 'OptimizeResourceTask.php';
+namespace Plaisio\Phing\Task;
 
 /**
  * Class for optimizing and combining JS files.
  */
-class OptimizeJsTask extends \OptimizeResourceTask
+class OptimizeJsTask extends OptimizeResourceTask
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -127,7 +127,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
    */
   protected function minimizeResource(string $resource, ?string $fullPathName): string
   {
-    list($std_out, $std_err) = $this->runProcess($this->minifyCommand, $resource);
+    [$std_out, $std_err] = $this->runProcess($this->minifyCommand, $resource);
 
     if ($std_err) $this->logInfo($std_err);
 
@@ -420,7 +420,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
     // Lookup table as paths in requirejs.config, however, keys and values are flipped.
     $paths = [];
     // Replace aliases to paths with aliases to paths with hashes (i.e. paths to minimized files).
-    list($base_url, $aliases) = $this->extractPaths($main_js_file);
+    [$base_url, $aliases] = $this->extractPaths($main_js_file);
     if (isset($base_url) && isset($paths))
     {
       foreach ($aliases as $alias => $path)
@@ -511,7 +511,7 @@ class OptimizeJsTask extends \OptimizeResourceTask
   private function processPhpSourceFileReplaceMethodHelper(array $matches,
                                                            string $optimizedMethod,
                                                            ?string $namespace = null,
-                                                           ?string $fullPath = null)
+                                                           ?string $fullPath = null): string
   {
     $matches[3] = $optimizedMethod;
     if (isset($fullPath))

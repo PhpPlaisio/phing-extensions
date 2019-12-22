@@ -12,23 +12,23 @@
     "ext-zlib": "*",
     "plaisio/helper-url": "^1.0",
     "plaisio/kernel": "^1.0",
+    "phing/phing": "3.0.x-dev",
     "setbased/exception": "^2.0"
   },
   "require-dev": {
-    "phing/phing": "^2.0",
     "phpunit/phpunit": "^7.0 || ^8.0",
     "plaisio/page-core": "^1.0",
     "setbased/helper-program-execution": "^1.0",
-    "setbased/phing-extensions": "^2.0"
+    "setbased/phing-extensions": "dev-master"
   },
   "autoload": {
     "psr-4": {
-      "Plaisio\\Phing\\": "src/"
+      "Plaisio\\Phing\\Task\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Plaisio\\Phing\\Test\\": "test/"
+      "Plaisio\\Phing\\Task\\Test\\": "test/"
     }
   },
   "config": {
