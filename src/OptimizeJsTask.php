@@ -354,7 +354,7 @@ class OptimizeJsTask extends OptimizeResourceTask
   private function extractPaths(string $mainJsFile): array
   {
     $command = [$this->nodePath,
-                __DIR__.'/../../lib/extract_config.js',
+                __DIR__.'/../lib/extract_config.js',
                 $mainJsFile];
     $output  = $this->execCommand($command);
     $config  = json_decode(implode(PHP_EOL, $output), true);
