@@ -2,7 +2,11 @@
     <taskdef name="sprite" classname="../../../src.SpriteTask" />
 
     <target name="sprite">
-        <sprite resourceRoot="www" basedir="www/images" images="my-icons/*.*" image="images/my-icons.png" css="css/my-icons.css"/>
+        <sprite cssBaseClass="navigation"
+                cssFilename="css/navigation.css"
+                spriteFilename="www/images/navigation.png"
+                resourceRoot="www"
+                images="www/images/icons/*.*"/>
     </target>
 
     <target name="build" depends="sprite">

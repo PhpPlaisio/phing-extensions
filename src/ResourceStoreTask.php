@@ -7,7 +7,7 @@ use SetBased\Exception\FallenException;
  * Abstract parent class for tasks for optimizing resources (i.e. CSS and JS files). This class does the housekeeping
  * of resources.
  */
-abstract class ResourceStoreTask extends \Task
+abstract class ResourceStoreTask extends \PlaisioTask
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -74,13 +74,6 @@ abstract class ResourceStoreTask extends \Task
   protected $resourceDirFullPath;
 
   /**
-   * If set stop build on errors.
-   *
-   * @var bool
-   */
-  private $haltOnError = true;
-
-  /**
    * The count of resource files with the same hash. The key is the hash of the optimized resource file.
    *
    * @var int[string]
@@ -124,19 +117,10 @@ abstract class ResourceStoreTask extends \Task
    */
   public function __construct(string $extension)
   {
+    parent::__construct();
+
     $this->resourceFilesInfo = [];
     $this->extension         = $extension;
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
-   * Setter for XML attribute haltOnError.
-   *
-   * @param bool $haltOnError If set stop build on errors.
-   */
-  public function setHaltOnError(bool $haltOnError): void
-  {
-    $this->haltOnError = $haltOnError;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -333,88 +317,6 @@ abstract class ResourceStoreTask extends \Task
   protected function getResourcesInfo(): array
   {
     return $this->resourceFilesInfo;
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
-   * Prints an error message and depending on HaltOnError throws an exception.
-   *
-   * @param mixed ...$param The arguments as for [sprintf](http://php.net/manual/function.sprintf.php)
-   *
-   * @throws \BuildException
-   */
-  protected function logError(): void
-  {
-    $args   = func_get_args();
-    $format = array_shift($args);
-
-    foreach ($args as &$arg)
-    {
-      if (!is_scalar($arg)) $arg = var_export($arg, true);
-    }
-
-    if ($this->haltOnError) throw new \BuildException(vsprintf($format, $args));
-
-    if (sizeof($args)==0)
-    {
-      $this->log($format, \Project::MSG_ERR);
-    }
-    else
-    {
-      $this->log(vsprintf($format, $args), \Project::MSG_ERR);
-    }
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
-   * Prints an info message.
-   *
-   * @param mixed ...$param The arguments as for [sprintf](http://php.net/manual/function.sprintf.php)
-   */
-  protected function logInfo(): void
-  {
-    $args   = func_get_args();
-    $format = array_shift($args);
-
-    foreach ($args as &$arg)
-    {
-      if (!is_scalar($arg)) $arg = var_export($arg, true);
-    }
-
-    if (sizeof($args)==0)
-    {
-      $this->log($format, \Project::MSG_INFO);
-    }
-    else
-    {
-      $this->log(vsprintf($format, $args), \Project::MSG_INFO);
-    }
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
-   * Prints an verbose level message.
-   *
-   * @param mixed ...$param The arguments as for [sprintf](http://php.net/manual/function.sprintf.php)
-   */
-  protected function logVerbose(): void
-  {
-    $args   = func_get_args();
-    $format = array_shift($args);
-
-    foreach ($args as &$arg)
-    {
-      if (!is_scalar($arg)) $arg = var_export($arg, true);
-    }
-
-    if (sizeof($args)==0)
-    {
-      $this->log($format, \Project::MSG_VERBOSE);
-    }
-    else
-    {
-      $this->log(vsprintf($format, $args), \Project::MSG_VERBOSE);
-    }
   }
 
   //--------------------------------------------------------------------------------------------------------------------

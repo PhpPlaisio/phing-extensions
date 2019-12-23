@@ -8,3 +8,5 @@
 /test/coverage.xml
 /test/report/
 /vendor/
+/test/SpriteTask/test01/www/images/navigation-*.png
+/test/SpriteTask/test01/www/css/navigation.css

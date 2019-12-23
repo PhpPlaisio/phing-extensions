@@ -1,0 +1,37 @@
+.navigation
+{
+  background-image: url(/images/navigation.png);
+  display: table-cell;
+  width: 24px;
+  height: 24px;
+}
+
+.navigation-back
+{
+  background-position: 0 0;
+}
+
+.navigation-down
+{
+  background-position: -24px 0;
+}
+
+.navigation-first
+{
+  background-position: -48px 0;
+}
+
+.navigation-forward
+{
+  background-position: 0 -24px;
+}
+
+.navigation-last
+{
+  background-position: -24px -24px;
+}
+
+.navigation-up
+{
+  background-position: -48px -24px;
+}
