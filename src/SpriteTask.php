@@ -62,7 +62,6 @@ class SpriteTask extends \PlaisioTask
   private $spriteFilename;
 
   //--------------------------------------------------------------------------------------------------------------------
-
   /**
    * Converts a pixel offset to a string with 'px'.
    *
@@ -322,17 +321,17 @@ class SpriteTask extends \PlaisioTask
   {
     foreach ($matrix as $element)
     {
-      $data   = getimagesize($element['path']);
-      $width  = $data[0];
-      $height = $data[1];
-      if (!$this->imageHeight)
+      [$width, $height] = getimagesize($element['path']);
+
+      if ($this->imageHeight===null)
       {
         $this->imageHeight = $height;
       }
-      if (!$this->imageWidth)
+      if ($this->imageWidth===null)
       {
         $this->imageWidth = $width;
       }
+
       if ($width!=$this->imageWidth || $this->imageHeight!=$height)
       {
         $this->logError('Images have different sizes');
