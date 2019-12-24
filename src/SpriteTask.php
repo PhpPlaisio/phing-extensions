@@ -9,6 +9,9 @@ use SetBased\Helper\Cast;
 class SpriteTask extends \PlaisioTask
 {
   //--------------------------------------------------------------------------------------------------------------------
+  use FileSetAware;
+
+  //--------------------------------------------------------------------------------------------------------------------
   /**
    * The base class name for all CSS classes.
    *
@@ -31,18 +34,18 @@ class SpriteTask extends \PlaisioTask
   private $imageHeight;
 
   /**
+   * The list of paths to images to be included in the sprite image.
+   *
+   * @var array
+   */
+  private $imagePaths;
+
+  /**
    * Image width.
    *
    * @var int
    */
   private $imageWidth;
-
-  /**
-   * Directory with images for concatenating.
-   *
-   * @var string
-   */
-  private $images;
 
   /**
    * Resource directory.
@@ -59,6 +62,7 @@ class SpriteTask extends \PlaisioTask
   private $spriteFilename;
 
   //--------------------------------------------------------------------------------------------------------------------
+
   /**
    * Converts a pixel offset to a string with 'px'.
    *
@@ -79,11 +83,12 @@ class SpriteTask extends \PlaisioTask
    */
   public function main()
   {
+    $this->createImageList();
     $this->validateParameters();
 
     [$matrix, $rows, $cols] = $this->getImages();
 
-    $this->checkSizes($matrix);
+    $this->validateImageSizes($matrix);
     $this->createSprite($matrix, $rows, $cols);
     $this->createCssFile($matrix);
   }
@@ -112,17 +117,6 @@ class SpriteTask extends \PlaisioTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Setter for images path.
-   *
-   * @param string $images
-   */
-  public function setImages(string $images): void
-  {
-    $this->images = $images;
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
    * Setter for resource root.
    *
    * @param string $resourceRoot
@@ -141,34 +135,6 @@ class SpriteTask extends \PlaisioTask
   public function setSpriteFilename(string $spriteFilename): void
   {
     $this->spriteFilename = $spriteFilename;
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
-   * Check sizes.
-   *
-   * @param array[] $matrix Images.
-   */
-  private function checkSizes(array $matrix): void
-  {
-    foreach ($matrix as $element)
-    {
-      $data   = getimagesize($element['image']);
-      $width  = $data[0];
-      $height = $data[1];
-      if (!$this->imageHeight)
-      {
-        $this->imageHeight = $height;
-      }
-      if (!$this->imageWidth)
-      {
-        $this->imageWidth = $width;
-      }
-      if ($width!=$this->imageWidth || $this->imageHeight!=$height)
-      {
-        $this->logError('Images have different sizes');
-      }
-    }
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -192,7 +158,7 @@ class SpriteTask extends \PlaisioTask
 
     foreach ($matrix as $element)
     {
-      $css[] = sprintf('.%s-%s', $this->cssBaseClass, pathinfo($element['image'], PATHINFO_FILENAME));
+      $css[] = sprintf('.%s-%s', $this->cssBaseClass, pathinfo($element['path'], PATHINFO_FILENAME));
       $css[] = '{';
       $css[] = sprintf('  background-position: %s %s;',
                        self::lengthToPixel(-$this->imageWidth * $element['x']),
@@ -204,6 +170,33 @@ class SpriteTask extends \PlaisioTask
     $path = $this->resourceRoot.'/'.$this->cssFilename;
     $this->logInfo('Creating CSS %s', $path);
     file_put_contents($path, implode(PHP_EOL, $css));
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Create the list of images to be include in the sprite image.
+   */
+  private function createImageList()
+  {
+    $cwd = realpath(getcwd()).DIRECTORY_SEPARATOR;
+
+    $this->imagePaths = [];
+    foreach ($this->getFileSets() as $fileSet)
+    {
+      foreach ($fileSet as $filename)
+      {
+        if (strncmp($cwd, $filename, strlen($cwd))==0)
+        {
+          $this->imagePaths[] = substr($filename, strlen($cwd));
+        }
+        else
+        {
+          $this->imagePaths[] = $filename;
+        }
+      }
+    }
+
+    sort($this->imagePaths);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -226,9 +219,9 @@ class SpriteTask extends \PlaisioTask
     // Append images to sprite and generate CSS lines
     foreach ($matrix as $element)
     {
-      $this->logVerbose('Reading image %s', $element['image']);
+      $this->logVerbose('Reading image %s', $element['path']);
 
-      $icon = imagecreatefrompng($element['image']);
+      $icon = imagecreatefrompng($element['path']);
       imagecopy($sprite,
                 $icon,
                 $this->imageWidth * $element['x'],
@@ -254,14 +247,12 @@ class SpriteTask extends \PlaisioTask
    */
   private function getImages(): array
   {
-    $images = glob($this->images);
-
-    $rows   = Cast::toManInt(round(sqrt(sizeof($images))));
-    $cols   = Cast::toManInt(round(sizeof($images) / $rows));
+    $rows   = Cast::toManInt(round(sqrt(sizeof($this->imagePaths))));
+    $cols   = Cast::toManInt(round(sizeof($this->imagePaths) / $rows));
     $matrix = [];
     $x      = 0;
     $y      = 0;
-    foreach ($images as $image)
+    foreach ($this->imagePaths as $path)
     {
       if ($x==$cols)
       {
@@ -269,9 +260,9 @@ class SpriteTask extends \PlaisioTask
         $y++;
       }
 
-      $matrix[] = ['x'     => $x,
-                   'y'     => $y,
-                   'image' => $image];
+      $matrix[] = ['x'    => $x,
+                   'y'    => $y,
+                   'path' => $path];
 
       $x++;
     }
@@ -322,6 +313,34 @@ class SpriteTask extends \PlaisioTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Validates all images have same sizes.
+   *
+   * @param array[] $matrix Images.
+   */
+  private function validateImageSizes(array $matrix): void
+  {
+    foreach ($matrix as $element)
+    {
+      $data   = getimagesize($element['path']);
+      $width  = $data[0];
+      $height = $data[1];
+      if (!$this->imageHeight)
+      {
+        $this->imageHeight = $height;
+      }
+      if (!$this->imageWidth)
+      {
+        $this->imageWidth = $width;
+      }
+      if ($width!=$this->imageWidth || $this->imageHeight!=$height)
+      {
+        $this->logError('Images have different sizes');
+      }
+    }
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Validates the given parameters.
    */
   private function validateParameters(): void
@@ -333,6 +352,11 @@ class SpriteTask extends \PlaisioTask
       {
         $this->logError('Parameter %s is mandatory', $parameter);
       }
+    }
+
+    if (empty($this->imagePaths))
+    {
+      $this->logError('No image list provided');
     }
   }
 
