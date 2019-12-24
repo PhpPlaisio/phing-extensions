@@ -221,7 +221,8 @@ class SpriteTask extends \PlaisioTask
     {
       $this->logVerbose('Reading image %s', $element['path']);
 
-      $icon = imagecreatefrompng($element['path']);
+      $data = file_get_contents($element['path']);
+      $icon = imagecreatefromstring($data);
       imagecopy($sprite,
                 $icon,
                 $this->imageWidth * $element['x'],

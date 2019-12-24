@@ -8,6 +8,7 @@
                 resourceRoot="www">
             <fileset dir="www/images/icons">
                 <include name="**/*.png"/>
+                <include name="**/*.gif"/>
             </fileset>
         </sprite>
     </target>
