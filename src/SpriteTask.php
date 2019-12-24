@@ -202,7 +202,7 @@ class SpriteTask extends \PlaisioTask
     }
 
     $path = $this->resourceRoot.'/'.$this->cssFilename;
-    $this->logInfo('Creating %s', $path);
+    $this->logInfo('Creating CSS %s', $path);
     file_put_contents($path, implode(PHP_EOL, $css));
   }
 
@@ -216,19 +216,21 @@ class SpriteTask extends \PlaisioTask
    */
   private function createSprite(array $matrix, int $cols, int $rows): void
   {
-    $im = imagecreatetruecolor($this->imageWidth * $cols, $this->imageHeight * $rows);
+    $sprite = imagecreatetruecolor($this->imageWidth * $cols, $this->imageHeight * $rows);
 
     // Add alpha channel to image (transparency)
-    imagesavealpha($im, true);
-    $alpha = imagecolorallocatealpha($im, 0, 0, 0, 127);
-    imagefill($im, 0, 0, $alpha);
+    imagesavealpha($sprite, true);
+    $alpha = imagecolorallocatealpha($sprite, 0, 0, 0, 127);
+    imagefill($sprite, 0, 0, $alpha);
 
     // Append images to sprite and generate CSS lines
     foreach ($matrix as $element)
     {
-      $im2 = imagecreatefrompng($element['image']);
-      imagecopy($im,
-                $im2,
+      $this->logVerbose('Reading image %s', $element['image']);
+
+      $icon = imagecreatefrompng($element['image']);
+      imagecopy($sprite,
+                $icon,
                 $this->imageWidth * $element['x'],
                 $this->imageHeight * $element['y'],
                 0,
@@ -237,9 +239,9 @@ class SpriteTask extends \PlaisioTask
                 $this->imageHeight);
     }
 
-    $this->logVerbose('Creating %s', $this->spriteFilename);
-    imagepng($im, $this->spriteFilename, 9);
-    imagedestroy($im);
+    $this->logVerbose('Creating sprite image %s', $this->spriteFilename);
+    imagepng($sprite, $this->spriteFilename, 9);
+    imagedestroy($sprite);
 
     $this->renameSpriteFile();
   }
@@ -292,7 +294,7 @@ class SpriteTask extends \PlaisioTask
                                  $md5,
                                  $info['extension']);
 
-    $this->logInfo('Creating %s', $newSprintFilename);
+    $this->logInfo('Creating sprite image %s', $newSprintFilename);
     $this->logVerbose('Renaming %s to %s', $this->spriteFilename, $newSprintFilename);
     rename($this->spriteFilename, $newSprintFilename);
 
