@@ -154,7 +154,7 @@ class OptimizeCssTask extends OptimizeResourceTask
     foreach ($lines as $i => $line)
     {
       // Find calls to cssOptimizedAppendSource.
-      if (preg_match('/^(.*)(Nub::\$assets->)(cssOptimizedAppendSource)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"]\s*\)\s*;)(.*)$/',
+      if (preg_match('/^(.*)(Nub::\$assets->)(cssOptimizedAppendSource)(\(\s*[\'"])([a-zA-Z0-9_\-.\/]+)([\'"]\s*\)\s*;)(.*)$/',
                      $line,
                      $matches))
       {
@@ -228,7 +228,7 @@ class OptimizeCssTask extends OptimizeResourceTask
       }
 
       // Replace calls to cssAppendSource with cssOptimizedAppendSource.
-      elseif (preg_match('/^(\s*)(Nub::\$assets->)(cssAppendSource)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"]\s*\)\s*;)(.*)$/',
+      elseif (preg_match('/^(\s*)(Nub::\$assets->)(cssAppendSource)(\(\s*[\'"])([a-zA-Z0-9_\-.\/]+)([\'"]\s*\)\s*;)(.*)$/',
                          $line,
                          $matches))
       {

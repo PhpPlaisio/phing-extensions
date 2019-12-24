@@ -219,7 +219,7 @@ class OptimizeJsTask extends OptimizeResourceTask
       }
 
       // Replace calls to jsAdmFunctionCall with jsAdmOptimizedFunctionCall.
-      elseif (preg_match('/^(\s*)(Nub::\$assets->)(jsAdmFunctionCall)(\(\s*[\'"])([a-zA-Z0-9_\-\.\/]+)([\'"].*)$/',
+      elseif (preg_match('/^(\s*)(Nub::\$assets->)(jsAdmFunctionCall)(\(\s*[\'"])([a-zA-Z0-9_\-.\/]+)([\'"].*)$/',
                          $line,
                          $matches))
       {
