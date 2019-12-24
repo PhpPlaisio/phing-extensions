@@ -252,7 +252,7 @@ class SpriteTask extends \PlaisioTask
     $images = glob($this->images);
 
     $rows   = Cast::toManInt(round(sqrt(sizeof($images))));
-    $cols   = sizeof($images) / $rows;
+    $cols   = Cast::toManInt(round(sizeof($images) / $rows));
     $matrix = [];
     $x      = 0;
     $y      = 0;
