@@ -86,7 +86,7 @@ class SpriteTask extends \PlaisioTask
     $this->createImageList();
     $this->validateParameters();
 
-    [$matrix, $rows, $cols] = $this->getImages();
+    [$matrix, $rows, $cols] = $this->makeImageMatrix();
 
     $this->validateImageSizes($matrix);
     $this->createSprite($matrix, $rows, $cols);
@@ -242,14 +242,14 @@ class SpriteTask extends \PlaisioTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Read images for work.
+   * Returns all images as a matrix.
    *
    * @return array
    */
-  private function getImages(): array
+  private function makeImageMatrix(): array
   {
     $rows   = Cast::toManInt(round(sqrt(sizeof($this->imagePaths))));
-    $cols   = Cast::toManInt(round(sizeof($this->imagePaths) / $rows));
+    $cols   = Cast::toManInt(round(sizeof($this->imagePaths) / $rows + 0.5));
     $matrix = [];
     $x      = 0;
     $y      = 0;

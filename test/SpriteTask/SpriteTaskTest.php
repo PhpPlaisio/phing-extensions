@@ -21,7 +21,8 @@ class SpriteTaskTest extends \BuildFileTest
     $expected = file_get_contents(__DIR__.'/test01/www/css/navigation-expected.css');
     $actual   = file_get_contents(__DIR__.'/test01/www/css/navigation.css');
 
-    $actual = preg_replace('|/images/navigation-[0-9a-f]*\.png|', '/images/navigation.png', $actual);
+    $expected = preg_replace('|/images/navigation-[0-9a-f]*\.png|', '/images/navigation.png', $expected);
+    $actual   = preg_replace('|/images/navigation-[0-9a-f]*\.png|', '/images/navigation.png', $actual);
 
     self::assertSame($expected, $actual);
   }
