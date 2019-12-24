@@ -201,7 +201,9 @@ class SpriteTask extends \PlaisioTask
       $css[] = '';
     }
 
-    file_put_contents($this->resourceRoot.'/'.$this->cssFilename, implode(PHP_EOL, $css));
+    $path = $this->resourceRoot.'/'.$this->cssFilename;
+    $this->logInfo('Creating %s', $path);
+    file_put_contents($path, implode(PHP_EOL, $css));
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -235,6 +237,7 @@ class SpriteTask extends \PlaisioTask
                 $this->imageHeight);
     }
 
+    $this->logVerbose('Creating %s', $this->spriteFilename);
     imagepng($im, $this->spriteFilename, 9);
     imagedestroy($im);
 
@@ -289,6 +292,8 @@ class SpriteTask extends \PlaisioTask
                                  $md5,
                                  $info['extension']);
 
+    $this->logInfo('Creating %s', $newSprintFilename);
+    $this->logVerbose('Renaming %s to %s', $this->spriteFilename, $newSprintFilename);
     rename($this->spriteFilename, $newSprintFilename);
 
     $this->spriteFilename = $newSprintFilename;
