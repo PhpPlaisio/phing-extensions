@@ -149,7 +149,7 @@ class SpriteTask extends \PlaisioTask
     $css[] = sprintf('.%s', $this->cssBaseClass);
     $css[] = '{';
     $css[] = sprintf('  background-image: url(%s);', $this->resolveSpriteUrl());
-    $css[] = '  display: table-cell;';
+    $css[] = '  display: inline-block;';
     $css[] = sprintf('  width: %s;', self::lengthToPixel($this->imageWidth));
     $css[] = sprintf('  height: %s;', self::lengthToPixel($this->imageHeight));
     $css[] = '}';
