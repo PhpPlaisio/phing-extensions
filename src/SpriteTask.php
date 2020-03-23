@@ -62,6 +62,7 @@ class SpriteTask extends \PlaisioTask
   private $spriteFilename;
 
   //--------------------------------------------------------------------------------------------------------------------
+
   /**
    * Converts a pixel offset to a string with 'px'.
    *
@@ -233,7 +234,7 @@ class SpriteTask extends \PlaisioTask
     }
 
     $this->logVerbose('Creating sprite image %s', $this->spriteFilename);
-    imagepng($sprite, $this->spriteFilename, 9);
+    $this->saveSpriteImage($sprite);
     imagedestroy($sprite);
 
     $this->renameSpriteFile();
@@ -313,6 +314,39 @@ class SpriteTask extends \PlaisioTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Saves the sprite image.
+   *
+   * @param resource $sprite The sprite image.
+   */
+  private function saveSpriteImage($sprite): void
+  {
+    $extension = mb_strtolower(pathinfo($this->spriteFilename, PATHINFO_EXTENSION) ?? '');
+    switch ($extension)
+    {
+      case 'gif':
+        imagegif($sprite, $this->spriteFilename);
+        break;
+
+      case 'jpg':
+      case 'jpeg':
+        imagejpeg($sprite, $this->spriteFilename, 100);
+        break;
+
+      case 'png':
+        imagepng($sprite, $this->spriteFilename, 9);
+        break;
+
+      case 'webp':
+        imagewebp($sprite, $this->spriteFilename, 100);
+        break;
+
+      default:
+        $this->logError('Unknown image format');
+    }
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Validates all images have same sizes.
    *
    * @param array[] $matrix Images.
@@ -357,6 +391,43 @@ class SpriteTask extends \PlaisioTask
     if (empty($this->imagePaths))
     {
       $this->logError('No image list provided');
+    }
+
+    $extension  = mb_strtolower(pathinfo($this->spriteFilename, PATHINFO_EXTENSION) ?? '');
+    $imageTypes = imagetypes();
+    switch ($extension)
+    {
+      case 'gif':
+        if (!($imageTypes & IMG_GIF))
+        {
+          $this->logError('GIF not supported');
+        }
+        break;
+
+      case 'jpg':
+      case 'jpeg':
+        if (!($imageTypes & IMG_JPEG))
+        {
+          $this->logError('JPEG not supported');
+        }
+        break;
+
+      case 'png':
+        if (!($imageTypes & IMG_PNG))
+        {
+          $this->logError('PNG not supported');
+        }
+        break;
+
+      case 'webp':
+        if (!($imageTypes & IMG_WEBP))
+        {
+          $this->logError('WebP not supported');
+        }
+        break;
+
+      default:
+        $this->logError('Unknown image format');
     }
   }
 
