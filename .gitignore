@@ -2,6 +2,8 @@
 /.phpunit.result.cache
 /bin/
 /composer.lock
+/custom.task.properties
+/custom.type.properties
 /doc/api/
 /test/OptimizeCssTask/test01/build/
 /test/OptimizeCssTask/test02/build/

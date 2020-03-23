@@ -6,6 +6,8 @@
     "Phing Extensions"
   ],
   "license": "MIT",
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "require": {
     "php": ">=7.1.0",
     "ext-gd": "*",
