@@ -9,7 +9,7 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "php": ">=7.1.0",
+    "php": ">=7.3",
     "ext-gd": "*",
     "ext-json": "*",
     "ext-zlib": "*",
@@ -20,7 +20,7 @@
     "setbased/helper-cast": "^2.0"
   },
   "require-dev": {
-    "phpunit/phpunit": "^7.0 || ^8.0",
+    "phpunit/phpunit": "^9.0",
     "plaisio/page-core": "^1.0",
     "setbased/helper-program-execution": "^1.0",
     "setbased/phing-extensions": "dev-master"
