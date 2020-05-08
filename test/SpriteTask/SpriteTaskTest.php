@@ -36,7 +36,7 @@ class SpriteTaskTest extends \BuildFileTest
     $this->expectException('BuildException');
     $this->expectExceptionMessage('Images have different sizes');
 
-    $this->configureProject(__DIR__.'/test01/build.xml');
+    $this->configureProject(__DIR__.'/test02/build.xml');
     $this->project->setBasedir(__DIR__.'/test02');
     $this->executeTarget('sprite');
   }
