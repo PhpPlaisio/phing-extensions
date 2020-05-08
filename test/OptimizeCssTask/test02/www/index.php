@@ -18,8 +18,8 @@ class TestPage extends CorePage
   {
     parent::__construct();
 
-    Nub::$assets->cssAppendSource('style1.css');
-    Nub::$assets->cssAppendSource('/css/test/style2.css');
+    Nub::$nub->assets->cssAppendSource('style1.css');
+    Nub::$nub->assets->cssAppendSource('/css/test/style2.css');
   }
 
   //--------------------------------------------------------------------------------------------------------------------

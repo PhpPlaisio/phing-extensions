@@ -198,7 +198,7 @@ class OptimizeJsTask extends OptimizeResourceTask
       if (in_array($current_class, $this->webAssetsClasses)) continue;
 
       // Replace calls to jsAdmSetPageSpecificMain with jsAdmOptimizedSetPageSpecificMain.
-      if (preg_match('/^(\s*)(Nub::\$assets->)(jsAdmSetPageSpecificMain)(\(\s*)(__CLASS__|__TRAIT__)(\s*\)\s*;)(.*)$/',
+      if (preg_match('/^(\s*)(Nub::\$nub->assets->)(jsAdmSetPageSpecificMain)(\(\s*)(__CLASS__|__TRAIT__)(\s*\)\s*;)(.*)$/',
                      $line,
                      $matches))
       {
@@ -209,7 +209,7 @@ class OptimizeJsTask extends OptimizeResourceTask
       }
 
       // Replace calls to jsAdmPageSpecificFunctionCall with jsAdmOptimizedFunctionCall.
-      elseif (preg_match('/^(\s*)(Nub::\$assets->)(jsAdmClassSpecificFunctionCall)(\(\s*)(__CLASS__|__TRAIT__)(.*)$/',
+      elseif (preg_match('/^(\s*)(Nub::\$nub->assets->)(jsAdmClassSpecificFunctionCall)(\(\s*)(__CLASS__|__TRAIT__)(.*)$/',
                          $line,
                          $matches))
       {
@@ -219,7 +219,7 @@ class OptimizeJsTask extends OptimizeResourceTask
       }
 
       // Replace calls to jsAdmFunctionCall with jsAdmOptimizedFunctionCall.
-      elseif (preg_match('/^(\s*)(Nub::\$assets->)(jsAdmFunctionCall)(\(\s*[\'"])([a-zA-Z0-9_\-.\/]+)([\'"].*)$/',
+      elseif (preg_match('/^(\s*)(Nub::\$nub->assets->)(jsAdmFunctionCall)(\(\s*[\'"])([a-zA-Z0-9_\-.\/]+)([\'"].*)$/',
                          $line,
                          $matches))
       {
