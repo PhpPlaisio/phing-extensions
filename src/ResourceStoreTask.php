@@ -76,7 +76,7 @@ abstract class ResourceStoreTask extends \PlaisioTask
   /**
    * The count of resource files with the same hash. The key is the hash of the optimized resource file.
    *
-   * @var int[string]
+   * @var array
    */
   private $hashCount;
 
@@ -424,10 +424,10 @@ abstract class ResourceStoreTask extends \PlaisioTask
   /**
    * Minimize resource, create hash based on optimized content. Add resource info into array.
    *
-   * @param string       $resource     The (actual content) of the resource.
-   * @param string|null  $fullPathName The full pathname of the file where the resource is stored.
-   * @param string|array $parts        Array with original resource files.
-   * @param string|null  $getInfoBy    Flag for look in source with hash or without
+   * @param string            $resource     The (actual content) of the resource.
+   * @param string|null       $fullPathName The full pathname of the file where the resource is stored.
+   * @param string|array|null $parts        Array with original resource files.
+   * @param string|null       $getInfoBy    Flag for look in source with hash or without
    *
    * @return array
    */

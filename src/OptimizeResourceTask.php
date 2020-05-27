@@ -314,10 +314,10 @@ abstract class OptimizeResourceTask extends ResourceStoreTask
       $writes = $write_pipes;
       $except = null;
 
-      if (!$reads && !$writes) break;
+      if (empty($reads) && empty($writes)) break;
 
       stream_select($reads, $writes, $except, 1);
-      if ($reads)
+      if (!empty($reads))
       {
         foreach ($reads as $read)
         {

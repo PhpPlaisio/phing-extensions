@@ -162,7 +162,7 @@ class OptimizeCssTask extends OptimizeResourceTask
 
         if ($previous + 1!=$i)
         {
-          if ($group)
+          if (!empty($group))
           {
             $groups[] = $group;
             $group    = [];
