@@ -1,0 +1,18 @@
+<project name="PhpPlaisio" default="build" basedir=".">
+    <taskdef name="sprite" classname="../../../src.SpriteTask"/>
+
+    <target name="sprite">
+        <sprite cssBaseClass="navigation"
+                cssFilename="css/navigation.css"
+                spriteFilename="www/images/navigation.png"
+                resourceRoot="www">
+            <fileset dir="www/images/icons">
+                <include name="**/*.png"/>
+                <include name="**/*.gif"/>
+            </fileset>
+        </sprite>
+    </target>
+
+    <target name="build" depends="sprite">
+    </target>
+</project>

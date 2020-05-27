@@ -14,12 +14,14 @@ class SpriteTaskTest extends \BuildFileTest
    */
   public function testSprite01()
   {
-    $this->configureProject(__DIR__.'/test01/build.xml');
-    $this->project->setBasedir(__DIR__.'/test01');
+    $imageTypes = imagetypes();
+    $dir = ($imageTypes & IMG_WEBP) ? 'test01-webp' : 'test01-png';
+    $this->configureProject(sprintf('%s/%s/%s', __DIR__, $dir, 'build.xml'));
+    $this->project->setBasedir(sprintf('%s/%s', __DIR__, $dir));
     $this->executeTarget('sprite');
 
-    $expected = file_get_contents(__DIR__.'/test01/www/css/navigation-expected.css');
-    $actual   = file_get_contents(__DIR__.'/test01/www/css/navigation.css');
+    $expected = file_get_contents(sprintf('%s/%s/%s', __DIR__, $dir, 'www/css/navigation-expected.css'));
+    $actual   = file_get_contents(sprintf('%s/%s/%s', __DIR__, $dir, 'www/css/navigation.css'));
 
     $expected = preg_replace('|/images/navigation-[0-9a-f]*\.png|', '/images/navigation.png', $expected);
     $actual   = preg_replace('|/images/navigation-[0-9a-f]*\.png|', '/images/navigation.png', $actual);
