@@ -5,7 +5,7 @@ build:
       - sudo apt-get install -y nodejs
       - sudo npm install -g csso-cli
       - sudo npm install -g csso
-      - sudo npm install -g r.js
+      - sudo npm install -g require.js
     override:
       - command: './bin/phing unit'
         coverage:
