@@ -55,7 +55,7 @@
                     parentResourceDir="Test"
                     resourceDir="js"
                     preserveLastModified="true"
-                    minifyCommand="/usr/bin/cat"
+                    minifyCommand="/bin/cat"
                     webAssetsClasses="Plaisio\WebAssets\WebAssets Plaisio\WebAssets\CoreWebAssets"
                     gzip="true"/>
     </target>
