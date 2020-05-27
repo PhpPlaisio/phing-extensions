@@ -4,7 +4,6 @@ build:
       - curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
       - sudo apt-get install -y nodejs
       - sudo npm install -g csso-cli
-      - sudo npm install -g csso
       - sudo npm install -g requirejs
     override:
       - command: './bin/phing unit'
