@@ -164,11 +164,7 @@ abstract class OptimizeResourceTask extends ResourceStoreTask
     [$output, $ret] = ProgramExecution::exec1($command, null);
     if ($ret!=0)
     {
-      foreach ($output as $line)
-      {
-        $this->logInfo($line);
-      }
-      $this->logError("Error executing '%s'", implode(' ', $command));
+      $this->logError("Error executing '%s':\n%s", implode(' ', $command), implode(PHP_EOL, $output));
     }
     else
     {
@@ -350,6 +346,7 @@ abstract class OptimizeResourceTask extends ResourceStoreTask
             }
             else
             {
+              $std_out .= $data;
               $std_err .= $data;
             }
           }
@@ -374,11 +371,9 @@ abstract class OptimizeResourceTask extends ResourceStoreTask
 
     // Close the process and it return value.
     $ret = proc_close($process);
-    if ($ret!=0)
+    if ($ret!==0)
     {
-      if ($std_err!=='') $this->logInfo($std_err);
-      else               $this->logInfo($std_out);
-      $this->logError("Error executing '%s'", $command);
+      $this->logError("Error executing '%s'\n%s", $command, $std_out);
     }
 
     return [$std_out, $std_err];

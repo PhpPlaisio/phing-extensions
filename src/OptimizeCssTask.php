@@ -84,7 +84,7 @@ class OptimizeCssTask extends OptimizeResourceTask
 
       [$std_out, $std_err] = $this->runProcess($this->minifyCommand, $css);
 
-      if ($std_err) $this->logInfo($std_err);
+      if ($std_err!=='') $this->logError($std_err);
 
       $ret = $std_out;
     }
