@@ -144,7 +144,7 @@ class OptimizeJsTask extends OptimizeResourceTask
    */
   protected function processPhpSourceFile(string $filename, string $phpCode): string
   {
-    // If true the PHP code includes CSS files.
+    // If true the PHP code includes JS files.
     $includes = false;
     foreach ($this->methods as $method)
     {
@@ -181,7 +181,7 @@ class OptimizeJsTask extends OptimizeResourceTask
   protected function processPhpSourceFileReplaceMethod(string $filename, string $phpCode): string
   {
     $classes       = $this->getClasses($phpCode);
-    $current_class = '';
+    $className = '';
 
     $lines = explode("\n", $phpCode);
     foreach ($lines as $i => $line)
@@ -190,36 +190,36 @@ class OptimizeJsTask extends OptimizeResourceTask
       {
         if (isset($classes[$i + 1]['namespace']))
         {
-          $current_class = $classes[$i + 1]['namespace'].'\\'.$classes[$i + 1]['class'];
+          $className = $classes[$i + 1]['namespace'].'\\'.$classes[$i + 1]['class'];
         }
       }
 
       // Don't process the class that defines the jsAdm* methods.
-      if (in_array($current_class, $this->webAssetsClasses)) continue;
+      if (in_array($className, $this->webAssetsClasses)) continue;
 
       // Replace calls to jsAdmSetPageSpecificMain with jsAdmOptimizedSetPageSpecificMain.
-      if (preg_match('/^(\s*)(Nub::\$nub->assets->)(jsAdmSetPageSpecificMain)(\(\s*)(__CLASS__|__TRAIT__)(\s*\)\s*;)(.*)$/',
+      if (preg_match('/^(?<indent>.*)(?<call>((Nub::\$)|(\$this->))nub->assets->)(jsAdmSetPageSpecificMain)(\(\s*)(?<class>__CLASS__|__TRAIT__)(?<other>(\s*\)\s*;)(.*))$/',
                      $line,
                      $matches))
       {
         $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($matches,
                                                                     'jsAdmOptimizedSetPageSpecificMain',
                                                                     null,
-                                                                    $this->getFullPathFromClassName($current_class));
+                                                                    $this->getFullPathFromClassName($className));
       }
 
       // Replace calls to jsAdmPageSpecificFunctionCall with jsAdmOptimizedFunctionCall.
-      elseif (preg_match('/^(\s*)(Nub::\$nub->assets->)(jsAdmClassSpecificFunctionCall)(\(\s*)(__CLASS__|__TRAIT__)(.*)$/',
+      elseif (preg_match('/^(?<indent>.*)(?<call>((Nub::\$)|(\$this->))nub->assets->)(jsAdmClassSpecificFunctionCall)(\(\s*)(?<class>__CLASS__|__TRAIT__)(?<other>.*)$/',
                          $line,
                          $matches))
       {
         $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($matches,
                                                                     'jsAdmOptimizedFunctionCall',
-                                                                    $this->getNamespaceFromClassName($current_class));
+                                                                    $this->getNamespaceFromClassName($className));
       }
 
       // Replace calls to jsAdmFunctionCall with jsAdmOptimizedFunctionCall.
-      elseif (preg_match('/^(\s*)(Nub::\$nub->assets->)(jsAdmFunctionCall)(\(\s*[\'"])([a-zA-Z0-9_\-.\/]+)([\'"].*)$/',
+      elseif (preg_match('/^(?<indent>.*)(?<call>((Nub::\$)|(\$this->))nub->assets->)(jsAdmFunctionCall)(?<class>\((\s*[\'"])(?<path>[a-zA-Z0-9_\-.\/]+))([\'"])(?<other>.*)$/',
                          $line,
                          $matches))
       {
@@ -511,30 +511,33 @@ class OptimizeJsTask extends OptimizeResourceTask
                                                            ?string $namespace = null,
                                                            ?string $fullPath = null): string
   {
-    $matches[3] = $optimizedMethod;
     if (isset($fullPath))
     {
-      $matches[5] = "'".$this->combineAndMinimize($fullPath)."'";
-      $full_path  = $fullPath;
+      $path1 = $this->combineAndMinimize($fullPath);
+      $path2  = $fullPath;
     }
     elseif (isset($namespace))
     {
-      $matches[5] = "'".$namespace."'";
-      $full_path  = $this->getFullPathFromNamespace($namespace);
+      $path1 = $namespace;
+      $path2  = $this->getFullPathFromNamespace($namespace);
     }
     else
     {
-      $full_path = $this->getFullPathFromNamespace($matches[5]);
+      $path1 = $matches['path'];
+      $path2 = $this->getFullPathFromNamespace($path1);
     }
 
-    if (!file_exists($full_path))
+    if (!file_exists($path2))
     {
-      $this->logError("File '%s' not found", $full_path);
+      $this->logError("File '%s' not found", $path2);
     }
 
-    array_shift($matches);
-
-    return implode('', $matches);
+    return sprintf("%s%s%s('%s'%s",
+                   $matches['indent'],
+                   $matches['call'],
+                   $optimizedMethod,
+                   addslashes($path1),
+                   $matches['other']);
   }
 
   //--------------------------------------------------------------------------------------------------------------------

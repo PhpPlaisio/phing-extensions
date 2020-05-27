@@ -1,1 +1,0 @@
-.test1,.test2,.test3{background:#548dc4 url(/images/background.png) no-repeat right center}.test4{background:#548dc4 url("/images/ background .png") no-repeat right center}.test5{background:#548dc4 url('/images/"background".png') no-repeat right center}

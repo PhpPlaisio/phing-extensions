@@ -32,12 +32,37 @@ class OptimizeCssTaskTest extends \BuildFileTest
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Optimizing all files inside folder test01 and then compare files.
+   * Optimizing all files inside folder test02 and then compare files.
    */
   public function testOptimizeCss02()
   {
     $this->configureProject(__DIR__.'/test02/build.xml');
     $this->project->setBasedir(__DIR__.'/test02');
+    $this->executeTarget('optimize_css');
+
+    $this->configureProject('build.xml');
+    $this->executeTarget('optimize_css');
+
+    $build    = $this->getFilesById('build');
+    $expected = $this->getFilesById('expected');
+
+    foreach ($expected as $key => $b)
+    {
+      if (isset($build[$key]) && isset($expected[$key]))
+      {
+        $this->assertFileEquals($expected[$key], $build[$key]);
+      }
+    }
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Optimizing all files inside folder test02 and then compare files.
+   */
+  public function testOptimizeCss03()
+  {
+    $this->configureProject(__DIR__.'/test03/build.xml');
+    $this->project->setBasedir(__DIR__.'/test03');
     $this->executeTarget('optimize_css');
 
     $this->configureProject('build.xml');

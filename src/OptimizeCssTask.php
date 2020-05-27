@@ -154,7 +154,7 @@ class OptimizeCssTask extends OptimizeResourceTask
     foreach ($lines as $i => $line)
     {
       // Find calls to cssOptimizedAppendSource.
-      if (preg_match('/^(.*)(Nub::\$nub->assets->)(cssOptimizedAppendSource)(\(\s*[\'"])([a-zA-Z0-9_\-.\/]+)([\'"]\s*\)\s*;)(.*)$/',
+      if (preg_match('/^(?<indent>.*)(?<call>((Nub::\$)|(\$this->))nub->assets->)(?<method>cssOptimizedAppendSource)(\(\s*[\'"])(?<path>[a-zA-Z0-9_\-.\/]+)([\'"]\s*\)\s*;)(.*)$/',
                      $line,
                      $matches))
       {
@@ -218,7 +218,7 @@ class OptimizeCssTask extends OptimizeResourceTask
       if (in_array($current_class, $this->webAssetsClasses)) continue;
 
       // Replace calls to cssAppendPageSpecificSource with cssOptimizedAppendSource.
-      if (preg_match('/^(\s*)(Nub::\$nub->assets->)(cssAppendClassSpecificSource)(\(\s*)(__CLASS__|__TRAIT__)(\s*\)\s*;)(.*)$/',
+      if (preg_match('/^(?<indent>\s*)(?<call>((Nub::\$)|(\$this->))nub->assets->)(?<method>cssAppendClassSpecificSource)(\(\s*)(?<path>__CLASS__|__TRAIT__)(\s*\)\s*;)(.*)$/',
                      $line,
                      $matches))
       {
@@ -228,7 +228,7 @@ class OptimizeCssTask extends OptimizeResourceTask
       }
 
       // Replace calls to cssAppendSource with cssOptimizedAppendSource.
-      elseif (preg_match('/^(\s*)(Nub::\$nub->assets->)(cssAppendSource)(\(\s*[\'"])([a-zA-Z0-9_\-.\/]+)([\'"]\s*\)\s*;)(.*)$/',
+      elseif (preg_match('/^(?<indent>\s*)(?<call>((Nub::\$)|(\$this->))nub->assets->)(?<method>cssAppendSource)(\(\s*[\'"])(?<path>[a-zA-Z0-9_\-.\/]+)([\'"]\s*\)\s*;)(.*)$/',
                          $line,
                          $matches))
       {
@@ -294,22 +294,22 @@ class OptimizeCssTask extends OptimizeResourceTask
    */
   private function processPhpSourceFileCombineGroup(array &$lines, array $group, array $calls): void
   {
-    $files                    = [];
-    $file_info                = [];
-    $file_info['content_opt'] = '';
+    $files                   = [];
+    $fileInfo                = [];
+    $fileInfo['content_opt'] = '';
     foreach ($group as $i)
     {
-      $filename = $this->parentResourceDirFullPath.$calls[$i][5];
+      $filename = $this->parentResourceDirFullPath.$calls[$i]['path'];
 
       $this->logVerbose('Combining %s', $filename);
 
       $info = $this->getResourceInfoByHash($filename);
       $code = $info['content_opt'];
 
-      $file_info['content_opt'] .= $code;
-      $files[]                  = $filename;
+      $fileInfo['content_opt'] .= $code;
+      $files[]                 = $filename;
     }
-    $file_info = $this->store($file_info['content_opt'], null, $files, 'full_path_name_with_hash');
+    $fileInfo = $this->store($fileInfo['content_opt'], null, $files, 'full_path_name_with_hash');
 
     // Replace the multiple calls with one call in the PHP code.
     $first = true;
@@ -317,10 +317,11 @@ class OptimizeCssTask extends OptimizeResourceTask
     {
       if ($first)
       {
-        $matches    = $calls[$i];
-        $matches[5] = $file_info['path_name_in_sources_with_hash'];
-        array_shift($matches);
-        $lines[$i] = implode('', $matches);
+        $lines[$i] = sprintf("%s%s%s('%s');",
+                             $calls[$i]['indent'],
+                             $calls[$i]['call'],
+                             $calls[$i]['method'],
+                             $fileInfo['path_name_in_sources_with_hash']);
 
         $first = false;
       }
@@ -345,44 +346,33 @@ class OptimizeCssTask extends OptimizeResourceTask
                                                            string $optimizedMethod,
                                                            ?string $className = null): string
   {
-    if (isset($className))
+    if ($className!==null)
     {
-      $file_name = str_replace('\\', '/', $className).$this->extension;
+      $filename = str_replace('\\', '/', $className).$this->extension;
     }
     else
     {
-      $file_name = $matches[5];
+      $filename = $matches['path'];
     }
 
-    if (substr($file_name, 0, 1)=='/')
+    if (substr($filename, 0, 1)=='/')
     {
-      $full_path = $this->parentResourceDirFullPath.'/'.$file_name;
+      $fullPath = $this->parentResourceDirFullPath.'/'.$filename;
     }
     else
     {
-      $full_path = $this->resourceDirFullPath.'/'.$file_name;
+      $fullPath = $this->resourceDirFullPath.'/'.$filename;
     }
 
-    if (!file_exists($full_path))
+    if (!file_exists($fullPath))
     {
-      $this->logError("File '%s' not found", $full_path);
+      $this->logError("File '%s' not found", $fullPath);
     }
 
-    $real_path  = realpath($full_path);
-    $matches[3] = $optimizedMethod;
+    $realpath     = realpath($fullPath);
+    $pathWithHash = $this->getResourceInfo($realpath)['path_name_in_sources_with_hash'];
 
-    if (isset($className))
-    {
-      $matches[5] = "'".$this->getResourceInfo($real_path)['path_name_in_sources_with_hash']."'";
-    }
-    else
-    {
-      $matches[5] = $this->getResourceInfo($real_path)['path_name_in_sources_with_hash'];
-    }
-
-    array_shift($matches);
-
-    return implode('', $matches);
+    return sprintf("%s%s%s('%s');", $matches['indent'], $matches['call'], $optimizedMethod, addslashes($pathWithHash));
   }
 
   //--------------------------------------------------------------------------------------------------------------------

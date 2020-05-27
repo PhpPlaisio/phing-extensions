@@ -1,7 +1,6 @@
 <?php
 declare(strict_types=1);
 
-use Plaisio\Kernel\Nub;
 use Plaisio\Page\CorePage;
 use Plaisio\Response\Response;
 
@@ -18,7 +17,7 @@ class TestPage extends CorePage
   {
     parent::__construct();
 
-    Nub::$nub->assets->cssOptimizedAppendSource('/css/7224b5fd2f9d756a6ac576bbe070efba.0.css');
+    $this->nub->assets->cssOptimizedAppendSource('/css/7224b5fd2f9d756a6ac576bbe070efba.0.css');
 
   }
 
