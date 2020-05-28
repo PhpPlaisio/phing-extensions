@@ -47,6 +47,7 @@ class OptimizeJsTask extends OptimizeResourceTask
   private $requireJsPath = 'js/require.js';
 
   //--------------------------------------------------------------------------------------------------------------------
+
   /**
    * OptimizeJsTask constructor.
    */
@@ -180,7 +181,7 @@ class OptimizeJsTask extends OptimizeResourceTask
    */
   protected function processPhpSourceFileReplaceMethod(string $filename, string $phpCode): string
   {
-    $classes       = $this->getClasses($phpCode);
+    $classes   = $this->getClasses($phpCode);
     $className = '';
 
     $lines = explode("\n", $phpCode);
@@ -404,9 +405,9 @@ class OptimizeJsTask extends OptimizeResourceTask
    */
   private function getMainWithHashedPaths(string $realPath): string
   {
-    $main_js_file = self::getMainJsFileName($realPath);
+    $mainJsFileName = self::getMainJsFileName($realPath);
     // Read the main file.
-    $js = file_get_contents($main_js_file);
+    $js = file_get_contents($mainJsFileName);
     if ($js===false) $this->logError("Unable to read file '%s'", $realPath);
 
     // Extract paths from main.
@@ -418,15 +419,15 @@ class OptimizeJsTask extends OptimizeResourceTask
     // Lookup table as paths in requirejs.config, however, keys and values are flipped.
     $paths = [];
     // Replace aliases to paths with aliases to paths with hashes (i.e. paths to minimized files).
-    [$base_url, $aliases] = $this->extractPaths($main_js_file);
-    if (isset($base_url) && isset($paths))
+    [$baseUrl, $aliases] = $this->extractPaths($mainJsFileName);
+    if ($baseUrl!==null && $paths!==null)
     {
       foreach ($aliases as $alias => $path)
       {
-        $path_with_hash = $this->getPathInResourcesWithHash($base_url, $path);
-        if (isset($path_with_hash))
+        $pathWithHash = $this->getPathInResourcesWithHash($baseUrl, $path);
+        if (isset($pathWithHash))
         {
-          $paths[$this->removeJsExtension($path_with_hash)] = $alias;
+          $paths[$this->removeJsExtension($pathWithHash)] = $alias;
         }
       }
     }
@@ -441,9 +442,9 @@ class OptimizeJsTask extends OptimizeResourceTask
       {
         if (isset($info['path_name_in_sources']))
         {
-          $module                 = $this->getNamespaceFromResourceFilename($info['full_path_name']);
-          $path_with_hash         = $this->getNamespaceFromResourceFilename($info['full_path_name_with_hash']);
-          $paths[$path_with_hash] = $module;
+          $module               = $this->getNamespaceFromResourceFilename($info['full_path_name']);
+          $pathWithHash         = $this->getNamespaceFromResourceFilename($info['full_path_name_with_hash']);
+          $paths[$pathWithHash] = $module;
         }
       }
     }
@@ -511,15 +512,15 @@ class OptimizeJsTask extends OptimizeResourceTask
                                                            ?string $namespace = null,
                                                            ?string $fullPath = null): string
   {
-    if (isset($fullPath))
+    if ($fullPath!==null)
     {
       $path1 = $this->combineAndMinimize($fullPath);
-      $path2  = $fullPath;
+      $path2 = $fullPath;
     }
-    elseif (isset($namespace))
+    elseif ($namespace!==null)
     {
       $path1 = $namespace;
-      $path2  = $this->getFullPathFromNamespace($namespace);
+      $path2 = $this->getFullPathFromNamespace($namespace);
     }
     else
     {
@@ -551,7 +552,7 @@ class OptimizeJsTask extends OptimizeResourceTask
   private function removeJsExtension(string $filename): string
   {
     $extension = substr($filename, -strlen($this->extension));
-    if ($extension==$this->extension)
+    if ($extension===$this->extension)
     {
       return substr($filename, 0, -strlen($this->extension));
     }
