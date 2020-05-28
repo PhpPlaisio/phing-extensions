@@ -195,7 +195,7 @@ abstract class OptimizeResourceTask extends ResourceStoreTask
     foreach ($tokens as $i => $token)
     {
       // If this token is the namespace declaring, then flag that the next tokens will be the namespace name
-      if (is_array($token) && $token[0]==T_NAMESPACE)
+      if (is_array($token) && $token[0]===T_NAMESPACE)
       {
         $mode      = 'namespace';
         $namespace = '';
@@ -210,7 +210,7 @@ abstract class OptimizeResourceTask extends ResourceStoreTask
       }
 
       // While we're grabbing the namespace name...
-      if ($mode=='namespace')
+      if ($mode==='namespace')
       {
         // If the token is a string or the namespace separator...
         if (is_array($token) && in_array($token[0], [T_STRING, T_NS_SEPARATOR]))
@@ -218,7 +218,7 @@ abstract class OptimizeResourceTask extends ResourceStoreTask
           //Append the token's value to the name of the namespace
           $namespace .= $token[1];
         }
-        elseif (is_array($token) && $token[0]==T_WHITESPACE)
+        elseif (is_array($token) && $token[0]===T_WHITESPACE)
         {
           // Ignore whitespace.
         }
@@ -238,10 +238,10 @@ abstract class OptimizeResourceTask extends ResourceStoreTask
       }
 
       // While we're grabbing the class name...
-      if ($mode=='class')
+      if ($mode==='class')
       {
         // If the token is a string, it's the name of the class
-        if (is_array($token) && $token[0]==T_STRING)
+        if (is_array($token) && $token[0]===T_STRING)
         {
           // Store the token's value as the class name
           $classes[$token[2]] = ['namespace' => $namespace,
@@ -321,7 +321,7 @@ abstract class OptimizeResourceTask extends ResourceStoreTask
       {
         foreach ($reads as $read)
         {
-          if ($read==$pipes[1])
+          if ($read===$pipes[1])
           {
             $data = fread($read, self::BUFFER_SIZE);
             if ($data===false) $this->logError("Unable to read standard output from command '%s'", $command);
@@ -335,7 +335,7 @@ abstract class OptimizeResourceTask extends ResourceStoreTask
               $std_out .= $data;
             }
           }
-          if ($read==$pipes[2])
+          if ($read===$pipes[2])
           {
             $data = fread($read, self::BUFFER_SIZE);
             if ($data===false) $this->logError("Unable to read standard error from command '%s'", $command);
@@ -357,7 +357,7 @@ abstract class OptimizeResourceTask extends ResourceStoreTask
       {
         $bytes = fwrite($writes[0], $std_in);
         if ($bytes===false) $this->logError("Unable to write to standard input of command '%s'", $command);
-        if ($bytes==0)
+        if ($bytes===0)
         {
           fclose($writes[0]);
           unset($write_pipes[0]);

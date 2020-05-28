@@ -75,10 +75,10 @@ class OptimizeCssTask extends OptimizeResourceTask
    */
   protected function minimizeResource(string $resource, ?string $fullPathName): string
   {
-    // If $theFullPathName is not set $resource is concatenation of 2 or more optimized CSS file. There is no need to
+    // If $fullPathName is not set $resource is concatenation of 2 or more optimized CSS file. There is no need to
     // convert relative paths and minimized $resource again. Moreover, it is not possible to convert relative paths
     // since $resource can be a concatenation of CSS files from different subdirectories.
-    if (isset($fullPathName))
+    if ($fullPathName!==null)
     {
       $css = $this->convertRelativePaths($resource, $fullPathName);
 

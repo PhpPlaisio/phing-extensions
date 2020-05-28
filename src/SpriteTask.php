@@ -72,7 +72,7 @@ class SpriteTask extends \PlaisioTask
    */
   private static function lengthToPixel(int $integer): string
   {
-    if ($integer==0) return '0';
+    if ($integer===0) return '0';
 
     return Cast::toManString($integer).'px';
   }
@@ -185,7 +185,7 @@ class SpriteTask extends \PlaisioTask
     {
       foreach ($fileSet as $filename)
       {
-        if (strncmp($cwd, $filename, strlen($cwd))==0)
+        if (strncmp($cwd, $filename, strlen($cwd))===0)
         {
           $this->imagePaths[] = substr($filename, strlen($cwd));
         }
@@ -255,7 +255,7 @@ class SpriteTask extends \PlaisioTask
     $y      = 0;
     foreach ($this->imagePaths as $path)
     {
-      if ($x==$cols)
+      if ($x===$cols)
       {
         $x = 0;
         $y++;
