@@ -97,7 +97,8 @@ class OptimizeCssTask extends OptimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Replaces in PHP code calls to method {@link Plaisio\WebAssets\WebAssets::cssAppendSource)} with the appropriate optimized method. Also, combines the multiple CSS files into a single CCS file.
+   * Replaces in PHP code calls to method {@link Plaisio\WebAssets\WebAssets::cssAppendSource)} with the appropriate
+   * optimized method. Also, combines the multiple CSS files into a single CCS file.
    *
    * @param string $filename The filename with the PHP code.
    * @param string $phpCode  The PHP code.
@@ -221,7 +222,12 @@ class OptimizeCssTask extends OptimizeResourceTask
     {
       if (preg_match($regex, $line, $matches, PREG_UNMATCHED_AS_NULL))
       {
-        $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($qualifiedName, $namespace, $imports, $matches);
+        $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($qualifiedName,
+                                                                    $namespace,
+                                                                    $imports,
+                                                                    $matches,
+                                                                    $filename,
+                                                                    $i + 1);
       }
       else
       {
@@ -324,17 +330,21 @@ class OptimizeCssTask extends OptimizeResourceTask
   /**
    * Helper function for {@link processPhpSourceFileReplaceMethodHelper}.
    *
-   * @param string $qualifiedName The fully qualified name of the class/trait/interface found in the source file.
-   * @param string $namespace     The namespace found in the source file.
-   * @param array  $imports       The imports found in the source file.
-   * @param array  $matches       The matches of the regex.
+   * @param string $qualifiedName  The fully qualified name of the class/trait/interface found in the source file.
+   * @param string $namespace      The namespace found in the source file.
+   * @param array  $imports        The imports found in the source file.
+   * @param array  $matches        The matches of the regex.
+   * @param string $sourceFilename The name of the PHP source file being processed.
+   * @param int    $lineno         The line number of being processed.
    *
    * @return string
    */
   private function processPhpSourceFileReplaceMethodHelper(string $qualifiedName,
                                                            string $namespace,
                                                            array $imports,
-                                                           array $matches): string
+                                                           array $matches,
+                                                           string $sourceFilename,
+                                                           int $lineno): string
   {
     switch (true)
     {
@@ -373,7 +383,7 @@ class OptimizeCssTask extends OptimizeResourceTask
 
     if (!file_exists($fullPath))
     {
-      $this->logError("File '%s' not found", $fullPath);
+      $this->logError("File '%s' not found at %s:%d", $fullPath, $sourceFilename, $lineno);
     }
 
     $realpath     = realpath($fullPath);

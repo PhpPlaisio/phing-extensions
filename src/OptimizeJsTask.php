@@ -206,7 +206,12 @@ class OptimizeJsTask extends OptimizeResourceTask
     {
       if (preg_match($regex, $line, $matches, PREG_UNMATCHED_AS_NULL))
       {
-        $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($qualifiedName, $namespace, $imports, $matches);
+        $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($qualifiedName,
+                                                                    $namespace,
+                                                                    $imports,
+                                                                    $matches,
+                                                                    $filename,
+                                                                    $i + 1);
       }
       else
       {
@@ -356,7 +361,7 @@ class OptimizeJsTask extends OptimizeResourceTask
   {
     $filename = str_replace('\\', '/', $className).$this->extension;
 
-    return  $this->resourceDirFullPath.'/'.$filename;
+    return $this->resourceDirFullPath.'/'.$filename;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -477,19 +482,23 @@ class OptimizeJsTask extends OptimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Helper function for {@link processPhpSourceFileReplaceMethodHelper}.
+   * Helper function for {@link processPhpSourceFileReplaceMethod}.
    *
    * @param string $qualifiedName The fully qualified name of the class/trait/interface found in the source file.
    * @param string $namespace     The namespace found in the source file.
    * @param array  $imports       The imports found in the source file.
    * @param array  $matches       The matches of the regex.
+   * @param string $sourceFilename The name of the PHP source file being processed.
+   * @param int    $lineno         The line number of being processed.
    *
    * @return string
    */
   private function processPhpSourceFileReplaceMethodHelper(string $qualifiedName,
                                                            string $namespace,
                                                            array $imports,
-                                                           array $matches): string
+                                                           array $matches,
+                                                           string $sourceFilename,
+                                                           int $lineno): string
   {
     switch (true)
     {
@@ -537,7 +546,7 @@ class OptimizeJsTask extends OptimizeResourceTask
 
     if (!file_exists($path2))
     {
-      $this->logError("File '%s' not found", $path2);
+      $this->logError("File '%s' not found at %s:%d", $path2, $sourceFilename, $lineno);
     }
 
     return sprintf("%s%s%s('%s'%s",
