@@ -540,7 +540,6 @@ class OptimizeJsTask extends OptimizeResourceTask
 
     if (!file_exists($path2))
     {
-      var_dump($matches);
       $this->logError("File '%s' not found", $path2);
     }
 
