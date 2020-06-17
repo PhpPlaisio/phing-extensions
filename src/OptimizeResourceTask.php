@@ -195,7 +195,7 @@ abstract class OptimizeResourceTask extends ResourceStoreTask
                      trim($line),
                      $matches))
       {
-       if ($class===null)
+        if ($class===null)
         {
           $class = $matches['class'];
         }
@@ -222,18 +222,19 @@ abstract class OptimizeResourceTask extends ResourceStoreTask
     $imports = [];
     foreach ($lines as $i => $line)
     {
-      if (preg_match('/^use\s+(<class>[^ ]+)(\s+as\s+(?<alias>[^ ]+))?$/',
+      if (preg_match('/^use\s+(?<class>[^ ]+)(\s+as\s+(?<alias>[^ ]+))?;$/',
                      trim($line),
-                     $matches))
+                     $matches,
+                     PREG_UNMATCHED_AS_NULL))
       {
-        if ($matches['alias']===null)
+        if (isset($matches['alias']))
         {
-          $parts = explode('\\', $matches['class']);
-          $alias = end($parts);
+          $alias = $matches['alias'];
         }
         else
         {
-          $alias = $matches['alias'];
+          $parts = explode('\\', $matches['class']);
+          $alias = end($parts);
         }
 
         $imports[$alias] = $matches['class'];

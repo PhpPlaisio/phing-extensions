@@ -5,6 +5,7 @@ namespace Plaisio\Phing\Task\Test\OptimizeJsTask\Test01\Test;
 
 use Plaisio\Kernel\Nub;
 use Plaisio\Page\CorePage;
+use Plaisio\Page\Page as ParentPage;
 use Plaisio\Response\Response;
 
 /**
@@ -20,7 +21,7 @@ class TestPage extends CorePage
   {
     parent::__construct();
 
-    Nub::$nub->assets->jsAdmOptimizedSetPageSpecificMain('/js/7cc0a330f19b18fe9f8e29713f8fb20a.0.js');
+    Nub::$nub->assets->jsAdmOptimizedSetPageSpecificMain('/js/f080f452a5c8574d2507170ff8ea57e9.0.js');
     Nub::$nub->assets->jsAdmOptimizedFunctionCall('Plaisio/Phing/Task/Test/OptimizeJsTask/Test01/Test/TestPage', 'function1');
     Nub::$nub->assets->jsAdmOptimizedFunctionCall('Plaisio/Phing/Task/Test/OptimizeJsTask/Test01/Test/TestPage', 'function2', ['arg1',
                                                                   strlen(serialize($this)),
@@ -28,7 +29,9 @@ class TestPage extends CorePage
                                                                   "'"]);
     Nub::$nub->assets->jsAdmOptimizedFunctionCall('Foo/Bar', 'function1', ['arg1', 'arg2']);
     Nub::$nub->assets->jsAdmOptimizedFunctionCall('Plaisio/Phing/Task/Test/OptimizeJsTask/Test01/Test/TestPage', 'function2', ['arg1', 'arg2']);
-    Nub::$nub->assets->jsAdmOptimizedFunctionCall('Plaisio/Phing/Task/Test/OptimizeJsTask/Test01/Test/CorePage', 'function3', ['arg1', 'arg2']);
+    Nub::$nub->assets->jsAdmOptimizedFunctionCall('Plaisio/Page/CorePage', 'function3', ['arg1', 'arg2']);
+    Nub::$nub->assets->jsAdmOptimizedFunctionCall('Plaisio/Phing/Task/Test/OptimizeJsTask/Test01/Test/OtherPage', 'function4', ['arg1', 'arg2']);
+    Nub::$nub->assets->jsAdmOptimizedFunctionCall('Plaisio/Page/Page', 'function5', ['arg1', 'arg2']);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
