@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+namespace Plaisio\Phing\Task\Test\OptimizeCssTask\test03\www;
+
 use Plaisio\Page\CorePage;
 use Plaisio\Response\Response;
 

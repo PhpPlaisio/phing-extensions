@@ -26,7 +26,9 @@ class TestPage extends CorePage
                                                                                strlen(serialize($this)),
                                                                                '"',
                                                                                "'"]);
-    Nub::$nub->assets->jsAdmFunctionCall('Foo/Bar', 'function', ['arg1', 'arg2']);
+    Nub::$nub->assets->jsAdmFunctionCall('Foo/Bar', 'function1', ['arg1', 'arg2']);
+    Nub::$nub->assets->jsAdmFunctionCall(__CLASS__, 'function2', ['arg1', 'arg2']);
+    Nub::$nub->assets->jsAdmFunctionCall(CorePage::class, 'function3', ['arg1', 'arg2']);
   }
 
   //--------------------------------------------------------------------------------------------------------------------

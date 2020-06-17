@@ -53,6 +53,7 @@ abstract class OptimizeResourceTask extends ResourceStoreTask
   private $sourcesFilesetId;
 
   //--------------------------------------------------------------------------------------------------------------------
+
   /**
    * Main method of this Phing task.
    */
@@ -179,82 +180,99 @@ abstract class OptimizeResourceTask extends ResourceStoreTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Returns an array with classes and namespaces defined in PHP code.
+   * Extracts the name of the class, trait or interface from the PHP source code.
    *
-   * @param string $phpCode The PHP code.
+   * @param array $lines The PHP source code.
    *
-   * @return array
+   * @return string|null
    */
-  protected function getClasses(string $phpCode): array
+  protected function extractClassname(array $lines): ?string
   {
-    $tokens = token_get_all($phpCode);
-
-    $mode      = '';
-    $namespace = '';
-    $classes   = [];
-    foreach ($tokens as $i => $token)
+    $class = null;
+    foreach ($lines as $i => $line)
     {
-      // If this token is the namespace declaring, then flag that the next tokens will be the namespace name
-      if (is_array($token) && $token[0]===T_NAMESPACE)
+      if (preg_match('/^(class|trait|interface)\s+(?<class>[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)/',
+                     trim($line),
+                     $matches))
       {
-        $mode      = 'namespace';
-        $namespace = '';
-        continue;
-      }
-
-      // If this token is the class declaring, then flag that the next tokens will be the class name
-      if (is_array($token) && in_array($token[0], [T_CLASS, T_INTERFACE, T_TRAIT]))
-      {
-        $mode = 'class';
-        continue;
-      }
-
-      // While we're grabbing the namespace name...
-      if ($mode==='namespace')
-      {
-        // If the token is a string or the namespace separator...
-        if (is_array($token) && in_array($token[0], [T_STRING, T_NS_SEPARATOR]))
+       if ($class===null)
         {
-          //Append the token's value to the name of the namespace
-          $namespace .= $token[1];
-        }
-        elseif (is_array($token) && $token[0]===T_WHITESPACE)
-        {
-          // Ignore whitespace.
-        }
-        elseif ($token===';')
-        {
-          // If the token is the semicolon, then we're done with the namespace declaration
-          $mode = '';
-        }
-        elseif ($token==='{')
-        {
-          throw new \LogicException('Bracketed syntax for namespace not supported');
+          $class = $matches['class'];
         }
         else
         {
-          throw new \LogicException("Unexpected token %s", print_r($token, true));
-        }
-      }
-
-      // While we're grabbing the class name...
-      if ($mode==='class')
-      {
-        // If the token is a string, it's the name of the class
-        if (is_array($token) && $token[0]===T_STRING)
-        {
-          // Store the token's value as the class name
-          $classes[$token[2]] = ['namespace' => $namespace,
-                                 'class'     => $token[1],
-                                 'line'      => $token[2]];
-
-          $mode = '';
+          $this->logError("Found multiple classes, traits, or interfaces at line %d.", $i + 1);
         }
       }
     }
 
-    return $classes;
+    return $class;
   }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Extracts the imports from the PHP source code.
+   *
+   * @param array $lines The PHP source code.
+   *
+   * @return array
+   */
+  protected function extractImports(array $lines): ?array
+  {
+    $imports = [];
+    foreach ($lines as $i => $line)
+    {
+      if (preg_match('/^use\s+(<class>[^ ]+)(\s+as\s+(?<alias>[^ ]+))?$/',
+                     trim($line),
+                     $matches))
+      {
+        if ($matches['alias']===null)
+        {
+          $parts = explode('\\', $matches['class']);
+          $alias = end($parts);
+        }
+        else
+        {
+          $alias = $matches['alias'];
+        }
+
+        $imports[$alias] = $matches['class'];
+      }
+    }
+
+    return $imports;
+  }
+
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Extracts the namespace from the PHP source code.
+   *
+   * @param array $lines The PHP source code.
+   *
+   * @return string|null
+   */
+  protected function extractNamespace(array $lines): ?string
+  {
+    $namespace = null;
+    foreach ($lines as $i => $line)
+    {
+      if (preg_match('/^namespace\s+(?<namespace>.+);$/', trim($line), $matches))
+      {
+        if ($namespace===null)
+        {
+          $namespace = $matches['namespace'];
+        }
+        else
+        {
+          $this->logError("Found multiple namespaces at line %d.", $i + 1);
+        }
+      }
+    }
+
+    return $namespace;
+  }
+
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Get info about all source, resource files and directories.

@@ -181,55 +181,38 @@ class OptimizeJsTask extends OptimizeResourceTask
    */
   protected function processPhpSourceFileReplaceMethod(string $filename, string $phpCode): string
   {
-    $classes   = $this->getClasses($phpCode);
-    $className = '';
+    $lines = explode(PHP_EOL, $phpCode);
 
-    $lines = explode("\n", $phpCode);
+    $class     = $this->extractClassname($lines);
+    $namespace = $this->extractNamespace($lines);
+    $imports   = $this->extractImports($lines);
+
+    // Don't process files with class of namespace.
+    if ($class===null || $namespace===null) return $phpCode;
+
+    $qualifiedName = $namespace.'\\'.$class;
+
+    // Don't process the class that defines the jsAdm* methods.
+    if (in_array($qualifiedName, $this->webAssetsClasses)) return $phpCode;
+
+    $indent     = '(?<indent>.*)';
+    $call       = '(?<call>((Nub::\$)|(\$this->))nub->assets->)';
+    $method     = '(?<method>jsAdmSetPageSpecificMain|jsAdmFunctionCall|jsAdmClassSpecificFunctionCall)';
+    $class      = '(\(\s*)(?<class>__CLASS__|__TRAIT__)';
+    $path       = '(\((\s*[\'"])(?<path>[a-zA-Z0-9_\-.\/]+))([\'"])';
+    $resolution = '(\(\s*)(?<resolution>[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)::class';
+    $other      = '(?<other>(.*))';
+    $regex      = '/^'.$indent.$call.$method.'('.$class.'|'.$path.'|'.$resolution.')'.$other.'$/';
+
     foreach ($lines as $i => $line)
     {
-      if (isset($classes[$i + 1]))
+      if (preg_match($regex, $line, $matches, PREG_UNMATCHED_AS_NULL))
       {
-        if (isset($classes[$i + 1]['namespace']))
-        {
-          $className = $classes[$i + 1]['namespace'].'\\'.$classes[$i + 1]['class'];
-        }
+        $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($qualifiedName, $namespace, $imports, $matches);
       }
-
-      // Don't process the class that defines the jsAdm* methods.
-      if (in_array($className, $this->webAssetsClasses)) continue;
-
-      // Replace calls to jsAdmSetPageSpecificMain with jsAdmOptimizedSetPageSpecificMain.
-      if (preg_match('/^(?<indent>.*)(?<call>((Nub::\$)|(\$this->))nub->assets->)(jsAdmSetPageSpecificMain)(\(\s*)(?<class>__CLASS__|__TRAIT__)(?<other>(\s*\)\s*;)(.*))$/',
-                     $line,
-                     $matches))
-      {
-        $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($matches,
-                                                                    'jsAdmOptimizedSetPageSpecificMain',
-                                                                    null,
-                                                                    $this->getFullPathFromClassName($className));
-      }
-
-      // Replace calls to jsAdmPageSpecificFunctionCall with jsAdmOptimizedFunctionCall.
-      elseif (preg_match('/^(?<indent>.*)(?<call>((Nub::\$)|(\$this->))nub->assets->)(jsAdmClassSpecificFunctionCall)(\(\s*)(?<class>__CLASS__|__TRAIT__)(?<other>.*)$/',
-                         $line,
-                         $matches))
-      {
-        $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($matches,
-                                                                    'jsAdmOptimizedFunctionCall',
-                                                                    $this->getNamespaceFromClassName($className));
-      }
-
-      // Replace calls to jsAdmFunctionCall with jsAdmOptimizedFunctionCall.
-      elseif (preg_match('/^(?<indent>.*)(?<call>((Nub::\$)|(\$this->))nub->assets->)(jsAdmFunctionCall)(?<class>\((\s*[\'"])(?<path>[a-zA-Z0-9_\-.\/]+))([\'"])(?<other>.*)$/',
-                         $line,
-                         $matches))
-      {
-        $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($matches, 'jsAdmOptimizedFunctionCall');
-      }
-
-      // Test for invalid usages of methods for calling/including JS.
       else
       {
+        // Test for invalid usages of methods for calling/including JS.
         foreach ($this->methods as $method)
         {
           if (preg_match("/(->|::)($method)(\\()/", $line))
@@ -240,7 +223,7 @@ class OptimizeJsTask extends OptimizeResourceTask
       }
     }
 
-    return implode("\n", $lines);
+    return implode(PHP_EOL, $lines);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -373,10 +356,9 @@ class OptimizeJsTask extends OptimizeResourceTask
    */
   private function getFullPathFromClassName(string $className): string
   {
-    $file_name = str_replace('\\', '/', $className).$this->extension;
-    $full_path = $this->resourceDirFullPath.'/'.$file_name;
+    $filename = str_replace('\\', '/', $className).$this->extension;
 
-    return $full_path;
+    return  $this->resourceDirFullPath.'/'.$filename;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -389,10 +371,9 @@ class OptimizeJsTask extends OptimizeResourceTask
    */
   private function getFullPathFromNamespace(string $namespace): string
   {
-    $file_name = $namespace.$this->extension;
-    $full_path = $this->resourceDirFullPath.'/'.$file_name;
+    $filename = $namespace.$this->extension;
 
-    return $full_path;
+    return $this->resourceDirFullPath.'/'.$filename;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -500,36 +481,66 @@ class OptimizeJsTask extends OptimizeResourceTask
   /**
    * Helper function for {@link processPhpSourceFileReplaceMethodHelper}.
    *
-   * @param string[]    $matches         The matches as returned by preg_match.
-   * @param string      $optimizedMethod The appropriate optimized method.
-   * @param string|null $namespace       The current class name of the PHP code.
-   * @param string|null $fullPath        The full path to the JS source.
+   * @param string $qualifiedName The fully qualified name of the class/trait/interface found in the source file.
+   * @param string $namespace     The namespace found in the source file.
+   * @param array  $imports       The imports found in the source file.
+   * @param array  $matches       The matches of the regex.
    *
    * @return string
    */
-  private function processPhpSourceFileReplaceMethodHelper(array $matches,
-                                                           string $optimizedMethod,
-                                                           ?string $namespace = null,
-                                                           ?string $fullPath = null): string
+  private function processPhpSourceFileReplaceMethodHelper(string $qualifiedName,
+                                                           string $namespace,
+                                                           array $imports,
+                                                           array $matches): string
   {
-    if ($fullPath!==null)
+    switch (true)
     {
-      $path1 = $this->combineAndMinimize($fullPath);
-      $path2 = $fullPath;
+      case $matches['class']!==null:
+        $path1 = $this->getNamespaceFromClassName($qualifiedName);
+        $path2 = $this->getFullPathFromClassName($qualifiedName);
+        break;
+
+      case $matches['path']!==null:
+        $path1 = $matches['path'];
+        $path2 = $this->getFullPathFromNamespace($matches['path']);
+        break;
+
+      case $matches['resolution']!==null:
+        if (isset($imports[$matches['resolution']]))
+        {
+          $tmp = $imports[$matches['resolution']];
+        }
+        else
+        {
+          $tmp = $namespace.'\\'.$matches['resolution'];
+        }
+        $path1 = $this->getNamespaceFromClassName($tmp);
+        $path2 = $this->getFullPathFromClassName($tmp);
+        break;
+
+      default:
+        throw new LogicException('Regex not correct');
     }
-    elseif ($namespace!==null)
+
+    switch ($matches['method'])
     {
-      $path1 = $namespace;
-      $path2 = $this->getFullPathFromNamespace($namespace);
-    }
-    else
-    {
-      $path1 = $matches['path'];
-      $path2 = $this->getFullPathFromNamespace($path1);
+      case 'jsAdmSetPageSpecificMain':
+        $optimizedMethod = 'jsAdmOptimizedSetPageSpecificMain';
+        $path1           = $this->combineAndMinimize($path2);
+        break;
+
+      case 'jsAdmFunctionCall':
+      case 'jsAdmClassSpecificFunctionCall':
+        $optimizedMethod = 'jsAdmOptimizedFunctionCall';
+        break;
+
+      default:
+        throw new LogicException('Unknown method.');
     }
 
     if (!file_exists($path2))
     {
+      var_dump($matches);
       $this->logError("File '%s' not found", $path2);
     }
 

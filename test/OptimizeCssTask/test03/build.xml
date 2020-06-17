@@ -55,7 +55,8 @@
                      resourceDir="css"
                      preserveLastModified="true"
                      webAssetsClasses="Plaisio\WebAssets\WebAssets Plaisio\WebAssets\CoreWebAssets"
-                     gzip="false"/>
+                     gzip="false"
+                     haltOnError="true"/>
     </target>
 
     <target name="build" depends="optimize_css" />

@@ -200,44 +200,38 @@ class OptimizeCssTask extends OptimizeResourceTask
    */
   protected function processPhpSourceFileReplaceMethod(string $filename, string $phpCode): string
   {
-    $classes       = $this->getClasses($phpCode);
-    $current_class = '';
+    $lines = explode(PHP_EOL, $phpCode);
 
-    $lines = explode("\n", $phpCode);
+    $class     = $this->extractClassname($lines);
+    $namespace = $this->extractNamespace($lines);
+    $imports   = $this->extractImports($lines);
+
+    // Don't process files with class of namespace.
+    if ($class===null || $namespace===null) return $phpCode;
+
+    $qualifiedName = $namespace.'\\'.$class;
+
+    // Don't process the class that defines the jsAdm* methods.
+    if (in_array($qualifiedName, $this->webAssetsClasses)) return $phpCode;
+
+    $indent     = '(?<indent>.*)';
+    $call       = '(?<call>((Nub::\$)|(\$this->))nub->assets->)';
+    $method     = '(?<method>cssAppendSource|cssAppendClassSpecificSource)';
+    $class      = '(\(\s*)(?<class>__CLASS__|__TRAIT__)';
+    $path       = '(\((\s*[\'"])(?<path>[a-zA-Z0-9_\-.\/]+))([\'"])';
+    $resolution = '(\(\s*)(?<resolution>[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)::class';
+    $other      = '(?<other>(.*))';
+    $regex      = '/^'.$indent.$call.$method.'('.$class.'|'.$path.'|'.$resolution.')'.$other.'$/';
+
     foreach ($lines as $i => $line)
     {
-      if (isset($classes[$i + 1]))
+      if (preg_match($regex, $line, $matches, PREG_UNMATCHED_AS_NULL))
       {
-        if (isset($classes[$i + 1]['namespace']))
-        {
-          $current_class = $classes[$i + 1]['namespace'].'\\'.$classes[$i + 1]['class'];
-        }
+        $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($qualifiedName, $namespace, $imports, $matches);
       }
-
-      // Don't process the class that defines the css* methods.
-      if (in_array($current_class, $this->webAssetsClasses)) continue;
-
-      // Replace calls to cssAppendPageSpecificSource with cssOptimizedAppendSource.
-      if (preg_match('/^(?<indent>\s*)(?<call>((Nub::\$)|(\$this->))nub->assets->)(?<method>cssAppendClassSpecificSource)(\(\s*)(?<path>__CLASS__|__TRAIT__)(\s*\)\s*;)(.*)$/',
-                     $line,
-                     $matches))
-      {
-        $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($matches,
-                                                                    'cssOptimizedAppendSource',
-                                                                    $current_class);
-      }
-
-      // Replace calls to cssAppendSource with cssOptimizedAppendSource.
-      elseif (preg_match('/^(?<indent>\s*)(?<call>((Nub::\$)|(\$this->))nub->assets->)(?<method>cssAppendSource)(\(\s*[\'"])(?<path>[a-zA-Z0-9_\-.\/]+)([\'"]\s*\)\s*;)(.*)$/',
-                         $line,
-                         $matches))
-      {
-        $lines[$i] = $this->processPhpSourceFileReplaceMethodHelper($matches, 'cssOptimizedAppendSource');
-      }
-
-      // Test for invalid usage of methods for including CSS files.
       else
       {
+        // Test for invalid usage of methods for including CSS files.
         foreach ($this->methods as $method)
         {
           if (preg_match("/(->|::)($method)(\\()/", $line))
@@ -248,7 +242,7 @@ class OptimizeCssTask extends OptimizeResourceTask
       }
     }
 
-    return implode("\n", $lines);
+    return implode(PHP_EOL, $lines);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -336,23 +330,42 @@ class OptimizeCssTask extends OptimizeResourceTask
   /**
    * Helper function for {@link processPhpSourceFileReplaceMethodHelper}.
    *
-   * @param string[]    $matches         The matches as returned by preg_match.
-   * @param string      $optimizedMethod The appropriate optimized method.
-   * @param string|null $className       The current class name of the PHP code.
+   * @param string $qualifiedName The fully qualified name of the class/trait/interface found in the source file.
+   * @param string $namespace     The namespace found in the source file.
+   * @param array  $imports       The imports found in the source file.
+   * @param array  $matches       The matches of the regex.
    *
    * @return string
    */
-  private function processPhpSourceFileReplaceMethodHelper(array $matches,
-                                                           string $optimizedMethod,
-                                                           ?string $className = null): string
+  private function processPhpSourceFileReplaceMethodHelper(string $qualifiedName,
+                                                           string $namespace,
+                                                           array $imports,
+                                                           array $matches): string
   {
-    if ($className!==null)
+    switch (true)
     {
-      $filename = str_replace('\\', '/', $className).$this->extension;
-    }
-    else
-    {
-      $filename = $matches['path'];
+      case $matches['class']!==null:
+        $filename = str_replace('\\', '/', $qualifiedName).$this->extension;
+        break;
+
+      case $matches['path']!==null:
+        $filename = $matches['path'];
+        break;
+
+      case $matches['resolution']!==null:
+        if (isset($imports[$matches['resolution']]))
+        {
+          $tmp = $imports[$matches['resolution']];
+        }
+        else
+        {
+          $tmp = $namespace.'\\'.$matches['resolution'];
+        }
+        $filename = str_replace('\\', '/', $tmp).$this->extension;
+        break;
+
+      default:
+        throw new LogicException('Regex not correct');
     }
 
     if (substr($filename, 0, 1)=='/')
@@ -372,7 +385,11 @@ class OptimizeCssTask extends OptimizeResourceTask
     $realpath     = realpath($fullPath);
     $pathWithHash = $this->getResourceInfo($realpath)['path_name_in_sources_with_hash'];
 
-    return sprintf("%s%s%s('%s');", $matches['indent'], $matches['call'], $optimizedMethod, addslashes($pathWithHash));
+    return sprintf("%s%s%s('%s');",
+                   $matches['indent'],
+                   $matches['call'],
+                   'cssOptimizedAppendSource',
+                   addslashes($pathWithHash));
   }
 
   //--------------------------------------------------------------------------------------------------------------------

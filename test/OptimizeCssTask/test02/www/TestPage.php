@@ -1,6 +1,9 @@
 <?php
 declare(strict_types=1);
 
+namespace Plaisio\Phing\Task\Test\OptimizeCssTask\test02\www;
+
+use Plaisio\Kernel\Nub;
 use Plaisio\Page\CorePage;
 use Plaisio\Response\Response;
 
@@ -17,8 +20,8 @@ class TestPage extends CorePage
   {
     parent::__construct();
 
-    $this->nub->assets->cssAppendSource('style1.css');
-    $this->nub->assets->cssAppendSource('/css/test/style2.css');
+    Nub::$nub->assets->cssAppendSource('style1.css');
+    Nub::$nub->assets->cssAppendSource('/css/test/style2.css');
   }
 
   //--------------------------------------------------------------------------------------------------------------------
