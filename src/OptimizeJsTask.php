@@ -21,7 +21,6 @@ class OptimizeJsTask extends OptimizeResourceTask
    */
   private $methods = ['jsAdmSetPageSpecificMain',
                       'jsAdmOptimizedSetPageSpecificMain',
-                      'jsAdmClassSpecificFunctionCall',
                       'jsAdmFunctionCall',
                       'jsAdmOptimizedFunctionCall'];
 
@@ -169,7 +168,6 @@ class OptimizeJsTask extends OptimizeResourceTask
    * Replaces calls to methods:
    * <ul>
    * <li>{@link Plaisio\WebAssets\WebAssets::jsAdmSetPageSpecificMain)
-   * <li>{@link Plaisio\WebAssets\WebAssets::jsAdmClassSpecificFunctionCall)
    * <li>{@link Plaisio\WebAssets\WebAssets::jsAdmFunctionCall)
    * </ul>
    * with the appropriate optimized method.
@@ -197,7 +195,7 @@ class OptimizeJsTask extends OptimizeResourceTask
 
     $indent     = '(?<indent>.*)';
     $call       = '(?<call>((Nub::\$)|(\$this->))nub->assets->)';
-    $method     = '(?<method>jsAdmSetPageSpecificMain|jsAdmFunctionCall|jsAdmClassSpecificFunctionCall)';
+    $method     = '(?<method>jsAdmSetPageSpecificMain|jsAdmFunctionCall)';
     $class      = '(\(\s*)(?<class>__CLASS__|__TRAIT__)';
     $path       = '(\((\s*[\'"])(?<path>[a-zA-Z0-9_\-.\/]+))([\'"])';
     $resolution = '(\(\s*)(?<resolution>[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)::class';
@@ -530,7 +528,6 @@ class OptimizeJsTask extends OptimizeResourceTask
         break;
 
       case 'jsAdmFunctionCall':
-      case 'jsAdmClassSpecificFunctionCall':
         $optimizedMethod = 'jsAdmOptimizedFunctionCall';
         break;
 

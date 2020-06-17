@@ -22,7 +22,6 @@ class OptimizeCssTask extends OptimizeResourceTask
    * @var array
    */
   private $methods = ['cssAppendSource',
-                      'cssAppendClassSpecificSource',
                       'cssOptimizedAppendSource'];
 
   /**
@@ -98,12 +97,7 @@ class OptimizeCssTask extends OptimizeResourceTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Replaces in PHP code calls to methods:
-   * <ul>
-   * <li>{@link Plaisio\WebAssets\WebAssets::cssAppendSource) and
-   * <li>{@link Plaisio\WebAssets\WebAssets::cssAppendClassSpecificSource)
-   * </ul>
-   * with the appropriate optimized method. Also, combines the multiple CSS files into a single CCS file.
+   * Replaces in PHP code calls to method {@link Plaisio\WebAssets\WebAssets::cssAppendSource)} with the appropriate optimized method. Also, combines the multiple CSS files into a single CCS file.
    *
    * @param string $filename The filename with the PHP code.
    * @param string $phpCode  The PHP code.
@@ -216,7 +210,7 @@ class OptimizeCssTask extends OptimizeResourceTask
 
     $indent     = '(?<indent>.*)';
     $call       = '(?<call>((Nub::\$)|(\$this->))nub->assets->)';
-    $method     = '(?<method>cssAppendSource|cssAppendClassSpecificSource)';
+    $method     = '(?<method>cssAppendSource)';
     $class      = '(\(\s*)(?<class>__CLASS__|__TRAIT__)';
     $path       = '(\((\s*[\'"])(?<path>[a-zA-Z0-9_\-.\/]+))([\'"])';
     $resolution = '(\(\s*)(?<resolution>[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)::class';

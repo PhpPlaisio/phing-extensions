@@ -23,7 +23,7 @@
     "phpunit/phpunit": "^9.0",
     "plaisio/console": "^2.2",
     "plaisio/page-core": "^1.2",
-    "plaisio/web-assets": "^1.2",
+    "plaisio/web-assets": "^2.0",
     "setbased/helper-program-execution": "^1.1",
     "setbased/phing-extensions": "dev-master"
   },
