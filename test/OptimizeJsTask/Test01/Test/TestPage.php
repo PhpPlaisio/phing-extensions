@@ -11,7 +11,7 @@ use Plaisio\Response\Response;
 /**
  * Class TestPage.
  */
-class TestPage extends CorePage
+abstract class TestPage extends CorePage
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**

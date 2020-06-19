@@ -191,7 +191,7 @@ abstract class OptimizeResourceTask extends ResourceStoreTask
     $class = null;
     foreach ($lines as $i => $line)
     {
-      if (preg_match('/^(class|trait|interface)\s+(?<class>[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)/',
+      if (preg_match('/^((abstract|final)\s+)?(class|trait|interface)\s+(?<class>[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)/',
                      trim($line),
                      $matches))
       {
