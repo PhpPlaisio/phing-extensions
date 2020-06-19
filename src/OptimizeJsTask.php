@@ -484,10 +484,10 @@ class OptimizeJsTask extends OptimizeResourceTask
   /**
    * Helper function for {@link processPhpSourceFileReplaceMethod}.
    *
-   * @param string $qualifiedName  The fully qualified name of the class/trait/interface found in the source file.
-   * @param string $namespace      The namespace found in the source file.
-   * @param array  $imports        The imports found in the source file.
-   * @param array  $matches        The matches of the regex.
+   * @param string $qualifiedName The fully qualified name of the class/trait/interface found in the source file.
+   * @param string $namespace     The namespace found in the source file.
+   * @param array  $imports       The imports found in the source file.
+   * @param array  $matches       The matches of the regex.
    * @param string $sourceFilename The name of the PHP source file being processed.
    * @param int    $lineno         The line number of being processed.
    *
@@ -503,10 +503,12 @@ class OptimizeJsTask extends OptimizeResourceTask
     switch (true)
     {
       case $matches['class']!==null:
+        $path1 = $this->getNamespaceFromClassName($qualifiedName);
         $path2 = $this->getFullPathFromClassName($qualifiedName);
         break;
 
       case $matches['path']!==null:
+        $path1 = $matches['path'];
         $path2 = $this->getFullPathFromNamespace($matches['path']);
         break;
 
@@ -519,6 +521,7 @@ class OptimizeJsTask extends OptimizeResourceTask
         {
           $tmp = $namespace.'\\'.$matches['resolution'];
         }
+        $path1 = $this->getNamespaceFromClassName($tmp);
         $path2 = $this->getFullPathFromClassName($tmp);
         break;
 
@@ -535,7 +538,6 @@ class OptimizeJsTask extends OptimizeResourceTask
 
       case 'jsAdmFunctionCall':
         $optimizedMethod = 'jsAdmOptimizedFunctionCall';
-        $path1           = $this->getResourceInfo($path2)['path_name_in_sources_with_hash'];
         break;
 
       default:
