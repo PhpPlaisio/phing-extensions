@@ -185,7 +185,7 @@ class OptimizeJsTask extends OptimizeResourceTask
     $namespace = $this->extractNamespace($lines);
     $imports   = $this->extractImports($lines);
 
-    // Don't process files with class of namespace.
+    // Don't process files without class or namespace.
     if ($class===null || $namespace===null) return $phpCode;
 
     $qualifiedName = $namespace.'\\'.$class;
