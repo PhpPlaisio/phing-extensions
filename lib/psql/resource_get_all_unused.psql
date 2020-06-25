@@ -1,0 +1,13 @@
+/**
+ * Selects all resources that are not referred to.
+ *
+ * @type rows
+ */
+select rsr_id
+,      rsr_path
+,      rsr_mtime
+,      rsr_depth
+,      rsr_uri_optimized
+from   ABC_RESOURCE
+where  rsr_depth is null
+order by rsr_path

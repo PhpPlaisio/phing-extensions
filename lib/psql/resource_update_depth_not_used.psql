@@ -1,0 +1,25 @@
+/**
+ * Updates the depth of resources that are not referenced by any other file.
+ *
+ * @type singleton1
+ * @return int
+ */
+update ABC_RESOURCE
+set    rsr_depth = null
+where  rsr_id  not in  ( select rsr_id_rsr
+                         from  ABC_LINK2    lk2
+                         join  ABC_RESOURCE rsr  on  rsr.rsr_id = lk2.rsr_id_src
+                         where rsr.rsr_depth is not null
+
+                         union all
+
+                         select rsr_id
+                         from  ABC_LINK1  lk1
+                         join  ABC_SOURCE src  on  src.src_id = lk1.src_id
+                       )
+;
+
+select count(*)
+from   ABC_RESOURCE
+where  rsr_depth is null
+;

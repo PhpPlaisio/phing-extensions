@@ -62,7 +62,6 @@ class SpriteTask extends \PlaisioTask
   private $spriteFilename;
 
   //--------------------------------------------------------------------------------------------------------------------
-
   /**
    * Converts a pixel offset to a string with 'px'.
    *
@@ -236,8 +235,6 @@ class SpriteTask extends \PlaisioTask
     $this->logVerbose('Creating sprite image %s', $this->spriteFilename);
     $this->saveSpriteImage($sprite);
     imagedestroy($sprite);
-
-    $this->renameSpriteFile();
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -269,28 +266,6 @@ class SpriteTask extends \PlaisioTask
     }
 
     return [$matrix, $cols, $rows];
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
-   * Renames the sprite file using the md5 hash of the sprite file.
-   */
-  private function renameSpriteFile(): void
-  {
-    $md5 = md5_file($this->spriteFilename);
-
-    $info              = pathinfo($this->spriteFilename);
-    $newSprintFilename = sprintf("%s/%s-%s.%s",
-                                 $info['dirname'],
-                                 $info['filename'],
-                                 $md5,
-                                 $info['extension']);
-
-    $this->logInfo('Creating sprite image %s', $newSprintFilename);
-    $this->logVerbose('Renaming %s to %s', $this->spriteFilename, $newSprintFilename);
-    rename($this->spriteFilename, $newSprintFilename);
-
-    $this->spriteFilename = $newSprintFilename;
   }
 
   //--------------------------------------------------------------------------------------------------------------------

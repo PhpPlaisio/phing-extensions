@@ -1,0 +1,22 @@
+/**
+ * Updates the depth of resources.
+ *
+ * @param int :p_rsr_depth The depth to be set.
+ *
+ * @type   singleton1
+ * @return int
+ */
+update ABC_RESOURCE
+set    rsr_depth = :p_rsr_depth
+where  rsr_depth is null
+and    rsr_id not in ( select rsr_id_rsr
+                       from  ABC_LINK2    lk2
+                       join  ABC_RESOURCE rsr  on  rsr.rsr_id = lk2.rsr_id_src
+                       where rsr.rsr_depth is null
+                     )
+;
+
+select count(*)
+from   ABC_RESOURCE
+where  rsr_depth = :p_rsr_depth
+;

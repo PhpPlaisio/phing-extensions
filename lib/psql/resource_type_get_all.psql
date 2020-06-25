@@ -1,0 +1,10 @@
+/**
+ * Selects all resource files.
+ *
+ * @type rows
+ */
+select rtp_id
+,      rtp_regex
+,      rtp_class
+from   ABC_RESOURCE_TYPE
+order by rtp_id

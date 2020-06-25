@@ -16,17 +16,6 @@ abstract class PlaisioTask extends \Task
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Setter for XML attribute haltOnError.
-   *
-   * @param bool $haltOnError If set stop build on errors.
-   */
-  public function setHaltOnError(bool $haltOnError): void
-  {
-    $this->haltOnError = $haltOnError;
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
    * If $myHaltOnError is set throws a BuildException with, otherwise creates a log event with priority
    * Project::MSG_ERR.
    *
@@ -35,7 +24,7 @@ abstract class PlaisioTask extends \Task
    *
    * @throws \BuildException
    */
-  protected function logError(): void
+  public function logError(): void
   {
     $args   = func_get_args();
     $format = array_shift($args);
@@ -56,7 +45,7 @@ abstract class PlaisioTask extends \Task
    * @param mixed ...$param The format and arguments similar as for
    *                        [sprintf](http://php.net/manual/function.sprintf.php)
    */
-  protected function logInfo(): void
+  public function logInfo(): void
   {
     $args   = func_get_args();
     $format = array_shift($args);
@@ -77,7 +66,7 @@ abstract class PlaisioTask extends \Task
    *                        [sprintf](http://php.net/manual/function.sprintf.php)   *
    *
    */
-  protected function logVerbose(): void
+  public function logVerbose(): void
   {
     $args   = func_get_args();
     $format = array_shift($args);
@@ -88,6 +77,17 @@ abstract class PlaisioTask extends \Task
     }
 
     $this->log(vsprintf($format, $args), \Project::MSG_VERBOSE);
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Setter for XML attribute haltOnError.
+   *
+   * @param bool $haltOnError If set stop build on errors.
+   */
+  public function setHaltOnError(bool $haltOnError): void
+  {
+    $this->haltOnError = $haltOnError;
   }
 
   //--------------------------------------------------------------------------------------------------------------------

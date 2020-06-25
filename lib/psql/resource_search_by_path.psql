@@ -1,0 +1,16 @@
+/**
+ * Selects a resource by its full path.
+ *
+ * @param string :p_rsr_path The path to the resource.
+ *
+ * @type row0
+ */
+select rsr_id
+,      rsr_path
+,      rsr_mtime
+,      rsr_depth
+,      rsr_content
+,      rsr_content_optimized
+,      rsr_uri_optimized
+from   ABC_RESOURCE
+where  rsr_path = :p_rsr_path

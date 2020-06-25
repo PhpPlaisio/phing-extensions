@@ -1,0 +1,11 @@
+/**
+ * Updates the optimized content of a resource.
+ *
+ * @param int  :p_rsr_id                The ID of the resource.
+ * @param blob :p_rsr_content_optimized The optimized content.
+ *
+ * @type none
+ */
+update ABC_RESOURCE
+set    rsr_content_optimized = :p_rsr_content_optimized
+where  rsr_id = :p_rsr_id

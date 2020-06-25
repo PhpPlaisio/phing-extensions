@@ -1,0 +1,20 @@
+/**
+ * Selects all source files with references to resources files.
+ *
+ * @type rows
+ */
+select src.src_id
+,      src.src_path
+,      src.src_mtime
+,      src.src_content
+
+,      stp.stp_id
+,      stp.stp_regex
+,      stp.stp_name
+,      stp.stp_class
+from   ABC_SOURCE      src
+join   ABC_SOURCE_TYPE stp  on  stp.stp_id = src.stp_id
+where  src.src_id in ( select src_id
+                       from   ABC_LINK1
+                 )
+order by src.src_path
