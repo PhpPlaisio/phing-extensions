@@ -1,0 +1,9 @@
+/**
+ * Selects the max depth op the resources.
+ *
+ * @type   singleton1
+ * @return int
+ */
+select max(rsr_depth)
+from   ABC_RESOURCE
+;

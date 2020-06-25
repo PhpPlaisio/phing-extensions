@@ -1,0 +1,11 @@
+/**
+ * Updates the name optimized of a resource.
+ *
+ * @param int     :p_rsr_id             The ID of the resource.
+ * @param varchar :p_rsr_uri_optimized The name of the optimized content.
+ *
+ * @type none
+ */
+update ABC_RESOURCE
+set    rsr_uri_optimized = :p_rsr_uri_optimized
+where  rsr_id = :p_rsr_id

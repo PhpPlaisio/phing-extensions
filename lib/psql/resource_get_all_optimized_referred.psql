@@ -1,0 +1,29 @@
+/**
+ * Selects all optimized and referred resources.
+ *
+ * @type rows
+ */
+select rsr.rsr_id
+,      rsr.rsr_path
+,      rsr.rsr_mtime
+,      rsr.rsr_depth
+,      rsr.rsr_content
+,      rsr.rsr_content_optimized
+,      rsr.rsr_uri_optimized
+
+,      rtp.rtp_id
+,      rtp.rtp_regex
+,      rtp.rtp_name
+,      rtp.rtp_class
+from   ABC_RESOURCE      rsr
+join   ABC_RESOURCE_TYPE rtp  on  rtp.rtp_id = rsr.rtp_id
+where  rsr_uri_optimized is not null
+and    rsr_id in ( select rsr_id_rsr
+                   from  ABC_LINK2
+
+                   union all
+
+                   select rsr_id
+                   from  ABC_LINK1
+                 )
+order by rsr_uri_optimized

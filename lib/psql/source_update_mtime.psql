@@ -1,0 +1,14 @@
+/**
+ * Updates the modification time of a sources based on its own mtime and its dependants.
+
+ * @param int :p_src_id The ID of the resources.
+ *
+ * @type rows
+ */
+update ABC_SOURCE
+set    src_mtime =  max(src_mtime, ( select max(t01.rsr_mtime)
+                                     from   ABC_RESOURCE t01
+                                     join   ABC_LINK1    t02  on  t02.rsr_id = t01.rsr_id
+                                     where  t02.src_id = :p_src_id))
+where  src_id = :p_src_id
+;
