@@ -351,7 +351,6 @@ EOT;
     $query = <<< EOT
 select max(rsr_depth)
 from   ABC_RESOURCE
-;
 EOT;
     $query = str_repeat(PHP_EOL, 6).$query;
 
@@ -430,7 +429,6 @@ and    rsr_id not in ( select rsr_id_rsr
 select count(*)
 from   ABC_RESOURCE
 where  rsr_depth = :p_rsr_depth
-;
 EOT;
     $query = str_repeat(PHP_EOL, 8).$query;
 
@@ -461,7 +459,6 @@ where  rsr_id  not in  ( select rsr_id_rsr
                        )
 ;
 
-
 select count(*)
 from   ABC_RESOURCE
 where  rsr_depth is null
@@ -485,12 +482,11 @@ EOT;
     $replace = [':p_rsr_id' => $this->quoteInt($pRsrId)];
     $query   = <<< EOT
 update ABC_RESOURCE
-set    rsr_mtime =  max(rsr_mtime, ( select max(t01.rsr_mtime)
+set    rsr_mtime =  max(rsr_mtime, ( select ifnull(max(t01.rsr_mtime), 0)
                                      from   ABC_RESOURCE t01
                                      join   ABC_LINK2    t02  on  t02.rsr_id_rsr = t01.rsr_id
                                      where  t02.rsr_id_src = :p_rsr_id))
 where  rsr_id = :p_rsr_id
-;
 EOT;
     $query = str_repeat(PHP_EOL, 7).$query;
 
@@ -632,7 +628,6 @@ set    src_mtime =  max(src_mtime, ( select max(t01.rsr_mtime)
                                      join   ABC_LINK1    t02  on  t02.rsr_id = t01.rsr_id
                                      where  t02.src_id = :p_src_id))
 where  src_id = :p_src_id
-;
 EOT;
     $query = str_repeat(PHP_EOL, 7).$query;
 
