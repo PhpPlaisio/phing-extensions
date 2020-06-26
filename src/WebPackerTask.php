@@ -590,7 +590,7 @@ class WebPackerTask extends ResourceStoreTask
     if ($this->preserveModificationTime)
     {
       $max = $this->store->resourceGetMaxDepth();
-      for ($depth = $max - 1; $depth<=1; $depth--)
+      for ($depth = $max - 1; $depth>=1; $depth--)
       {
         $resources = $this->store->resourceGetAllByDepth($depth);
         foreach ($resources as $resource)

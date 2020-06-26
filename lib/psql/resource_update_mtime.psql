@@ -6,7 +6,7 @@
  * @type rows
  */
 update ABC_RESOURCE
-set    rsr_mtime =  max(rsr_mtime, ( select max(t01.rsr_mtime)
+set    rsr_mtime =  max(rsr_mtime, ( select ifnull(max(t01.rsr_mtime), 0)
                                      from   ABC_RESOURCE t01
                                      join   ABC_LINK2    t02  on  t02.rsr_id_rsr = t01.rsr_id
                                      where  t02.rsr_id_src = :p_rsr_id))
