@@ -15,9 +15,8 @@ abstract class PlaisioTask extends \Task
   protected $haltOnError = true;
 
   //--------------------------------------------------------------------------------------------------------------------
-
   /**
-   * If $myHaltOnError is set throws a BuildException with, otherwise creates a log event with priority
+   * If $haltOnError is set throws a BuildException with, otherwise creates a log event with priority
    * Project::MSG_ERR.
    *
    * @param mixed ...$param The format and arguments similar as for
