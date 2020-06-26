@@ -6,4 +6,3 @@
  */
 select max(rsr_depth)
 from   ABC_RESOURCE
-;

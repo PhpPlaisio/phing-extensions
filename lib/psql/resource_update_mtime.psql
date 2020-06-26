@@ -11,4 +11,3 @@ set    rsr_mtime =  max(rsr_mtime, ( select max(t01.rsr_mtime)
                                      join   ABC_LINK2    t02  on  t02.rsr_id_rsr = t01.rsr_id
                                      where  t02.rsr_id_src = :p_rsr_id))
 where  rsr_id = :p_rsr_id
-;
