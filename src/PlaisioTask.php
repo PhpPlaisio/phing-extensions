@@ -15,6 +15,7 @@ abstract class PlaisioTask extends \Task
   protected $haltOnError = true;
 
   //--------------------------------------------------------------------------------------------------------------------
+
   /**
    * If $myHaltOnError is set throws a BuildException with, otherwise creates a log event with priority
    * Project::MSG_ERR.
@@ -77,6 +78,26 @@ abstract class PlaisioTask extends \Task
     }
 
     $this->log(vsprintf($format, $args), \Project::MSG_VERBOSE);
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Creates a log event with priority Project::MSG_WARN.
+   *
+   * @param mixed ...$param The format and arguments similar as for
+   *                        [sprintf](http://php.net/manual/function.sprintf.php)
+   */
+  public function logWarning(): void
+  {
+    $args   = func_get_args();
+    $format = array_shift($args);
+
+    foreach ($args as &$arg)
+    {
+      if (!is_scalar($arg)) $arg = var_export($arg, true);
+    }
+
+    $this->log(vsprintf($format, $args), \Project::MSG_WARN);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
