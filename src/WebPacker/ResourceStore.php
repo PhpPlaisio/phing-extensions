@@ -429,6 +429,7 @@ and    rsr_id not in ( select rsr_id_rsr
 select count(*)
 from   ABC_RESOURCE
 where  rsr_depth = :p_rsr_depth
+;
 EOT;
     $query = str_repeat(PHP_EOL, 8).$query;
 
