@@ -18,6 +18,8 @@ create table ABC_SOURCE
   foreign key(stp_id) references ABC_SOURCE_TYPE(stp_id)
 );
 
+create unique index idx_abc_source_01 on ABC_SOURCE(src_path);
+create index idx_abc_source_0 on ABC_SOURCE(stp_id);
 
 create table ABC_RESOURCE_TYPE
 (
@@ -26,7 +28,6 @@ create table ABC_RESOURCE_TYPE
   rtp_name  varchar not null,
   rtp_class varchar not null
 );
-
 
 create table ABC_RESOURCE
 (
@@ -41,6 +42,9 @@ create table ABC_RESOURCE
   rsr_uri_optimized     varchar,                          -- The URI of the resource with the optimized content.
   foreign key(rtp_id) references ABC_RESOURCE_TYPE(rtp_id)
 );
+
+create unique index idx_abc_resource_01 on ABC_RESOURCE(rsr_path);
+create index idx_abc_resource_02 on ABC_RESOURCE(rtp_id);
 
 -- Sources referring to resources.
 create table ABC_LINK1
