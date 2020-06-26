@@ -3,7 +3,7 @@
 
  * @param int :p_rsr_id The ID of the resources.
  *
- * @type rows
+ * @type none
  */
 update ABC_RESOURCE
 set    rsr_mtime =  max(rsr_mtime, ( select ifnull(max(t01.rsr_mtime), 0)

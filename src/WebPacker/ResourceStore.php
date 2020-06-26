@@ -474,10 +474,8 @@ EOT;
    * Updates the modification time of a resources based on its own mtime and its dependants.
    *
    * @param int|null $pRsrId The ID of the resources.
-   *
-   * @return array[]
    */
-  public function resourceUpdateMtime(?int $pRsrId): array
+  public function resourceUpdateMtime(?int $pRsrId): void
   {
     $replace = [':p_rsr_id' => $this->quoteInt($pRsrId)];
     $query   = <<< EOT
@@ -490,7 +488,7 @@ where  rsr_id = :p_rsr_id
 EOT;
     $query = str_repeat(PHP_EOL, 7).$query;
 
-    return $this->executeRows($query, $replace);
+    $this->executeNone($query, $replace);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
