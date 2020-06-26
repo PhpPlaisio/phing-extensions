@@ -10,12 +10,11 @@ class SpriteTaskTest extends \BuildFileTest
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Optimizing all files inside folder test01 and then compare files.
+   * Optimizing all files inside folder test01-png and then compare files.
    */
-  public function testSprite01()
+  public function testSprite01Png()
   {
-    $imageTypes = imagetypes();
-    $dir = ($imageTypes & IMG_WEBP) ? 'test01-webp' : 'test01-png';
+    $dir = 'test01-png';
     $this->configureProject(sprintf('%s/%s/%s', __DIR__, $dir, 'build.xml'));
     $this->project->setBasedir(sprintf('%s/%s', __DIR__, $dir));
     $this->executeTarget('sprite');
@@ -24,6 +23,31 @@ class SpriteTaskTest extends \BuildFileTest
     $actual   = file_get_contents(sprintf('%s/%s/%s', __DIR__, $dir, 'www/css/navigation.css'));
 
     self::assertSame($expected, $actual);
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Optimizing all files inside folder test01 and then compare files.
+   */
+  public function testSprite01Webp()
+  {
+    $imageTypes = imagetypes();
+    if ($imageTypes & IMG_WEBP)
+    {
+      $dir = 'test01-webp';
+      $this->configureProject(sprintf('%s/%s/%s', __DIR__, $dir, 'build.xml'));
+      $this->project->setBasedir(sprintf('%s/%s', __DIR__, $dir));
+      $this->executeTarget('sprite');
+
+      $expected = file_get_contents(sprintf('%s/%s/%s', __DIR__, $dir, 'www/css/navigation-expected.css'));
+      $actual   = file_get_contents(sprintf('%s/%s/%s', __DIR__, $dir, 'www/css/navigation.css'));
+
+      self::assertSame($expected, $actual);
+    }
+    else
+    {
+      self::assertTrue(true);
+    }
   }
 
   //--------------------------------------------------------------------------------------------------------------------
