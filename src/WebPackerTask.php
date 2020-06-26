@@ -512,7 +512,7 @@ class WebPackerTask extends ResourceStoreTask
   private function storeClose(): void
   {
     $this->store->close();
-    $this->storeUnlinkIfRequired();
+    $this->storeUnlinkIfRequired(false);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -521,7 +521,7 @@ class WebPackerTask extends ResourceStoreTask
    */
   private function storeOpen(): void
   {
-    $this->storeUnlinkIfRequired();
+    $this->storeUnlinkIfRequired(true);
     $this->store = new ResourceStore($this->storeFilename, __DIR__.'/../lib/ddl/create_tables.sql');
 
     $this->store->insertRow('ABC_SOURCE_TYPE', ['stp_id'    => null,
@@ -568,15 +568,17 @@ class WebPackerTask extends ResourceStoreTask
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Removes the store (the SQLite database) if required (i.e. the basename starts with a dot.)
+   *
+   * @param bool $force The store will be removed always if exists.
    */
-  private function storeUnlinkIfRequired(): void
+  private function storeUnlinkIfRequired(bool $force): void
   {
     if ($this->storeFilename!==null)
     {
       $basename = Path::getFilename($this->storeFilename);
-      if ($basename[0]==='.')
+      if (($basename[0]==='.' || $force) && file_exists($this->storeFilename))
       {
-        @unlink($this->storeFilename);
+        unlink($this->storeFilename);
       }
     }
   }
