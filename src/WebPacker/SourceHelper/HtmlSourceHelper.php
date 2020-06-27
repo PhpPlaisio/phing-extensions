@@ -40,30 +40,36 @@ class HtmlSourceHelper implements \SourceHelper, WebPackerInterface
     $lines = explode(PHP_EOL, $source['src_content']);
     foreach ($lines as $i => $line)
     {
-      if (preg_match('/\<(?<tag>link|img)(?<other1>[^\>]*)(?<attribute>href|src)=([\'"])(?<uri>[a-zA-Z0-9_\-.\/]+)([\'"])(?<other2>[^\>]*)\/\>/',
+      if (preg_match('/\<(?<tag>link|img)(?<other1>[^\>]*)(?<attribute>href|src)=(?<quote1>[\'"])(?<uri>[a-zA-Z0-9_\-.\/]+)(?<quote2>[\'"])(?<other2>[^\>]*)\/\>/',
                      $line,
                      $matches,
                      PREG_UNMATCHED_AS_NULL))
       {
-        $path = $this->resolveFullPathOfResource($matches['uri'], $source['src_path']);
-        $this->task->logVerbose('    found %s (%s:%d)',
-                                Path::makeRelative($path, $this->buildPath),
-                                $path,
-                                $i + 1);
-
-        $resource = $this->store->resourceSearchByPath($path);
-        if ($resource===null)
+        if ($matches['quote1']===$matches['quote2'])
         {
-          $this->task->logError("Unable to find resource '%s' found at %s:%d", $path, $matches['uri'], $i + 1);
+          $path = $this->resolveFullPathOfResource($matches['uri'], $source['src_path']);
+          $this->task->logVerbose('    found %s (%s:%d)',
+                                  Path::makeRelative($path, $this->buildPath),
+                                  $path,
+                                  $i + 1);
 
-          return;
+          $resource = $this->store->resourceSearchByPath($path);
+          if ($resource===null)
+          {
+            $this->task->logError("Unable to find resource '%s' found at %s:%d",
+                                  $matches['uri'],
+                                  $source['src_path'],
+                                  $i + 1);
+          }
+          else
+          {
+            $this->store->insertRow('ABC_LINK1', ['src_id'      => $source['src_id'],
+                                                  'rsr_id'      => $resource['rsr_id'],
+                                                  'lk1_line'    => $i + 1,
+                                                  'lk1_method'  => 'link',
+                                                  'lk1_matches' => serialize($matches)]);
+          }
         }
-
-        $this->store->insertRow('ABC_LINK1', ['src_id'      => $source['src_id'],
-                                              'rsr_id'      => $resource['rsr_id'],
-                                              'lk1_line'    => $i + 1,
-                                              'lk1_method'  => 'link',
-                                              'lk1_matches' => serialize($matches)]);
       }
     }
   }
@@ -79,11 +85,13 @@ class HtmlSourceHelper implements \SourceHelper, WebPackerInterface
     {
       $matches = unserialize($resource['lk1_matches']);
 
-      $replace[$matches[0]] = sprintf('<%s%s%s="%s"%s/>',
+      $replace[$matches[0]] = sprintf('<%s%s%s=%s%s%s%s/>',
                                       $matches['tag'],
                                       $matches['other1'],
                                       $matches['attribute'],
+                                      $matches['quote1'],
                                       $resource['rsr_uri_optimized'],
+                                      $matches['quote2'],
                                       $matches['other2']);
     }
     

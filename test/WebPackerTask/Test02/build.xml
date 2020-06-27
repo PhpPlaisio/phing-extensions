@@ -38,7 +38,7 @@
     <!-- Optimizes all resources. -->
     <target name="web_packer" depends="copy_files">
         <fileset dir="${BUILD_DIR}" id="resources">
-            <include name="www/css/**/*.*"/>
+            <include name="www/css/**/*.css"/>
             <include name="www/images/**/*.*"/>
             <include name="www/js/**/*.js"/>
         </fileset>

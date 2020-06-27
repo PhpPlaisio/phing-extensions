@@ -27,15 +27,15 @@ class WebPackerTaskTest extends \BuildFileTest
     $build    = $this->getFilesById('build');
     $expected = $this->getFilesById('expected');
 
-    $files = array_merge($scripts, $images, $scripts, ['TestPage.php']);
-
     // All files must be under the build directory.
+    $files = array_merge($scripts, $images, $scripts, ['TestPage.php']);
     foreach ($files as $key)
     {
       self::assertArrayHasKey($key, $build);
     }
 
     // All files must be equal to the expected file.
+    ksort($build);
     foreach ($build as $key => $b)
     {
       self::assertFileEquals($expected[$key], $build[$key]);
@@ -60,6 +60,37 @@ class WebPackerTaskTest extends \BuildFileTest
     {
       $dir = Path::getDirectory(path::makeRelative($build[$key], __DIR__.'/Test01/build'));
       self::assertEquals('www/js', $dir);
+    }
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Test CSS in html files are been replaced.
+   */
+  public function testWebPacker02(): void
+  {
+    $this->configureProject(__DIR__.'/Test02/build.xml');
+    $this->project->setBasedir(__DIR__.'/Test02');
+    $this->executeTarget('web_packer');
+
+    $pages  = ['index1.html', 'index2.html'];
+    $styles = ['style1.css', 'style2.css'];
+
+    $build    = $this->getFilesById('build');
+    $expected = $this->getFilesById('expected');
+
+    // All files must be under the build directory.
+    $files = array_merge($pages, $styles);
+    foreach ($files as $key)
+    {
+      self::assertArrayHasKey($key, $build);
+    }
+
+    // All files must be equal to the expected file.
+    ksort($build);
+    foreach ($build as $key => $b)
+    {
+      self::assertFileEquals($expected[$key], $build[$key]);
     }
   }
 
