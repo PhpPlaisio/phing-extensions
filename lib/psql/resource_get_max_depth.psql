@@ -4,5 +4,5 @@
  * @type   singleton1
  * @return int
  */
-select max(rsr_depth)
+select ifnull(max(rsr_depth), 0)
 from   ABC_RESOURCE

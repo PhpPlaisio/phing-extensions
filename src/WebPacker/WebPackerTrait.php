@@ -136,7 +136,6 @@ trait WebPackerTrait
   public $webAssetsClasses = [];
 
   //--------------------------------------------------------------------------------------------------------------------
-
   /**
    * Initializes the properties of this trait.
    *

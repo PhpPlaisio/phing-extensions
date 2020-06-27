@@ -40,7 +40,7 @@ class HtmlSourceHelper implements \SourceHelper, WebPackerInterface
     $lines = explode(PHP_EOL, $source['src_content']);
     foreach ($lines as $i => $line)
     {
-      if (preg_match('/\<(?<tag>link|img)(?<other1>[^\>]*)(?<attribute>href|src)=(?<quote1>[\'"])(?<uri>[a-zA-Z0-9_\-.\/]+)(?<quote2>[\'"])(?<other2>[^\>]*)\/\>/',
+      if (preg_match('/^(?<before>.*)\<(?<tag>link|img|script)(?<other1>[^\>]*)(?<attribute>href|src)=(?<quote1>[\'"])(?<uri>[a-zA-Z0-9_\-.\/]+)(?<quote2>[\'"])(?<other2>[^\>]*)(?<after>.*)$/i',
                      $line,
                      $matches,
                      PREG_UNMATCHED_AS_NULL))
@@ -50,7 +50,7 @@ class HtmlSourceHelper implements \SourceHelper, WebPackerInterface
           $path = $this->resolveFullPathOfResource($matches['uri'], $source['src_path']);
           $this->task->logVerbose('    found %s (%s:%d)',
                                   Path::makeRelative($path, $this->buildPath),
-                                  $path,
+                                  $matches['uri'],
                                   $i + 1);
 
           $resource = $this->store->resourceSearchByPath($path);
@@ -80,22 +80,24 @@ class HtmlSourceHelper implements \SourceHelper, WebPackerInterface
    */
   public function process(array $source, array $resources): ?string
   {
-    $replace = [];
+    $lines = explode(PHP_EOL, $source['src_content']);
     foreach ($resources as $resource)
     {
       $matches = unserialize($resource['lk1_matches']);
 
-      $replace[$matches[0]] = sprintf('<%s%s%s=%s%s%s%s/>',
-                                      $matches['tag'],
-                                      $matches['other1'],
-                                      $matches['attribute'],
-                                      $matches['quote1'],
-                                      $resource['rsr_uri_optimized'],
-                                      $matches['quote2'],
-                                      $matches['other2']);
+      $lines[$resource['lk1_line'] - 1] = sprintf('%s<%s%s%s=%s%s%s%s%s',
+                                                  $matches['before'],
+                                                  $matches['tag'],
+                                                  $matches['other1'],
+                                                  $matches['attribute'],
+                                                  $matches['quote1'],
+                                                  $resource['rsr_uri_optimized'],
+                                                  $matches['quote2'],
+                                                  $matches['other2'],
+                                                  $matches['after']);
     }
-    
-    return strtr($source['src_content'], $replace);
+
+    return implode(PHP_EOL, $lines);
   }
 
   //--------------------------------------------------------------------------------------------------------------------

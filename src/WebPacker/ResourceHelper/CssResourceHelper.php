@@ -57,10 +57,11 @@ class CssResourceHelper implements ResourceHelper, WebPackerInterface
     $lines = explode(PHP_EOL, $resource1['rsr_content'] ?? '');
     foreach ($lines as $i => $line)
     {
-      if (preg_match('/(?<url>url\([\'"]?)(?<path>([^()\'\"]|(?R))+)([\'"]?\))/i', $line, $matches))
+      if (preg_match('/^(?<before>.*)(?<url>url)\((?<quote1>[\'"]?)(?<path>[a-zA-Z0-9_\-.\/]+)(?<quote2>[\'"]?)\)(?<after>.*)$/i',
+                     $line,
+                     $matches))
       {
-        $parts = explode(':', $matches['path']);
-        if (count($parts)===1)
+        if ($matches['quote1']===$matches['quote2'])
         {
           $resourcePath2 = $this->cssResolveReferredResourcePath($matches['path'], $resource1['rsr_path']);
           $this->task->logVerbose('      found %s (%s:%d)',
@@ -78,10 +79,11 @@ class CssResourceHelper implements ResourceHelper, WebPackerInterface
           }
           else
           {
-            $this->store->insertRow('ABC_LINK2', ['rsr_id_src' => $resource1['rsr_id'],
-                                                  'rsr_id_rsr' => $resource2['rsr_id'],
-                                                  'lk2_name'   => $matches['path'],
-                                                  'lk2_line'   => $i + 1]);
+            $this->store->insertRow('ABC_LINK2', ['rsr_id_src'  => $resource1['rsr_id'],
+                                                  'rsr_id_rsr'  => $resource2['rsr_id'],
+                                                  'lk2_name'    => $matches['path'],
+                                                  'lk2_line'    => $i + 1,
+                                                  'lk2_matches' => serialize($matches)]);
           }
         }
       }
@@ -90,17 +92,27 @@ class CssResourceHelper implements ResourceHelper, WebPackerInterface
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Minimizes the CSS.
-   *
-   * @param array $resource The details of the CSS file.
-   *
-   * @return string
+   * @inheritDoc
    */
-  public function optimize(array $resource): string
+  public function optimize(array $resource, array $resources): string
   {
-    $css = $this->convertRelativePaths($resource);
+    $lines = explode(PHP_EOL, $resource['rsr_content'] ?? '');
+    foreach ($resources as $resource)
+    {
+      $matches = unserialize($resource['lk2_matches']);
 
-    [$std_out, $std_err] = $this->runProcess($this->cssMinifyCommand, $css);
+      $lines[$resource['lk2_line'] - 1] = sprintf('%s%s(%s%s%s)%s',
+                                                  $matches['before'],
+                                                  $matches['url'],
+                                                  $matches['quote1'],
+                                                  $resource['rsr_uri_optimized'],
+                                                  $matches['quote2'],
+                                                  $matches['after']);
+    }
+
+    $content = implode(PHP_EOL, $lines);
+
+    [$std_out, $std_err] = $this->runProcess($this->cssMinifyCommand, $content);
 
     if ($std_err!=='') $this->task->logError($std_err);
 
@@ -117,7 +129,6 @@ class CssResourceHelper implements ResourceHelper, WebPackerInterface
 
     return sprintf('/%s/%s.%s', 'css', $md5, 'css');
   }
-
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -214,47 +225,6 @@ class CssResourceHelper implements ResourceHelper, WebPackerInterface
     }
 
     return [$std_out, $std_err];
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
-   * In CSS code replace relative paths with absolute paths.
-   *
-   * Note: URLs like url(test/test(1).jpg) i.e. URL with ( or ) in name, or not supported.
-   *
-   * @param array $resource The details of the resource.
-   *
-   * @return string The modified CSS code.
-   */
-  private function convertRelativePaths(array $resource): string
-  {
-    $resources = $this->store->resourceGetAllReferredByResource($resource['rsr_id']);
-    $map       = [];
-    foreach ($resources as $tmp)
-    {
-      $map[$tmp['lk2_name']] = $tmp['rsr_uri_optimized'];
-    }
-
-    // The pcre.backtrack_limit option can trigger a NULL return, with no errors. To prevent we reach this limit we
-    // split the CSS into an array of lines.
-    $lines = explode(PHP_EOL, $resource['rsr_content'] ?? '');
-
-    $lines = preg_replace_callback('/(?<url>(?<open>url\([\'"]?)(?<uri>([^()\'\"]|(?R))+)(?<close>[\'"]?\)))/i',
-      function ($matches) use ($map) {
-        $parts = explode(':', $matches['uri']);
-        if (count($parts)!==1) return $matches['url'];
-
-        if (isset($map[$matches['uri']])) return $matches['open'].$map[$matches['uri']].$matches['close'];
-
-        return $matches['url'];
-      }, $lines);
-
-    if ($lines===null)
-    {
-      $this->task->logError("Converting relative paths failed for '%s'", $resource['rsr_id']);
-    }
-
-    return implode(PHP_EOL, $lines);
   }
 
   //--------------------------------------------------------------------------------------------------------------------

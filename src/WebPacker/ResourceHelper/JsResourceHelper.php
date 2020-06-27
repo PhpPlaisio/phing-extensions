@@ -55,20 +55,61 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
   /**
    * @inheritDoc
    */
-  public function analyze(array $resource): void
+  public function analyze(array $resource1): void
   {
-    // Nothing to do.
+    $lines = explode(PHP_EOL, $resource1['rsr_content'] ?? '');
+    foreach ($lines as $i => $line)
+    {
+      if (preg_match('/^(?<before>[^\'"]*)(?<quote1>[\'"])(?<path>[a-zA-Z0-9_\-.\/]+)(?<quote2>[\'"])(?<after>[^\'"]*)$/',
+                     $line,
+                     $matches))
+      {
+        if ($matches['quote1']===$matches['quote2'] && strpos($matches['path'], '/')!==false)
+        {
+          $resourcePath2 = $this->jsResolveReferredResourcePath($matches['path'], $resource1['rsr_path']);
+          $resource2     = $this->store->resourceSearchByPath($resourcePath2);
+          if ($resource2!==null)
+          {
+            $this->task->logVerbose('      found %s (%s:%d)',
+                                    Path::makeRelative($resourcePath2, $this->buildPath),
+                                    $matches['path'],
+                                    $i + 1);
+
+            $this->store->insertRow('ABC_LINK2', ['rsr_id_src'  => $resource1['rsr_id'],
+                                                  'rsr_id_rsr'  => $resource2['rsr_id'],
+                                                  'lk2_name'    => $matches['path'],
+                                                  'lk2_line'    => $i + 1,
+                                                  'lk2_matches' => serialize($matches)]);
+          }
+        }
+      }
+    }
   }
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * @inheritDoc
    */
-  public function optimize(array $resource): ?string
+  public function optimize(array $resource, array $resources): ?string
   {
     if ($resource['rsr_content']===null) return '';
 
-    return $this->minimizeJsCode($resource['rsr_content']);
+    $lines = explode(PHP_EOL, $resource['rsr_content']);
+    foreach ($resources as $resource)
+    {
+      $matches = unserialize($resource['lk2_matches']);
+
+      $lines[$resource['lk2_line'] - 1] = sprintf('%s%s%s%s%s',
+                                                  $matches['before'],
+                                                  $matches['quote1'],
+                                                  $resource['rsr_uri_optimized'],
+                                                  $matches['quote2'],
+                                                  $matches['after']);
+    }
+
+    $content = implode(PHP_EOL, $lines);
+
+    return $this->minimizeJsCode($content);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -241,6 +282,30 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
     }
 
     return [$std_out, $std_err];
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Returns the full path of a resource found in another resource.
+   *
+   * @param string $filename     The relative path found in the referring resource.
+   * @param string $referrerPath The full path of the another resource referring to the resource.
+   *
+   * @return string
+   */
+  private function jsResolveReferredResourcePath(string $filename, string $referrerPath): string
+  {
+    if ($filename[0]==='/')
+    {
+      $resourcePath = Path::join([$this->parentResourcePath, $filename]);
+    }
+    else
+    {
+      $baseDir      = Path::getDirectory($referrerPath);
+      $resourcePath = Path::makeAbsolute($filename, $baseDir);
+    }
+
+    return $resourcePath;
   }
 
   //--------------------------------------------------------------------------------------------------------------------

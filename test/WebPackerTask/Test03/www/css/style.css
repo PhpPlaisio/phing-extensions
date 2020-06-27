@@ -1,0 +1,10 @@
+/* ID: style.css */
+.style1
+{
+  background-image: url('/images/foo/logo.png');
+}
+
+.style2
+{
+  background-image: url("data:image/png;base64,0123456789=");
+}

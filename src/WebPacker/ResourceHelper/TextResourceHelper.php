@@ -55,9 +55,11 @@ class TextResourceHelper implements ResourceHelper, WebPackerInterface
   /**
    * @inheritDoc
    */
-  public function optimize(array $resource): ?string
+  public function optimize(array $resource, array $resources): ?string
   {
-    // We assume that text files are already optimized.
+    unset($resources);
+
+    // Nothing to do for text files.
     return $resource['rsr_content'];
   }
 

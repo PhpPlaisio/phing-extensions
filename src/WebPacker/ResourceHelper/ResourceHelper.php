@@ -45,11 +45,12 @@ interface ResourceHelper
   /**
    * Optimizes a resource and returns the content of the optimized resource.
    *
-   * @param array $resource The details of the resource.
+   * @param array   $resource  The details of the resource.
+   * @param array[] $resources The details of all resources referenced by the resource.
    *
    * @return string|null
    */
-  public function optimize(array $resource): ?string;
+  public function optimize(array $resource, array $resources): ?string;
 
   //--------------------------------------------------------------------------------------------------------------------
   /**

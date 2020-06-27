@@ -64,11 +64,12 @@ create index idx_abc_link1_02 on ABC_LINK1(rsr_id);
 -- Resources referring to resources.
 create table ABC_LINK2
 (
-  rsr_id_src integer not null,
-  rsr_id_rsr integer not null,
-  lk2_name   varchar not null,                              -- The name in the source (rsr_id_src) that is used to
-                                                            -- refer to the other resource (rsr_id_rsr).
-  lk2_line   integer not null,
+  rsr_id_src  integer not null,
+  rsr_id_rsr  integer not null,
+  lk2_name    varchar not null,                              -- The name in the source (rsr_id_src) that is used to
+                                                             -- refer to the other resource (rsr_id_rsr).
+  lk2_line    integer not null,
+  lk2_matches varchar,                                       -- The serialized matches as returned by preg_match().
   foreign key(rsr_id_src) references ABC_RESOURCE(rsr_id),
   foreign key(rsr_id_rsr) references ABC_RESOURCE(rsr_id)
 );

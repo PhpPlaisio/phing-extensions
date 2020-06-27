@@ -432,7 +432,8 @@ class WebPackerTask extends ResourceStoreTask
         /** @var \ResourceHelper $helper */
         $helper = new $class($this);
 
-        $contentOptimized = $helper->optimize($resource);
+        $resources        = $this->store->resourceGetAllReferredByReSource($resource['rsr_id']);
+        $contentOptimized = $helper->optimize($resource, $resources);
 
         $this->store->resourceUpdateOptimized($resource['rsr_id'], $contentOptimized);
         $resource = $this->store->resourceGetById($resource['rsr_id']);

@@ -31,35 +31,35 @@ class WebPackerTaskTest extends \BuildFileTest
     $files = array_merge($scripts, $images, $scripts, ['TestPage.php']);
     foreach ($files as $key)
     {
-      self::assertArrayHasKey($key, $build);
+      self::assertArrayHasKey($key, $build, $key);
     }
 
     // All files must be equal to the expected file.
     ksort($build);
     foreach ($build as $key => $b)
     {
-      self::assertFileEquals($expected[$key], $build[$key]);
+      self::assertFileEquals($expected[$key], $build[$key], $key);
     }
 
     // All images must be directly under the images directory.
     foreach ($images as $key)
     {
       $dir = Path::getDirectory(path::makeRelative($build[$key], __DIR__.'/Test01/build'));
-      self::assertEquals('www/images', $dir);
+      self::assertEquals('www/images', $dir, $key);
     }
 
     // All CSS must be directly under the css directory.
     foreach ($styles as $key)
     {
       $dir = Path::getDirectory(path::makeRelative($build[$key], __DIR__.'/Test01/build'));
-      self::assertEquals('www/css', $dir);
+      self::assertEquals('www/css', $dir, $key);
     }
 
     // All JS files must be directly under the js directory.
     foreach ($scripts as $key)
     {
       $dir = Path::getDirectory(path::makeRelative($build[$key], __DIR__.'/Test01/build'));
-      self::assertEquals('www/js', $dir);
+      self::assertEquals('www/js', $dir, $key);
     }
   }
 
@@ -83,14 +83,44 @@ class WebPackerTaskTest extends \BuildFileTest
     $files = array_merge($pages, $styles);
     foreach ($files as $key)
     {
-      self::assertArrayHasKey($key, $build);
+      self::assertArrayHasKey($key, $build, $key);
     }
 
     // All files must be equal to the expected file.
     ksort($build);
     foreach ($build as $key => $b)
     {
-      self::assertFileEquals($expected[$key], $build[$key]);
+      self::assertFileEquals($expected[$key], $build[$key], $key);
+    }
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Test hard coded path to resources in resources are been replaced with hard coded paths to optimized adn renamed
+   * resources.
+   */
+  public function testWebPacker03(): void
+  {
+    $this->configureProject(__DIR__.'/Test03/build.xml');
+    $this->project->setBasedir(__DIR__.'/Test03');
+    $this->executeTarget('web_packer');
+
+    $files  = ['index.xhtml', 'test.js', 'logo.png', 'style.css'];
+
+    $build    = $this->getFilesById('build');
+    $expected = $this->getFilesById('expected');
+
+    // All files must be under the build directory.
+    foreach ($files as $key)
+    {
+      self::assertArrayHasKey($key, $build, $key);
+    }
+
+    // All files must be equal to the expected file.
+    ksort($build);
+    foreach ($build as $key => $b)
+    {
+      self::assertFileEquals($expected[$key], $build[$key], $key);
     }
   }
 

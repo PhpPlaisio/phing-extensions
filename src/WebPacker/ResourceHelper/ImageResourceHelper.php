@@ -48,16 +48,18 @@ class ImageResourceHelper implements ResourceHelper, WebPackerInterface
    */
   public function analyze(array $resource): void
   {
-    unset($content);
+    unset($resource);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * @inheritDoc
    */
-  public function optimize(array $resource): string
+  public function optimize(array $resource, array $resources): string
   {
-    // We assume that images are already optimized.
+    unset($resources);
+
+    // Nothing to do for images.
     return $resource['rsr_content'];
   }
 

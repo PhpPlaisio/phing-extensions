@@ -67,10 +67,11 @@ class CssListResourceHelper implements ResourceHelper, WebPackerInterface
         }
         else
         {
-          $this->store->insertRow('ABC_LINK2', ['rsr_id_src' => $resource1['rsr_id'],
-                                                'rsr_id_rsr' => $resource2['rsr_id'],
-                                                'lk2_name'   => $line,
-                                                'lk2_line'   => $i + 1]);
+          $this->store->insertRow('ABC_LINK2', ['rsr_id_src'  => $resource1['rsr_id'],
+                                                'rsr_id_rsr'  => $resource2['rsr_id'],
+                                                'lk2_name'    => $line,
+                                                'lk2_line'    => $i + 1,
+                                                'lk2_matches' => null]);
         }
       }
     }
@@ -80,10 +81,9 @@ class CssListResourceHelper implements ResourceHelper, WebPackerInterface
   /**
    * @inheritDoc
    */
-  public function optimize(array $resource): ?string
+  public function optimize(array $resource, array $resources): ?string
   {
-    $css       = '';
-    $resources = $this->store->resourceGetAllReferredByResource($resource['rsr_id']);
+    $css = '';
     foreach ($resources as $resource)
     {
       $css .= $resource['rsr_content_optimized'];

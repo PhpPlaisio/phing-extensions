@@ -196,8 +196,10 @@ select rsr.rsr_id
 ,      rsr.rsr_uri_optimized
 
 ,      lk2.lk2_name
-from   ABC_RESOURCE rsr
-join   ABC_LINK2    lk2  on  lk2.rsr_id_rsr = rsr.rsr_id
+,      lk2.lk2_line
+,      lk2.lk2_matches
+from   ABC_RESOURCE      rsr
+join   ABC_LINK2         lk2  on  lk2.rsr_id_rsr = rsr.rsr_id
 where  lk2.rsr_id_src = :p_rsr_id
 order by lk2.lk2_line
 ,        lk2.ROWID
@@ -349,7 +351,7 @@ EOT;
   public function resourceGetMaxDepth(): int
   {
     $query = <<< EOT
-select max(rsr_depth)
+select ifnull(max(rsr_depth), 0)
 from   ABC_RESOURCE
 EOT;
     $query = str_repeat(PHP_EOL, 6).$query;

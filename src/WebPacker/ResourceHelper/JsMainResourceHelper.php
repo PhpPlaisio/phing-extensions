@@ -34,9 +34,9 @@ class JsMainResourceHelper extends JsResourceHelper
    */
   public function analyze(array $resource): void
   {
+    unset($resource);
     // Nothing to do.
   }
-
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -48,10 +48,11 @@ class JsMainResourceHelper extends JsResourceHelper
     foreach ($rows as $row)
     {
       $name = $this->getNamespaceFromResourceFilename($row['rsr_rsr_path']);
-      $this->store->insertRow('ABC_LINK2', ['rsr_id_src' => $row['src_rsr_id'],
-                                            'rsr_id_rsr' => $row['rsr_rsr_id'],
-                                            'lk2_name'   => $name,
-                                            'lk2_line'   => 999999]);
+      $this->store->insertRow('ABC_LINK2', ['rsr_id_src'  => $row['src_rsr_id'],
+                                            'rsr_id_rsr'  => $row['rsr_rsr_id'],
+                                            'lk2_name'    => $name,
+                                            'lk2_line'    => 999999,
+                                            'lk2_matches' => null]);
     }
   }
 
@@ -59,7 +60,7 @@ class JsMainResourceHelper extends JsResourceHelper
   /**
    * @inheritDoc
    */
-  public function optimize(array $resource): string
+  public function optimize(array $resource, array $resources): string
   {
     $combineInfo = $this->combine($resource['rsr_path']);
     $filesInfo   = $this->pathsWithHashedPaths($resource);
