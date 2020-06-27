@@ -96,7 +96,7 @@ class WebPackerTaskTest extends \BuildFileTest
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Test hard coded path to resources in resources are been replaced with hard coded paths to optimized adn renamed
+   * Test hard coded paths to resources in resources are been replaced with hard coded paths to optimized and renamed
    * resources.
    */
   public function testWebPacker03(): void
