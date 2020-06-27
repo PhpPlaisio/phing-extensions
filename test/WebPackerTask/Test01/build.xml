@@ -1,0 +1,65 @@
+<project name="PhpPlaisio" default="build" basedir=".">
+    <taskdef name="OptimizeJs" classname="../../../src.WebPackerTask"/>
+    <property name="BUILD_DIR" value="./build"/>
+
+    <!-- Creates an empty build directory. -->
+    <target name="prepare">
+        <echo msg="Preparing files…"/>
+        <if>
+            <available property="test_build_directory_exists" file="${BUILD_DIR}" type="dir"/>
+            <then>
+                <echo msg="Removing old files…"/>
+                <delete includeemptydirs="true" verbose="false" failonerror="true">
+                    <fileset dir="${BUILD_DIR}">
+                        <include name="**"/>
+                    </fileset>
+                </delete>
+            </then>
+            <else>
+                <echo msg="Creating build dir…"/>
+                <mkdir dir="${BUILD_DIR}"/>
+            </else>
+        </if>
+    </target>
+
+    <!-- Copies all required files the the build directory. -->
+    <target name="copy_files" depends="prepare">
+        <echo msg="Copying main files…"/>
+        <copy todir="${BUILD_DIR}" includeemptydirs="true" verbose="false" preservelastmodified="true">
+            <fileset dir=".">
+                <include name="**"/>
+                <exclude name="**.xml"/>
+                <exclude name="build/**"/>
+                <exclude name="expected/**"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- Optimizes all resources. -->
+    <target name="web_packer" depends="copy_files">
+        <fileset dir="${BUILD_DIR}" id="resources">
+            <include name="www/**/*/"/>
+        </fileset>
+
+        <!-- Files set with all our own sources -->
+        <fileset dir="${BUILD_DIR}" id="sources">
+            <include name="src/**/*.php"/>
+            <include name="www/**/*.xhtml"/>
+        </fileset>
+
+        <!-- Include the optimized CSS file from the PHP code. -->
+        <OptimizeJs sources="sources"
+                    resources="resources"
+                    buildDir="${BUILD_DIR}"
+                    parentResourceDir="www"
+                    preserveLastModified="true"
+                    cssMinifyCommand="/bin/cat"
+                    jsCombineCommand="r.js"
+                    jsMinifyCommand="/bin/cat"
+                    jsNodePath="/usr/bin/node"
+                    jsRequirePath="js/require.js"
+                    webAssetsClasses="Plaisio\WebAssets\WebAssets Plaisio\WebAssets\CoreWebAssets"/>
+    </target>
+
+    <target name="build" depends="web_packer"/>
+</project>
