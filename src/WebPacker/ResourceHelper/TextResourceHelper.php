@@ -48,7 +48,7 @@ class TextResourceHelper implements ResourceHelper, WebPackerInterface
    */
   public function analyze(array $resource): void
   {
-    unset($content);
+    unset($resource);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
