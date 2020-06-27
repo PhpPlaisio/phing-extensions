@@ -114,7 +114,7 @@ abstract class ResourceStoreTask extends \PlaisioTask implements \WebPackerInter
    *
    * @param string $jsRequirePath The command to run r.js.
    */
-  public function setJsRequireJsPath(string $jsRequirePath): void
+  public function setJsRequirePath(string $jsRequirePath): void
   {
     $this->jsRequirePath = $jsRequirePath;
   }
