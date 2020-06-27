@@ -16,20 +16,6 @@ class ResourceStore extends SqlitePdoDataLayer
   public function resourceFixDepthForJs(): array
   {
     $query = <<< EOT
-update ABC_RESOURCE
-set    rsr_depth = rsr_depth + 2
-;
-
-update ABC_RESOURCE
-set    rsr_depth = 2
-where  rsr_depth is null
-;
-
-update ABC_RESOURCE
-set    rsr_depth = 1
-where  rsr_path like '%.main.js'
-;
-
 select src.rsr_id   as  src_rsr_id
 ,      rsr.rsr_id   as  rsr_rsr_id
 ,      rsr.rsr_path as  rsr_rsr_path
@@ -108,6 +94,31 @@ select rsr.rsr_id
 from   ABC_RESOURCE      rsr
 join   ABC_RESOURCE_TYPE rtp  on  rtp.rtp_id = rsr.rtp_id
 where  rsr.rsr_depth = :p_rsr_depth
+order by rsr.rsr_path
+EOT;
+    $query = str_repeat(PHP_EOL, 7).$query;
+
+    return $this->executeRows($query, $replace);
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Selects all resources by type
+   *
+   * @param string|null $pRtpName The name of the type.
+   *
+   * @return array[]
+   */
+  public function resourceGetAllByType(?string $pRtpName): array
+  {
+    $replace = [':p_rtp_name' => $this->quoteVarchar($pRtpName)];
+    $query   = <<< EOT
+select rsr.rsr_id
+,      rsr.rsr_path
+,      rsr.rsr_content_optimized
+from   ABC_RESOURCE      rsr
+join   ABC_RESOURCE_TYPE rtp  on  rtp.rtp_id = rsr.rtp_id
+where  rtp.rtp_name = :p_rtp_name
 order by rsr.rsr_path
 EOT;
     $query = str_repeat(PHP_EOL, 7).$query;

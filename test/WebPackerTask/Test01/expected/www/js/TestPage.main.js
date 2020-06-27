@@ -2155,6 +2155,7 @@ define("Plaisio/Phing/Task/Test/WebPackerTask/Test01/src/TestPage", function(){}
 requirejs.config({
   baseUrl: '/js',
   paths: {
+    "jquery": "5ed3d0785225ca702a07e7aae45e7c23",
     "Foo/Bar": "9303d6ff0262abfe3a36c3ea4433e90d",
     "Plaisio/Page/CorePage": "0500e4a4ba5b06068fd08979572dcc08",
     "Plaisio/Page/Page": "1ea8c6807e7586f2d774fbc840e29d8b",

@@ -64,6 +64,9 @@ class WebPackerTask extends ResourceStoreTask
    */
   protected function computeResourceDepth()
   {
+    $helper = new JsMainResourceHelper($this);
+    $helper->fixComputeResourceDepth();
+
     $depth = 0;
     do
     {
@@ -79,9 +82,6 @@ class WebPackerTask extends ResourceStoreTask
       $n1 = $n2;
       $n2 = $this->store->resourceUpdateDepthNotUsed();
     } while ($n2>$n1);
-
-    $helper = new JsMainResourceHelper($this);
-    $helper->fixComputeResourceDepth();
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -442,7 +442,6 @@ class WebPackerTask extends ResourceStoreTask
       }
     }
   }
-
 
   //--------------------------------------------------------------------------------------------------------------------
   /**

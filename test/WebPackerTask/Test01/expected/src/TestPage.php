@@ -28,7 +28,7 @@ abstract class TestPage extends CorePage
     Nub::$nub->assets->cssOptimizedAppendSource('/css/a30786fb032f25643896fab1e11a89c0.css');
     Nub::$nub->assets->cssOptimizedAppendSource('/css/aad8fed9c71f62730bd84f6c194d8935.css');
 
-    Nub::$nub->assets->jsAdmOptimizedSetMain('/js/4c2ce9317d98a735e259961206b027a1.js');
+    Nub::$nub->assets->jsAdmOptimizedSetMain('/js/cf4179d63eb2a47965357c3d84ee0c86.js');
     Nub::$nub->assets->jsAdmOptimizedFunctionCall('Plaisio/Phing/Task/Test/WebPackerTask/Test01/src/TestPage', 'function1');
     Nub::$nub->assets->jsAdmOptimizedFunctionCall('Plaisio/Phing/Task/Test/WebPackerTask/Test01/src/TestPage', 'function2', ['arg1',
                                                                   strlen(serialize($this)),

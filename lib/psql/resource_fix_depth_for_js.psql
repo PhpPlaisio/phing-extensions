@@ -3,20 +3,6 @@
  *
  * @type rows
  */
-update ABC_RESOURCE
-set    rsr_depth = rsr_depth + 2
-;
-
-update ABC_RESOURCE
-set    rsr_depth = 2
-where  rsr_depth is null
-;
-
-update ABC_RESOURCE
-set    rsr_depth = 1
-where  rsr_path like '%.main.js'
-;
-
 select src.rsr_id   as  src_rsr_id
 ,      rsr.rsr_id   as  rsr_rsr_id
 ,      rsr.rsr_path as  rsr_rsr_path

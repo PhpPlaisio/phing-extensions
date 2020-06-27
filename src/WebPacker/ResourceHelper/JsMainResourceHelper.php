@@ -10,6 +10,14 @@ class JsMainResourceHelper extends JsResourceHelper
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * If true, it is the first time that a *.main.js is been optimized.
+   *
+   * @var bool
+   */
+  private static $first = true;
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * @inheritDoc
    */
   public static function deriveType(string $content): bool
@@ -62,6 +70,8 @@ class JsMainResourceHelper extends JsResourceHelper
    */
   public function optimize(array $resource, array $resources): string
   {
+    $this->dumpAllJsSources();
+
     $combineInfo = $this->combine($resource['rsr_path']);
     $filesInfo   = $this->pathsWithHashedPaths($resource);
     $js          = $combineInfo['code'];
@@ -130,18 +140,41 @@ class JsMainResourceHelper extends JsResourceHelper
     if ($code===false) $this->task->logError("Unable to read file '%s'", $tmp_name2);
 
     // Get require.js
-    $path       = $this->parentResourcePath.'/'.$this->jsRequirePath;
-    $require_js = file_get_contents($path);
-    if ($code===false) $this->task->logError("Unable to read file '%s'", $path);
+    $path      = $this->parentResourcePath.'/'.$this->jsRequirePath;
+    $requireJs = file_get_contents($path);
+    if ($requireJs===false) $this->task->logError("Unable to read file '%s'", $path);
 
     // Combine require.js and all required includes.
-    $code = $require_js.$code;
+    $code = $requireJs.$code;
 
     // Remove temporary files.
     unlink($tmp_name2);
     unlink($tmp_name1);
 
     return ['code' => $code, 'parts' => $parts];
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Replace all JS file with their optimized content. This required because the combine command read the JS file from
+   * the filesystem and does some magic manipulation with the JS code.
+   */
+  private function dumpAllJsSources()
+  {
+    if (self::$first)
+    {
+      $resources = $this->store->resourceGetAllByType('js');
+      foreach ($resources as $resource)
+      {
+        $ret = file_put_contents($resource['rsr_path'], $resource['rsr_content_optimized']);
+        if ($ret===false)
+        {
+          $this->task->logError("Unable to write file '%s'", $resource['rsr_path']);
+        }
+      }
+
+      self::$first = false;
+    }
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -163,6 +196,25 @@ class JsMainResourceHelper extends JsResourceHelper
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Reads the main.js file and returns baseUrl and paths.
+   *
+   * @param $mainJsFile
+   *
+   * @return array
+   */
+  private function extractPaths(string $mainJsFile): array
+  {
+    $command = [$this->jsNodePath,
+                __DIR__.'/../../../lib/extract_config.js',
+                $mainJsFile];
+    $output  = $this->execCommand($command);
+    $config  = json_decode(implode(PHP_EOL, $output), true);
+
+    return [$config['baseUrl'], $config['paths']];
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Rewrites paths in requirejs.config. Adds path names from namespaces and aliases to filenames with hashes.
    *
    * @param array $resource The details of the JS file.
@@ -179,7 +231,25 @@ class JsMainResourceHelper extends JsResourceHelper
     preg_match('/^(.*paths:[^{]*)({[^}]*})(.*)$/sm', $js, $matches);
     if (!isset($matches[2])) $this->task->logError("Unable to find paths in '%s'", $resource['rsr_path']);
 
-    $paths     = [];
+    $paths = [];
+    [$baseUrl, $aliases] = $this->extractPaths($resource['rsr_path']);
+    if ($baseUrl!==null && $paths!==null)
+    {
+      foreach ($aliases as $alias => $relPath)
+      {
+        $path      = Path::join($this->parentResourcePath, ltrim($baseUrl, '/'), $relPath).'.js';
+        $resource2 = $this->store->resourceSearchByPath($path);
+        if ($resource2!==null)
+        {
+          $paths[$alias] = Path::getFilenameWithoutExtension($resource2['rsr_uri_optimized']);
+        }
+        else
+        {
+          $paths[$alias] = $relPath;
+        }
+      }
+    }
+
     $resources = $this->store->resourceGetAllReferredByResource($resource['rsr_id']);
     foreach ($resources as $resource2)
     {
@@ -190,13 +260,13 @@ class JsMainResourceHelper extends JsResourceHelper
         $char   = $module[0];
         if (strpos($module, '/')!==false && mb_strtoupper($char)===$char)
         {
-          $paths[$hash] = $module;
+          $paths[$module] = $hash;
         }
       }
     }
 
     // Convert the paths to proper JS code.
-    $matches[2] = json_encode(array_flip($paths), JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+    $matches[2] = json_encode($paths, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
     array_shift($matches);
 
     return implode('', $matches);
