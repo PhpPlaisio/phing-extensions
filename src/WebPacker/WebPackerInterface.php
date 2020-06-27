@@ -8,7 +8,6 @@ declare(strict_types=1);
  * @property-read string        $brotliPath
  * @property-read string        $buildPath
  * @property-read string        $cssMinifyCommand
- * @property-read bool          $cssMinimize
  * @property-read bool          $gzipFlag
  * @property-read string        $jsCombineCommand
  * @property-read string        $jsMinifyCommand

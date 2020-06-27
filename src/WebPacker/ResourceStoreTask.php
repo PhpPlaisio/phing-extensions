@@ -55,17 +55,6 @@ abstract class ResourceStoreTask extends \PlaisioTask implements \WebPackerInter
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Setter for XML attribute $cssMinimize.
-   *
-   * @param bool $cssMinimize
-   */
-  public function setCssMinimize(bool $cssMinimize): void
-  {
-    $this->cssMinimize = $cssMinimize;
-  }
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
    * Setter for XML attribute GZip.
    *
    * @param $gzipFlag bool

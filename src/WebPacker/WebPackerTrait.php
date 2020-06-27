@@ -33,13 +33,6 @@ trait WebPackerTrait
   public $cssMinifyCommand = '/usr/bin/csso';
 
   /**
-   * Enables/disables compression of CSS. This flag is for testing purposes only.
-   *
-   * @var bool
-   */
-  public $cssMinimize = true;
-
-  /**
    * If set static gzipped files of the optimized/minimized resources will be created.
    *
    * @var bool
