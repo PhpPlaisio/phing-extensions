@@ -72,10 +72,10 @@ class CssResourceHelper implements ResourceHelper, WebPackerInterface
           $resource2 = $this->store->resourceSearchByPath($resourcePath2);
           if ($resource2===null)
           {
-            $this->task->logWarning('  File %s not found referred at %s:%d',
-                                    $matches['path'],
-                                    Path::makeRelative($resource1['rsr_path'], $this->buildPath),
-                                    $i + 1);
+            $this->task->logError('File %s not found referred at %s:%d',
+                                  $matches['path'],
+                                  Path::makeRelative($resource1['rsr_path'], $this->buildPath),
+                                  $i + 1);
           }
           else
           {
