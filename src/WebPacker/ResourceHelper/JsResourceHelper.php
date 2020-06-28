@@ -20,6 +20,13 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
    */
   const BUFFER_SIZE = 8000;
 
+  /**
+   * The regex for finding references to resources.
+   *
+   * @var string
+   */
+  private $regex;
+
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * PhpSourceHelperJs constructor.
@@ -29,6 +36,11 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
   public function __construct(\WebPackerInterface $parent)
   {
     $this->initWebPackerTrait($parent);
+
+    $this->regex = sprintf('/(?<quote1>[\'"])(?<path>\/(%s)\/[a-zA-Z0-9_\-.\/]+)(?<quote2>[\'"])/',
+                           implode('|', array_unique([preg_quote($this->cssDir),
+                                                      preg_quote($this->jsDir),
+                                                      preg_quote($this->imageDir)])));
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -60,24 +72,28 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
     $lines = explode(PHP_EOL, $resource1['rsr_content'] ?? '');
     foreach ($lines as $i => $line)
     {
-      if (preg_match_all('/(?<quote1>[\'"])(?<path>\/[a-zA-Z0-9_\-.\/]+)(?<quote2>[\'"])/',
-                         $line,
-                         $matches,
-                         PREG_SET_ORDER | PREG_UNMATCHED_AS_NULL))
+      if (preg_match_all($this->regex, $line, $matches, PREG_SET_ORDER | PREG_UNMATCHED_AS_NULL))
       {
         foreach ($matches as $match)
         {
           if ($match['quote1']===$match['quote2'])
           {
             $resourcePath2 = Path::join([$this->parentResourcePath, $match['path']]);
-            $resource2     = $this->store->resourceSearchByPath($resourcePath2);
-            if ($resource2!==null)
-            {
-              $this->task->logVerbose('      found %s (%s:%d)',
-                                      Path::makeRelative($resourcePath2, $this->buildPath),
-                                      $match['path'],
-                                      $i + 1);
+            $this->task->logVerbose('      found %s (%s:%d)',
+                                    Path::makeRelative($resourcePath2, $this->buildPath),
+                                    $match['path'],
+                                    $i + 1);
 
+            $resource2 = $this->store->resourceSearchByPath($resourcePath2);
+            if ($resource2===null)
+            {
+              $this->task->logError("Unable to find resource '%s' found at %s:%d",
+                                    $match['path'],
+                                    $resource1['rsr_path'],
+                                    $i + 1);
+            }
+            else
+            {
               $this->store->insertRow('ABC_LINK2', ['rsr_id_src'  => $resource1['rsr_id'],
                                                     'rsr_id_rsr'  => $resource2['rsr_id'],
                                                     'lk2_name'    => $match['path'],
