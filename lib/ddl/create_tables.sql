@@ -74,5 +74,5 @@ create table ABC_LINK2
   foreign key(rsr_id_rsr) references ABC_RESOURCE(rsr_id)
 );
 
-create unique index idx_abc_link2_01 on ABC_LINK2(rsr_id_src, rsr_id_rsr, lk2_line);
+create index idx_abc_link2_01 on ABC_LINK2(rsr_id_src, rsr_id_rsr, lk2_line);
 create index idx_abc_link2_02 on ABC_LINK2(rsr_id_rsr);

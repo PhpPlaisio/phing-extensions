@@ -251,6 +251,19 @@ class WebPackerTaskTest extends \BuildFileTest
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Test multiple references to the same resource on one line in a resource are allowed.
+   */
+  public function testWebPacker10(): void
+  {
+    $this->configureProject(__DIR__.'/Test10/build.xml');
+    $this->project->setBasedir(__DIR__.'/Test10');
+
+    $this->executeTarget('web_packer');
+    self::assertTrue(true);
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Get all files from directory and subdirectories.
    *
    * @param string $folder Expected or build folder
