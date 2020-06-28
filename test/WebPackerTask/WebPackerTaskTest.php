@@ -181,6 +181,35 @@ class WebPackerTaskTest extends \BuildFileTest
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Test multiple references on a single line in a JS file are been replaced with references to the optimized
+   * resources.
+   */
+  public function testWebPacker06(): void
+  {
+    $this->configureProject(__DIR__.'/Test06/build.xml');
+    $this->project->setBasedir(__DIR__.'/Test06');
+    $this->executeTarget('web_packer');
+
+    $files = ['index.xhtml', 'background.js', 'red.png', 'white.png', 'blue.png'];
+
+    $build    = $this->getFilesById('build');
+    $expected = $this->getFilesById('expected');
+
+    // All files must be under the build directory.
+    foreach ($files as $key)
+    {
+      self::assertArrayHasKey($key, $build, $key);
+    }
+
+    // All files must be equal to the expected file.
+    foreach ($build as $key => $b)
+    {
+      self::assertFileEquals($expected[$key], $build[$key], $key);
+    }
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Get all files from directory and subdirectories.
    *
    * @param string $folder Expected or build folder
