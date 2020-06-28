@@ -171,6 +171,7 @@ trait WebPackerTrait
   public $webAssetsClasses = [];
 
   //--------------------------------------------------------------------------------------------------------------------
+
   /**
    * Initializes the properties of this trait.
    *
@@ -181,7 +182,17 @@ trait WebPackerTrait
     $this->brotliFlag               = $parent->brotliFlag;
     $this->brotliPath               = $parent->brotliPath;
     $this->buildPath                = $parent->buildPath;
+    $this->cssDir                   = $parent->cssDir;
+    $this->cssExtension             = $parent->cssExtension;
+    $this->cssMinifyCommand         = $parent->cssMinifyCommand;
     $this->gzipFlag                 = $parent->gzipFlag;
+    $this->imageDir                 = $parent->imageDir;
+    $this->jsCombineCommand         = $parent->jsCombineCommand;
+    $this->jsDir                    = $parent->jsDir;
+    $this->jsExtension              = $parent->jsExtension;
+    $this->jsMinifyCommand          = $parent->jsMinifyCommand;
+    $this->jsNodePath               = $parent->jsNodePath;
+    $this->jsRequirePath            = $parent->jsRequirePath;
     $this->parentResourceDir        = $parent->parentResourceDir;
     $this->parentResourcePath       = $parent->parentResourcePath;
     $this->preserveModificationTime = $parent->preserveModificationTime;
@@ -189,13 +200,8 @@ trait WebPackerTrait
     $this->sourcesFilesetId         = $parent->sourcesFilesetId;
     $this->store                    = $parent->store;
     $this->storeFilename            = $parent->storeFilename;
-    $this->webAssetsClasses         = $parent->webAssetsClasses;
-    $this->jsMinifyCommand          = $parent->jsMinifyCommand;
-    $this->jsNodePath               = $parent->jsNodePath;
-    $this->jsRequirePath            = $parent->jsRequirePath;
-    $this->jsCombineCommand         = $parent->jsCombineCommand;
-    $this->cssMinifyCommand         = $parent->cssMinifyCommand;
     $this->task                     = $parent->task;
+    $this->webAssetsClasses         = $parent->webAssetsClasses;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
