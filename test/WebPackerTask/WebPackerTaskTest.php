@@ -238,6 +238,19 @@ class WebPackerTaskTest extends \BuildFileTest
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Test directories are not seen as files.
+   */
+  public function testWebPacker09(): void
+  {
+    $this->configureProject(__DIR__.'/Test09/build.xml');
+    $this->project->setBasedir(__DIR__.'/Test09');
+
+    $this->executeTarget('web_packer');
+    self::assertTrue(true);
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Get all files from directory and subdirectories.
    *
    * @param string $folder Expected or build folder

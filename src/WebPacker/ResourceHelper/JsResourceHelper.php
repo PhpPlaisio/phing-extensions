@@ -76,7 +76,7 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
       {
         foreach ($matches as $match)
         {
-          if ($match['quote1']===$match['quote2'])
+          if ($match['quote1']===$match['quote2'] && Path::getExtension($match['path'])!=='')
           {
             $resourcePath2 = Path::join([$this->parentResourcePath, $match['path']]);
             $this->task->logVerbose('      found %s (%s:%d)',
