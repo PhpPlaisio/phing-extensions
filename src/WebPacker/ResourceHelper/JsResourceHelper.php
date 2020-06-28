@@ -120,7 +120,7 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
   {
     $md5 = md5($resource['rsr_content_optimized'] ?? '');
 
-    return sprintf('/%s/%s.%s', 'js', $md5, 'js');
+    return sprintf('/%s/%s.%s', $this->jsDir, $md5, $this->jsExtension);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -160,7 +160,7 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
    */
   protected function getNamespaceFromResourceFilename(string $resourceFilename): string
   {
-    $resourcePath = Path::join([$this->parentResourcePath, 'js']);
+    $resourcePath = Path::join([$this->parentResourcePath, $this->jsExtension]);
 
     $name = Path::makeRelative($resourceFilename, $resourcePath);
     $dir  = Path::getDirectory($name);

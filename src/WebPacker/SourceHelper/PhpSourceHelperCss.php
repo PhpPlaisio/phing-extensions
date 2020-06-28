@@ -25,20 +25,6 @@ class PhpSourceHelperCss
                             'cssPushSourcesList',
                             'cssOptimizedPushSource'];
 
-  /**
-   * The extension of the resource files.
-   *
-   * @var string
-   */
-  public $extension = '.css';
-
-  /**
-   * The path of the resource dir (relative to the parent resource dir).
-   *
-   * @var string
-   */
-  public $resourceDir = 'css';
-
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * PhpSourceHelperCss constructor.
@@ -154,12 +140,12 @@ class PhpSourceHelperCss
     {
       case 'cssAppendSource':
       case 'cssPushSource':
-        $extension = $this->extension;
+        $extension = $this->cssExtension;
         break;
 
       case 'cssAppendSourcesList':
       case    'cssPushSourcesList':
-        $extension = '.txt';
+        $extension = 'txt';
         break;
 
       default:
@@ -169,7 +155,7 @@ class PhpSourceHelperCss
     switch (true)
     {
       case $matches['class']!==null:
-        $filename   = str_replace('\\', '/', $qualifiedName).$extension;
+        $filename   = sprintf('%s.%s', str_replace('\\', '/', $qualifiedName), $extension);
         $expression = $matches['class'];
         break;
 
@@ -187,7 +173,7 @@ class PhpSourceHelperCss
         {
           $tmp = $namespace.'\\'.$matches['resolution'];
         }
-        $filename   = str_replace('\\', '/', $tmp).$extension;
+        $filename   = sprintf('%s.%s', str_replace('\\', '/', $tmp), $extension);
         $expression = $matches['resolution'].'::class';
         break;
 
@@ -216,7 +202,7 @@ class PhpSourceHelperCss
     }
     else
     {
-      $fullPath = Path::join([$this->parentResourcePath, $this->resourceDir, $resourceName]);
+      $fullPath = Path::join([$this->parentResourcePath, $this->cssDir, $resourceName]);
     }
 
     return $fullPath;

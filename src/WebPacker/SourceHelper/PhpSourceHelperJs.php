@@ -23,21 +23,6 @@ class PhpSourceHelperJs
                             'jsAdmFunctionCall',
                             'jsAdmOptimizedFunctionCall'];
 
-  /**
-   * The extension of the resource files.
-   *
-   * @var string
-   */
-  public $extension = '.js';
-
-  //--------------------------------------------------------------------------------------------------------------------
-  /**
-   * The path of the resource dir (relative to the parent resource dir).
-   *
-   * @var string
-   */
-  public $resourceDir = 'js';
-
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * PhpSourceHelperJs constructor.
@@ -151,12 +136,12 @@ class PhpSourceHelperJs
     switch (true)
     {
       case $matches['class']!==null:
-        $filename   = str_replace('\\', '/', $qualifiedName).$this->extension;
+        $filename   = sprintf('%s.%s', str_replace('\\', '/', $qualifiedName), $this->jsExtension);
         $expression = $matches['class'];
         break;
 
       case $matches['path']!==null:
-        $filename   = $matches['path'].$this->extension;
+        $filename   = sprintf('%s.%s', $matches['path'], $this->jsExtension);
         $expression = $matches['path'];
         break;
 
@@ -169,7 +154,7 @@ class PhpSourceHelperJs
         {
           $tmp = $namespace.'\\'.$matches['resolution'];
         }
-        $filename   = str_replace('\\', '/', $tmp).$this->extension;
+        $filename   = sprintf('%s.%s', str_replace('\\', '/', $tmp), $this->jsExtension);
         $expression = $matches['resolution'].'::class';
         break;
 
@@ -204,7 +189,7 @@ class PhpSourceHelperJs
     }
     else
     {
-      $fullPath = Path::join([$this->parentResourcePath, $this->resourceDir, $resourceName]);
+      $fullPath = Path::join([$this->parentResourcePath, $this->jsDir, $resourceName]);
     }
 
     return $fullPath;

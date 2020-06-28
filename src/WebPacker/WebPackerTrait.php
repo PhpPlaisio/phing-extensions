@@ -26,6 +26,20 @@ trait WebPackerTrait
   public $buildPath;
 
   /**
+   * The directory under $parentResourcePath for CSS files.
+   *
+   * @var string
+   */
+  public $cssDir = 'css';
+
+  /**
+   * The extension CSS files.
+   *
+   * @var string
+   */
+  public $cssExtension = 'css';
+
+  /**
    * The command to minify CSS.
    *
    * @var string
@@ -40,11 +54,32 @@ trait WebPackerTrait
   public $gzipFlag = false;
 
   /**
+   * The directory under $parentResourcePath for images.
+   *
+   * @var string
+   */
+  public $imageDir = 'images';
+
+  /**
    * The command to run r.js.
    *
    * @var string
    */
   public $jsCombineCommand = '/usr/bin/r.js';
+
+  /**
+   * The directory under $parentResourcePath for JS files.
+   *
+   * @var string
+   */
+  public $jsDir = 'js';
+
+  /**
+   * The extension JS files.
+   *
+   * @var string
+   */
+  public $jsExtension = 'js';
 
   /**
    * The command to minify JS.

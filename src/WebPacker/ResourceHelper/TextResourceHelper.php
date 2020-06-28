@@ -72,7 +72,7 @@ class TextResourceHelper implements ResourceHelper, WebPackerInterface
     $md5       = md5($resource['rsr_content_optimized'] ?? '');
     $extension = Path::getExtension($resource['rsr_path']);
 
-    return sprintf('/%s/%s.%s', 'css', $md5, $extension);
+    return sprintf('/%s/%s.%s', $this->cssDir, $md5, $extension);
   }
 
   //--------------------------------------------------------------------------------------------------------------------

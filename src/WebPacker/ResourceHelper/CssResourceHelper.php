@@ -127,7 +127,7 @@ class CssResourceHelper implements ResourceHelper, WebPackerInterface
   {
     $md5 = md5($resource['rsr_content_optimized'] ?? '');
 
-    return sprintf('/%s/%s.%s', 'css', $md5, 'css');
+    return sprintf('/%s/%s.%s', $this->cssDir, $md5, $this->cssExtension);
   }
 
   //--------------------------------------------------------------------------------------------------------------------

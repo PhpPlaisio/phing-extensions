@@ -238,7 +238,7 @@ class PhpSourceHelper implements \SourceHelper, WebPackerInterface
    */
   private function getNamespaceFromResourceFilename(string $resourceFilename): string
   {
-    $name = Path::makeRelative($resourceFilename, Path::join([$this->parentResourcePath, 'js']));
+    $name = Path::makeRelative($resourceFilename, Path::join([$this->parentResourcePath, $this->jsDir]));
     $dir  = Path::getDirectory($name);
     $name = Path::getFilenameWithoutExtension($name);
     $name = Path::getFilenameWithoutExtension($name);

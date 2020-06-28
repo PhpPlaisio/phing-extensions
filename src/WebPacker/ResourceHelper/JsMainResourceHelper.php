@@ -17,6 +17,7 @@ class JsMainResourceHelper extends JsResourceHelper
   private static $first = true;
 
   //--------------------------------------------------------------------------------------------------------------------
+
   /**
    * @inheritDoc
    */
@@ -88,7 +89,7 @@ class JsMainResourceHelper extends JsResourceHelper
   {
     $md5 = md5($resource['rsr_content_optimized'] ?? '');
 
-    return sprintf('/%s/%s.%s', 'js', $md5, 'js');
+    return sprintf('/%s/%s.%s', $this->jsDir, $md5, $this->jsExtension);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -109,7 +110,7 @@ class JsMainResourceHelper extends JsResourceHelper
     fwrite($handle, $config);
     fclose($handle);
 
-    $resourcePath = Path::join([$this->parentResourcePath, 'js']);
+    $resourcePath = Path::join([$this->parentResourcePath, $this->jsDir]);
 
     // Create temporary file for combined JavaScript code.
     $tmp_name2 = tempnam($resourcePath, 'plaisio_');
@@ -237,7 +238,9 @@ class JsMainResourceHelper extends JsResourceHelper
     {
       foreach ($aliases as $alias => $relPath)
       {
-        $path      = Path::join($this->parentResourcePath, ltrim($baseUrl, '/'), $relPath).'.js';
+        $path      = sprintf('%s.%s',
+                             Path::join($this->parentResourcePath, ltrim($baseUrl, '/'), $relPath),
+                             $this->jsExtension);
         $resource2 = $this->store->resourceSearchByPath($path);
         if ($resource2!==null)
         {
