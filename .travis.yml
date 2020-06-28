@@ -8,6 +8,7 @@ before_install:
   - sudo apt-get install -y nodejs
   - sudo npm install -g csso-cli
   - sudo npm install -g requirejs
+  - sudo apt-get upgrade sqlite3
   - php -r 'print_r(SQLite3::version());'
 
 install:
