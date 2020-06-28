@@ -3,7 +3,7 @@ php:
   - '7.3'
   - '7.4'
 
-dist: bionic
+dist: disco
 
 before_install:
   - curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
