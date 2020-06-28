@@ -5,7 +5,7 @@ use SetBased\Exception\FallenException;
 use Webmozart\PathUtil\Path;
 
 /**
- * Iterface for source handlers.
+ * Replace references to resources with the references to the corresponding optimized resources in PHP code.
  */
 class PhpSourceHelper implements \SourceHelper, WebPackerInterface
 {
@@ -51,8 +51,9 @@ class PhpSourceHelper implements \SourceHelper, WebPackerInterface
 
     if ($includes)
     {
-      $this->analyzeHelper($source);
+      $this->analyzeWebAssets($source);
     }
+    $this->analyzeString($source);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -66,41 +67,37 @@ class PhpSourceHelper implements \SourceHelper, WebPackerInterface
     foreach ($resources as $resource)
     {
       $matches = unserialize($resource['lk1_matches']);
-      switch ($matches['method'])
+      switch ($resource['lk1_method'])
       {
         case 'cssAppendSource':
         case 'cssAppendSourcesList':
-          $method = 'cssOptimizedAppendSource';
-          $arg    = $resource['rsr_uri_optimized'];
+          $line = $this->replaceWebAssetMethod($matches, 'cssOptimizedAppendSource', $resource['rsr_uri_optimized']);
           break;
 
         case 'cssPushSource':
         case 'cssPushSourcesList':
-          $method = 'cssOptimizedPushSource';
-          $arg    = $resource['rsr_uri_optimized'];
+          $line = $this->replaceWebAssetMethod($matches, 'cssOptimizedPushSource', $resource['rsr_uri_optimized']);
           break;
 
         case 'jsAdmSetMain':
         case 'jsAdmSetPageSpecificMain':
-          $method = 'jsAdmOptimizedSetMain';
-          $arg    = $resource['rsr_uri_optimized'];
+          $line = $this->replaceWebAssetMethod($matches, 'jsAdmOptimizedSetMain', $resource['rsr_uri_optimized']);
           break;
 
         case 'jsAdmFunctionCall':
-          $method = 'jsAdmOptimizedFunctionCall';
-          $arg    = $this->getNamespaceFromResourceFilename($resource['rsr_path']);
+          $arg  = $this->getNamespaceFromResourceFilename($resource['rsr_path']);
+          $line = $this->replaceWebAssetMethod($matches, 'jsAdmOptimizedFunctionCall', $arg);
+          break;
+
+        case 'string':
+          $line = $this->replaceString($lines[$resource['lk1_line'] - 1], $matches, $resource['rsr_uri_optimized']);
           break;
 
         default:
-          throw new FallenException('method', $matches['method']);
+          throw new FallenException('lk1_method', $resource['lk1_method']);
       }
 
-      $lines[$resource['lk1_line'] - 1] = sprintf("%s%s%s('%s'%s",
-                                                  $matches['indent'],
-                                                  $matches['call'],
-                                                  $method,
-                                                  addslashes($arg),
-                                                  $matches['other']);
+      $lines[$resource['lk1_line'] - 1] = $line;
     }
 
     return implode(PHP_EOL, $lines);
@@ -108,9 +105,36 @@ class PhpSourceHelper implements \SourceHelper, WebPackerInterface
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Analyzes references to resource files via strings.
+   *
    * @param array $source The details of the source.
    */
-  private function analyzeHelper(array $source)
+  private function analyzeString(array $source)
+  {
+    $lines = explode(PHP_EOL, $source['src_content']);
+
+    $class     = $this->extractClassname($lines);
+    $namespace = $this->extractNamespace($lines);
+
+    if ($class!==null && $namespace!==null)
+    {
+      $qualifiedName = $namespace.'\\'.$class;
+
+      // Don't process the WebAssets classes.
+      if (in_array($qualifiedName, $this->webAssetsClasses)) return;
+    }
+
+    $helper = new PhpSourceHelperString($this);
+    $helper->analyzeHelper($source);
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Analyzes references to resource files via $this->nub->assets methods.
+   *
+   * @param array $source The details of the source.
+   */
+  private function analyzeWebAssets(array $source)
   {
     $lines = explode(PHP_EOL, $source['src_content']);
 
@@ -123,7 +147,7 @@ class PhpSourceHelper implements \SourceHelper, WebPackerInterface
 
     $qualifiedName = $namespace.'\\'.$class;
 
-    // Don't process the class that defines the jsAdm* methods.
+    // Don't process the WebAssets classes.
     if (in_array($qualifiedName, $this->webAssetsClasses)) return;
 
     $helper1 = new \PhpSourceHelperCss($this);
@@ -244,6 +268,44 @@ class PhpSourceHelper implements \SourceHelper, WebPackerInterface
     $name = Path::getFilenameWithoutExtension($name);
 
     return Path::join([$dir, $name]);
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Replaces a string reference to a resource with a string reference to the optimized source.
+   *
+   * @param string $line    The source line.
+   * @param array  $matches The matches from the regexp.
+   * @param string $uri     The URi of the optimized resource.
+   *
+   * @return string
+   */
+  private function replaceString(string $line, array $matches, string $uri): string
+  {
+    $search  = sprintf('%s%s%s', $matches['quote1'], $matches['uri'], $matches['quote2']);
+    $replace = sprintf('%s%s%s', $matches['quote1'], $uri, $matches['quote2']);
+
+    return str_replace($search, $replace, $line);
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Replaces a call to a WebAsset method with a call to the corresponding optimized method.
+   *
+   * @param array  $matches The matches from the regexp.
+   * @param string $method  The optimized method.
+   * @param string $arg     The argument for the optimized method.
+   *
+   * @return string
+   */
+  private function replaceWebAssetMethod(array $matches, string $method, string $arg): string
+  {
+    return sprintf("%s%s%s('%s'%s",
+                   $matches['indent'],
+                   $matches['call'],
+                   $method,
+                   addslashes($arg),
+                   $matches['other']);
   }
 
   //--------------------------------------------------------------------------------------------------------------------

@@ -4,7 +4,8 @@ declare(strict_types=1);
 use Webmozart\PathUtil\Path;
 
 /**
- * Interface for source handlers.
+ * Helper class for replacing calls to methods of WebAssets for including JS with calls to the corresponding
+ * optimized methods.
  */
 class PhpSourceHelperJs
 {

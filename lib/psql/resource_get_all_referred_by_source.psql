@@ -17,4 +17,4 @@ from   ABC_RESOURCE rsr
 join   ABC_LINK1    lk1  on  lk1.rsr_id = rsr.rsr_id
 where  lk1.src_id = :p_src_id
 order by lk1.lk1_line
-
+,        lk1.ROWID

@@ -5,7 +5,8 @@ use SetBased\Exception\FallenException;
 use Webmozart\PathUtil\Path;
 
 /**
- * Interface for source handlers.
+ * Helper class for replacing calls to methods of WebAssets for including CSS with calls to the corresponding
+ * optimized methods.
  */
 class PhpSourceHelperCss
 {

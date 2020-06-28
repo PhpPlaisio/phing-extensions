@@ -19,7 +19,7 @@ create table ABC_SOURCE
 );
 
 create unique index idx_abc_source_01 on ABC_SOURCE(src_path);
-create index idx_abc_source_0 on ABC_SOURCE(stp_id);
+create index idx_abc_source_02 on ABC_SOURCE(stp_id);
 
 create table ABC_RESOURCE_TYPE
 (
@@ -58,7 +58,7 @@ create table ABC_LINK1
   foreign key(rsr_id) references ABC_RESOURCE(rsr_id)
 );
 
-create unique index idx_abc_link1_01 on ABC_LINK1(src_id, rsr_id, lk1_line);
+create index idx_abc_link1_01 on ABC_LINK1(src_id, rsr_id, lk1_line);
 create index idx_abc_link1_02 on ABC_LINK1(rsr_id);
 
 -- Resources referring to resources.

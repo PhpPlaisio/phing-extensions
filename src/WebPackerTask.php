@@ -209,29 +209,33 @@ class WebPackerTask extends ResourceStoreTask
 
     foreach ($filenames as $filename)
     {
-      $path = realpath($fileset->getDir().'/'.$filename);
-
-      $this->logVerbose('  collect %s', Path::makeRelative($filename, $this->buildPath));
-
-      $source = file_get_contents($path);
-      if ($source===false) $this->logError("Unable to read file '%s'", $path);
-
-      $rtpId = $this->deriveTypeOfResourceFile($resourceTypes, $source, $path);
-      if ($rtpId===null)
+      $path = $fileset->getDir().'/'.$filename;
+      if (!is_link($path))
       {
-        $this->logInfo('  Unknown file type %s', Path::makeRelative($path, $this->buildPath));
-      }
-      else
-      {
+        $path = realpath($path);
 
-        $this->store->insertRow('ABC_RESOURCE', ['rsr_id'                => null,
-                                                 'rtp_id'                => $rtpId,
-                                                 'rsr_path'              => $path,
-                                                 'rsr_mtime'             => filemtime($path),
-                                                 'rsr_depth'             => null,
-                                                 'rsr_content'           => $source,
-                                                 'rsr_content_optimized' => null,
-                                                 'rsr_uri_optimized'     => null]);
+        $this->logVerbose('  collect %s', Path::makeRelative($path, $this->buildPath));
+
+        $source = file_get_contents($path);
+        if ($source===false) $this->logError("Unable to read file '%s'", $path);
+
+        $rtpId = $this->deriveTypeOfResourceFile($resourceTypes, $source, $path);
+        if ($rtpId===null)
+        {
+          $this->logInfo('  Unknown file type %s', Path::makeRelative($path, $this->buildPath));
+        }
+        else
+        {
+
+          $this->store->insertRow('ABC_RESOURCE', ['rsr_id'                => null,
+                                                   'rtp_id'                => $rtpId,
+                                                   'rsr_path'              => $path,
+                                                   'rsr_mtime'             => filemtime($path),
+                                                   'rsr_depth'             => null,
+                                                   'rsr_content'           => $source,
+                                                   'rsr_content_optimized' => null,
+                                                   'rsr_uri_optimized'     => null]);
+        }
       }
     }
   }
@@ -253,28 +257,33 @@ class WebPackerTask extends ResourceStoreTask
 
     foreach ($filenames as $filename)
     {
-      $path = realpath($fileset->getDir().'/'.$filename);
-
-      $this->logVerbose('  collect %s', Path::makeRelative($path, $this->buildPath));
-
-      $source = file_get_contents($path);
-      if ($source===false) $this->logError("Unable to read file '%s'", $path);
-
-      $stpId = $this->deriveTypeOfSourceFile($sourceTypes, $source, $path);
-      if ($stpId===null)
+      $path = $fileset->getDir().'/'.$filename;
+      if (!is_link($path))
       {
-        $this->logInfo('  Unknown file type %s', Path::makeRelative($path, $this->buildPath));
-      }
-      else
-      {
-        $this->store->insertRow('ABC_SOURCE', ['src_id'      => null,
-                                               'stp_id'      => $stpId,
-                                               'src_path'    => $path,
-                                               'src_mtime'   => filemtime($filename),
-                                               'src_content' => $source]);
+        $path = realpath($path);
+
+        $this->logVerbose('  collect %s', Path::makeRelative($path, $this->buildPath));
+
+        $source = file_get_contents($path);
+        if ($source===false) $this->logError("Unable to read file '%s'", $path);
+
+        $stpId = $this->deriveTypeOfSourceFile($sourceTypes, $source, $path);
+        if ($stpId===null)
+        {
+          $this->logInfo('  Unknown file type %s', Path::makeRelative($path, $this->buildPath));
+        }
+        else
+        {
+          $this->store->insertRow('ABC_SOURCE', ['src_id'      => null,
+                                                 'stp_id'      => $stpId,
+                                                 'src_path'    => $path,
+                                                 'src_mtime'   => filemtime($filename),
+                                                 'src_content' => $source]);
+        }
       }
     }
   }
+
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Derive the content type of the source file.
