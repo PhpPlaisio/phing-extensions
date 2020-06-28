@@ -283,7 +283,7 @@ from
     ,      rtp.rtp_name
     ,      rtp.rtp_class
 
-    ,      rank() over (partition by rsr.rsr_uri_optimized order by rsr.rsr_mtime desc) rank
+    ,      row_number() over (partition by rsr.rsr_uri_optimized order by rsr.rsr_mtime desc) row_number
     from   ABC_RESOURCE      rsr
     join   ABC_RESOURCE_TYPE rtp  on  rtp.rtp_id = rsr.rtp_id
     where  rsr.rsr_uri_optimized is not null
@@ -296,7 +296,7 @@ from
                        from  ABC_LINK1
                      )
 ) as t
-where rank = 1
+where row_number = 1
 order by rsr_uri_optimized
 EOT;
     $query = str_repeat(PHP_EOL, 5).$query;
