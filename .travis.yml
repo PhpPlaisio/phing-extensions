@@ -1,17 +1,17 @@
 language: php
-php:
-  - '7.3'
-  - '7.4'
 
-dist: focal
+matrix:
+  include:
+    - dist: focal
+      php: '7.4'
+    - dist: bionic
+      php: '7.3'
 
 before_install:
   - curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
   - sudo apt-get install -y nodejs
   - sudo npm install -g csso-cli
   - sudo npm install -g requirejs
-  - sudo apt-get -y -q update
-  - sudo apt-get -y -q install sqlite3
   - php -r 'print_r(SQLite3::version());'
 
 install:
