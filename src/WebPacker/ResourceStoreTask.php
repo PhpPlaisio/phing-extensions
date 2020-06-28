@@ -182,7 +182,12 @@ abstract class ResourceStoreTask extends \PlaisioTask implements \WebPackerInter
   {
     // Get full path name of resource dir.
     $resources                = $this->getProject()->getReference($this->resourcesFilesetId);
-    $this->parentResourcePath = realpath($resources->getDir($this->getProject()).'/'.$this->parentResourceDir);
+    $path                     = $resources->getDir($this->getProject()).'/'.$this->parentResourceDir;
+    $this->parentResourcePath = realpath($path);
+    if ($this->parentResourcePath===false)
+    {
+      $this->logError("Path '%s' does not exists", $path);
+    }
   }
 
   //--------------------------------------------------------------------------------------------------------------------

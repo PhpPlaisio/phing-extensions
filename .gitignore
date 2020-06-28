@@ -5,13 +5,7 @@
 /custom.task.properties
 /custom.type.properties
 /doc/api/
-/test/WebPackerTask/Test01/build/
-/test/WebPackerTask/Test02/build/
-/test/WebPackerTask/Test03/build/
-/test/WebPackerTask/Test04/build/
-/test/WebPackerTask/Test05/build/
-/test/WebPackerTask/Test06/build/
-/test/WebPackerTask/Test07/build/
+/test/WebPackerTask/Test*/build/
 /test/coverage.xml
 /test/report/
 /vendor/

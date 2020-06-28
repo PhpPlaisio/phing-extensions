@@ -210,13 +210,27 @@ class WebPackerTaskTest extends \BuildFileTest
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Test missing resource in JS file yields an exception.
+   * Test missing resource in a JS file yields an exception.
    */
   public function testWebPacker07(): void
   {
     $this->configureProject(__DIR__.'/Test07/build.xml');
     $this->project->setBasedir(__DIR__.'/Test07');
-    
+
+    $this->expectException(\BuildException::class);
+    $this->expectExceptionMessageMatches("(Unable to find resource '\/images\/no-such-image\.png')");
+    $this->executeTarget('web_packer');
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Test missing resource in a PHP file yields an exception.
+   */
+  public function testWebPacker08(): void
+  {
+    $this->configureProject(__DIR__.'/Test08/build.xml');
+    $this->project->setBasedir(__DIR__.'/Test08');
+
     $this->expectException(\BuildException::class);
     $this->expectExceptionMessageMatches("(Unable to find resource '\/images\/no-such-image\.png')");
     $this->executeTarget('web_packer');
