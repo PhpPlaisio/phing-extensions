@@ -103,7 +103,7 @@ class WebPackerTaskTest extends \BuildFileTest
     $this->project->setBasedir(__DIR__.'/Test03');
     $this->executeTarget('web_packer');
 
-    $files  = ['index.xhtml', 'test.js', 'logo.png', 'style.css'];
+    $files = ['index.xhtml', 'test.js', 'logo.png', 'style.css'];
 
     $build    = $this->getFilesById('build');
     $expected = $this->getFilesById('expected');
@@ -132,7 +132,36 @@ class WebPackerTaskTest extends \BuildFileTest
     $this->project->setBasedir(__DIR__.'/Test04');
     $this->executeTarget('web_packer');
 
-    $files  = ['mailer.php', 'reset.php', 'mail.css', 'reset.css'];
+    $files = ['mailer.php', 'reset.php', 'mail.css', 'reset.css'];
+
+    $build    = $this->getFilesById('build');
+    $expected = $this->getFilesById('expected');
+
+    // All files must be under the build directory.
+    foreach ($files as $key)
+    {
+      self::assertArrayHasKey($key, $build, $key);
+    }
+
+    // All files must be equal to the expected file.
+    foreach ($build as $key => $b)
+    {
+      self::assertFileEquals($expected[$key], $build[$key], $key);
+    }
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Test multiple references on a single line in a CSS file are been replaced with references to the optimized
+   * resources.
+   */
+  public function testWebPacker05(): void
+  {
+    $this->configureProject(__DIR__.'/Test05/build.xml');
+    $this->project->setBasedir(__DIR__.'/Test05');
+    $this->executeTarget('web_packer');
+
+    $files = ['index.xhtml', 'background.css', 'red.png', 'white.png', 'blue.png'];
 
     $build    = $this->getFilesById('build');
     $expected = $this->getFilesById('expected');

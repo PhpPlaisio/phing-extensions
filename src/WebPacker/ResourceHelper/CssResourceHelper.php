@@ -57,33 +57,37 @@ class CssResourceHelper implements ResourceHelper, WebPackerInterface
     $lines = explode(PHP_EOL, $resource1['rsr_content'] ?? '');
     foreach ($lines as $i => $line)
     {
-      if (preg_match('/^(?<before>.*)(?<url>url)\((?<quote1>[\'"]?)(?<path>[a-zA-Z0-9_\-.\/]+)(?<quote2>[\'"]?)\)(?<after>.*)$/i',
-                     $line,
-                     $matches))
+      if (preg_match_all('/(?<url>url)\((?<ws1>\s*)(?<quote1>[\'"]?)(?<uri>[a-zA-Z0-9_\-.\/]+)(?<quote2>[\'"]?)(?<ws2>\s*)\)/i',
+                         $line,
+                         $matches,
+                         PREG_SET_ORDER | PREG_UNMATCHED_AS_NULL))
       {
-        if ($matches['quote1']===$matches['quote2'])
+        foreach ($matches as $match)
         {
-          $resourcePath2 = $this->cssResolveReferredResourcePath($matches['path'], $resource1['rsr_path']);
-          $this->task->logVerbose('      found %s (%s:%d)',
-                                  Path::makeRelative($resourcePath2, $this->buildPath),
-                                  $matches['path'],
-                                  $i + 1);
+          if ($match['quote1']===$match['quote2'])
+          {
+            $resourcePath2 = $this->cssResolveReferredResourcePath($match['uri'], $resource1['rsr_path']);
+            $this->task->logVerbose('      found %s (%s:%d)',
+                                    Path::makeRelative($resourcePath2, $this->buildPath),
+                                    $match['uri'],
+                                    $i + 1);
 
-          $resource2 = $this->store->resourceSearchByPath($resourcePath2);
-          if ($resource2===null)
-          {
-            $this->task->logError('File %s not found referred at %s:%d',
-                                  $matches['path'],
-                                  Path::makeRelative($resource1['rsr_path'], $this->buildPath),
-                                  $i + 1);
-          }
-          else
-          {
-            $this->store->insertRow('ABC_LINK2', ['rsr_id_src'  => $resource1['rsr_id'],
-                                                  'rsr_id_rsr'  => $resource2['rsr_id'],
-                                                  'lk2_name'    => $matches['path'],
-                                                  'lk2_line'    => $i + 1,
-                                                  'lk2_matches' => serialize($matches)]);
+            $resource2 = $this->store->resourceSearchByPath($resourcePath2);
+            if ($resource2===null)
+            {
+              $this->task->logError('File %s not found referred at %s:%d',
+                                    $match['uri'],
+                                    Path::makeRelative($resource1['rsr_path'], $this->buildPath),
+                                    $i + 1);
+            }
+            else
+            {
+              $this->store->insertRow('ABC_LINK2', ['rsr_id_src'  => $resource1['rsr_id'],
+                                                    'rsr_id_rsr'  => $resource2['rsr_id'],
+                                                    'lk2_name'    => $match['uri'],
+                                                    'lk2_line'    => $i + 1,
+                                                    'lk2_matches' => serialize($match)]);
+            }
           }
         }
       }
@@ -101,13 +105,20 @@ class CssResourceHelper implements ResourceHelper, WebPackerInterface
     {
       $matches = unserialize($resource['lk2_matches']);
 
-      $lines[$resource['lk2_line'] - 1] = sprintf('%s%s(%s%s%s)%s',
-                                                  $matches['before'],
-                                                  $matches['url'],
-                                                  $matches['quote1'],
-                                                  $resource['rsr_uri_optimized'],
-                                                  $matches['quote2'],
-                                                  $matches['after']);
+      $search  = sprintf('%s(%s%s%s%s%s)',
+                         $matches['url'],
+                         $matches['ws1'],
+                         $matches['quote1'],
+                         $matches['uri'],
+                         $matches['quote2'],
+                         $matches['ws2']);
+      $replace = sprintf('%s(%s%s%s)',
+                         $matches['url'],
+                         $matches['quote1'],
+                         $resource['rsr_uri_optimized'],
+                         $matches['quote2']);
+
+      $lines[$resource['lk2_line'] - 1] = str_replace($search, $replace, $lines[$resource['lk2_line'] - 1]);
     }
 
     $content = implode(PHP_EOL, $lines);
