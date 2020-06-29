@@ -2160,7 +2160,8 @@ requirejs.config({
     "Plaisio/Page/CorePage": "0500e4a4ba5b06068fd08979572dcc08",
     "Plaisio/Page/Page": "1ea8c6807e7586f2d774fbc840e29d8b",
     "Plaisio/Phing/Task/Test/WebPackerTask/Test01/src/OtherPage": "1674baa8b7bdb41f5b3a3c985fce7ee2",
-    "Plaisio/Phing/Task/Test/WebPackerTask/Test01/src/TestPage": "9675a3cc0f098565ebb79c7c8a01a9cb"
+    "Plaisio/Phing/Task/Test/WebPackerTask/Test01/src/TestPage": "9675a3cc0f098565ebb79c7c8a01a9cb",
+    "jquery/jquery": "5ed3d0785225ca702a07e7aae45e7c23"
 },
 });
 

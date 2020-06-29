@@ -260,8 +260,7 @@ class JsMainResourceHelper extends JsResourceHelper
       if (isset($resource2['rsr_path']))
       {
         $module = $this->getNamespaceFromResourceFilename($resource2['rsr_path']);
-        $char   = $module[0];
-        if (strpos($module, '/')!==false && mb_strtoupper($char)===$char)
+        if (strpos($module, '/')!==false)
         {
           $paths[$module] = $hash;
         }
