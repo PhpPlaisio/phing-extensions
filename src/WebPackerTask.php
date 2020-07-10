@@ -481,8 +481,6 @@ class WebPackerTask extends ResourceStoreTask
           $this->logError("Updating file '%s' failed", $source['src_path']);
         }
 
-        $this->setModificationTime($source['src_path'], $source['src_mtime']);
-
         $this->logInfo('  updated file %s', Path::makeRelative($source['src_path'], $this->buildPath));
       }
     }
