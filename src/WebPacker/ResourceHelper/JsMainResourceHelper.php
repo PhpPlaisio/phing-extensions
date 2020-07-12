@@ -189,10 +189,24 @@ class JsMainResourceHelper extends JsResourceHelper
     $main = file_get_contents($filename);
     if ($main===false) $this->task->logError("Unable to read file '%s'", $filename);
 
-    preg_match('/^(.*requirejs.config)(.*}\))(.*)$/sm', $main, $matches);
-    if (!isset($matches[2])) $this->task->logError("Unable to fine 'requirejs.config' in file '%s'", $filename);
+    $config = null;
+    $n      = preg_match('/requirejs\.config(.*)$/sm', $main, $matches1);
+    if ($n===1)
+    {
+      $n = preg_match('/\((?:[^)(]+|(?R))*\)/sm', $matches1[1], $matches2);
+      if ($n===1)
+      {
+        $config = rtrim(ltrim(trim($matches2[0]), '(', ), ')');
+      }
+    }
 
-    return $matches[2];
+    if ($config===null)
+    {
+      $this->task->logError("Unable to fine 'requirejs.config' in file '%s'", $filename);
+    }
+
+
+    return $config;
   }
 
   //--------------------------------------------------------------------------------------------------------------------

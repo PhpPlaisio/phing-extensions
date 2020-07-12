@@ -264,6 +264,37 @@ class WebPackerTaskTest extends \BuildFileTest
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Test config of require.js con be found in a main.js file.
+   */
+  public function testWebPacker11(): void
+  {
+    $this->configureProject(__DIR__.'/Test11/build.xml');
+    $this->project->setBasedir(__DIR__.'/Test11');
+    $this->executeTarget('web_packer');
+
+    $files = ['index.xhtml'];
+
+    $build = $this->getFilesById('build');
+
+    // All files must be under the build directory.
+    foreach ($files as $key)
+    {
+      self::assertArrayHasKey($key, $build, $key);
+    }
+
+    $content = file_get_contents($build['index.xhtml']);
+    $n = preg_match('/"(\/js\/.*.js)"/', $content, $matches);
+    self::assertSame(1, $n);
+
+    $content = file_get_contents(__DIR__.'/Test11/build/www/'.$matches[1]);
+    self::assertStringContainsString("var requirejs, require, define;", $content, 'requireJS included');
+    self::assertStringContainsString("define('Foo/Page'", $content, 'Foo/Page is defined');
+    self::assertStringContainsString("requirejs.config(", $content, 'config is included');
+    self::assertStringContainsString("require(['Foo/Page']", $content, 'Foo/Page.inti is called');
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Get all files from directory and subdirectories.
    *
    * @param string $folder Expected or build folder
