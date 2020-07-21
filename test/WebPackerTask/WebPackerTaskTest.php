@@ -264,7 +264,7 @@ class WebPackerTaskTest extends \BuildFileTest
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Test config of require.js con be found in a main.js file.
+   * Test config of require.js can be found in a main.js file.
    */
   public function testWebPacker11(): void
   {
@@ -291,6 +291,32 @@ class WebPackerTaskTest extends \BuildFileTest
     self::assertStringContainsString("define('Foo/Page'", $content, 'Foo/Page is defined');
     self::assertStringContainsString("requirejs.config(", $content, 'config is included');
     self::assertStringContainsString("require(['Foo/Page']", $content, 'Foo/Page.inti is called');
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Test all paths in config of require.js can be found on the filesystem.
+   */
+  public function testWebPacker12(): void
+  {
+    $this->configureProject(__DIR__.'/Test12/build.xml');
+    $this->project->setBasedir(__DIR__.'/Test12');
+    $this->executeTarget('web_packer');
+    self::assertTrue(true);
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Test when a  path in config of require.js can not be found on the filesystem an error .
+   */
+  public function testWebPacker13(): void
+  {
+    $this->configureProject(__DIR__.'/Test13/build.xml');
+    $this->project->setBasedir(__DIR__.'/Test13');
+
+    $this->expectException(\BuildException::class);
+    $this->expectExceptionMessage("Path 'nope: not/here' ('www/js/not/here.js') in file 'www/js/Foo/Page.main.js' does not exist");
+    $this->executeTarget('web_packer');
   }
 
   //--------------------------------------------------------------------------------------------------------------------

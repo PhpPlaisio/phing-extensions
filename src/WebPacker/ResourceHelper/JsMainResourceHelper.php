@@ -17,7 +17,6 @@ class JsMainResourceHelper extends JsResourceHelper
   private static $first = true;
 
   //--------------------------------------------------------------------------------------------------------------------
-
   /**
    * @inheritDoc
    */
@@ -43,8 +42,7 @@ class JsMainResourceHelper extends JsResourceHelper
    */
   public function analyze(array $resource): void
   {
-    unset($resource);
-    // Nothing to do.
+    $this->validatePaths($resource);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -196,15 +194,14 @@ class JsMainResourceHelper extends JsResourceHelper
       $n = preg_match('/\((?:[^)(]+|(?R))*\)/sm', $matches1[1], $matches2);
       if ($n===1)
       {
-        $config = rtrim(ltrim(trim($matches2[0]), '(', ), ')');
+        $config = rtrim(ltrim(trim($matches2[0]), '(',), ')');
       }
     }
 
     if ($config===null)
     {
-      $this->task->logError("Unable to fine 'requirejs.config' in file '%s'", $filename);
+      $this->task->logError("Unable to find 'requirejs.config' in file '%s'", $filename);
     }
-
 
     return $config;
   }
@@ -286,6 +283,30 @@ class JsMainResourceHelper extends JsResourceHelper
     array_shift($matches);
 
     return implode('', $matches);
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Validates all paths (i.e. module name to dir/file) exists.
+   *
+   * @param array $resource The details of the main.js file.
+   */
+  private function validatePaths(array $resource): void
+  {
+    [$baseUrl, $paths] = $this->extractPaths($resource['rsr_path']);
+
+    foreach ($paths as $name => $file)
+    {
+      $path = Path::join($this->parentResourcePath, $baseUrl, $file.'.'.$this->jsExtension);
+      if (!file_exists($path))
+      {
+        $this->task->logError("Path '%s: %s' ('%s') in file '%s' does not exist",
+                              $name,
+                              $file,
+                              Path::makeRelative($path, $this->buildPath),
+                              Path::makeRelative($resource['rsr_path'], $this->buildPath),);
+      }
+    }
   }
 
   //--------------------------------------------------------------------------------------------------------------------

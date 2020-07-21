@@ -1,7 +1,11 @@
 requirejs.config({
   baseUrl: '/js',
   paths: {
-    'jquery': 'jquery/jquery'
+    'ace': 'ace/ace',
+    'jquery': 'jquery/jquery',
+    'js-cookie': 'js-cookie/js.cookie',
+    'jquery-ui': 'jquery-ui/jquery-ui',
+    'tinyMCE': 'tinymce/tinymce.min'
   },
   shim: {
     tinyMCE: {
