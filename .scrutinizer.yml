@@ -1,12 +1,33 @@
+filter:
+  dependency_paths:
+    - "vendor/"
+  excluded_paths:
+    - 'test/'
+
 build:
-  tests:
+  environment:
+    mysql: 5.7
+    php: 7.4
+      pecl_extensions:
+        - inotify
+
+  project_setup:
     before:
       - curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
       - sudo apt-get install -y nodejs
       - sudo npm install -g --unsafe-perm csso-cli@2
       - sudo npm install -g requirejs
-    override:
-      - command: './bin/phing unit'
-        coverage:
-          file: 'test/coverage.xml'
-          format: 'php-clover'
+
+  nodes:
+    analysis:
+      tests:
+        override:
+          - php-scrutinizer-run
+
+    coverage:
+      tests:
+        override:
+          - command: './bin/phing unit'
+            coverage:
+              file:   'test/coverage.xml'
+              format: 'php-clover'
