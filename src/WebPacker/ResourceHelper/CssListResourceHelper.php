@@ -13,7 +13,7 @@ class CssListResourceHelper implements ResourceHelper, WebPackerInterface
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * PhpSourceHelperJs constructor.
+   * Object constructor.
    *
    * @param \WebPackerInterface $parent The parent object.
    */

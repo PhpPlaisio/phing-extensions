@@ -8,7 +8,7 @@ interface ResourceHelper
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * ResourceHelper constructor.
+   * Object constructor.
    *
    * @param WebPackerInterface $parent The parent object.
    */
