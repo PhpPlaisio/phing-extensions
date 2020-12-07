@@ -307,7 +307,7 @@ class WebPackerTaskTest extends \BuildFileTest
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Test when a  path in config of require.js can not be found on the filesystem an error .
+   * Test when a path in config of require.js can not be found on the filesystem an error.
    */
   public function testWebPacker13(): void
   {
@@ -317,6 +317,34 @@ class WebPackerTaskTest extends \BuildFileTest
     $this->expectException(\BuildException::class);
     $this->expectExceptionMessage("Path 'nope: not/here' ('www/js/not/here.js') in file 'www/js/Foo/Page.main.js' does not exist");
     $this->executeTarget('web_packer');
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Test when a  path in config of require.js can not be found on the filesystem an error .
+   */
+  public function testWebPacker14(): void
+  {
+    $this->configureProject(__DIR__.'/Test14/build.xml');
+    $this->project->setBasedir(__DIR__.'/Test14');
+    $this->executeTarget('web_packer');
+
+    $files = ['main.sdoc', 'icon.png', 'figure1.jpg'];
+
+    $build    = $this->getFilesById('build');
+    $expected = $this->getFilesById('expected');
+
+    // All files must be under the build directory.
+    foreach ($files as $key)
+    {
+      self::assertArrayHasKey($key, $build, $key);
+    }
+
+    // All files must be equal to the expected file.
+    foreach ($build as $key => $b)
+    {
+      self::assertFileEquals($expected[$key], $build[$key], $key);
+    }
   }
 
   //--------------------------------------------------------------------------------------------------------------------

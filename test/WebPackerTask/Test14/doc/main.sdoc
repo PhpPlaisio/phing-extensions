@@ -1,0 +1,11 @@
+\begin{document}
+\comment /* ID: main.sdoc */
+
+\icondef[src='/images/icons/16x16/icon.png' width='16' height='16' alt='icon']{icon}
+
+\begin[src='/images/manual/figure1.jpg']{figure}
+  \label{fig:figure1}
+  \caption{Awesome figure.}
+\end{figure}
+
+\end{document}

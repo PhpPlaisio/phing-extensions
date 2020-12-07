@@ -541,6 +541,11 @@ class WebPackerTask extends ResourceStoreTask
                                                 'stp_name'  => 'html',
                                                 'stp_class' => 'HtmlSourceHelper']);
 
+    $this->store->insertRow('ABC_SOURCE_TYPE', ['stp_id'    => null,
+                                                'stp_regex' => '/\.sdoc$/i',
+                                                'stp_name'  => 'sdoc',
+                                                'stp_class' => 'SDocSourceHelper']);
+
     $this->store->insertRow('ABC_RESOURCE_TYPE', ['rtp_id'    => null,
                                                   'rtp_regex' => '/\.css$/i',
                                                   'rtp_name'  => 'css',
