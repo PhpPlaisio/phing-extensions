@@ -14,21 +14,21 @@
     "ext-json": "*",
     "ext-zlib": "*",
     "phing/phing": "3.0.x-dev",
-    "plaisio/helper-url": "^1.1",
-    "plaisio/kernel": "^3.0",
-    "plaisio/web-assets": "^2.0",
-    "setbased/exception": "^2.1",
-    "setbased/helper-cast": "^2.1",
-    "setbased/helper-program-execution": "^1.1",
-    "setbased/php-stratum-sqlite-pdo": "^1.3",
-    "webmozart/path-util": "^2.3"
+    "plaisio/helper-url": "^1.1.1",
+    "plaisio/kernel": "^3.1.1",
+    "plaisio/web-assets": "^2.0.0",
+    "setbased/exception": "^2.1.2",
+    "setbased/helper-cast": "^2.1.1",
+    "setbased/helper-program-execution": "^1.1.0",
+    "setbased/php-stratum-sqlite-pdo": "^1.5.0",
+    "webmozart/path-util": "^2.3.0"
   },
   "require-dev": {
-    "phpunit/phpunit": "^9.0",
-    "plaisio/console": "^2.2",
-    "plaisio/page-core": "^1.2",
+    "phpunit/phpunit": "^9.5.0",
+    "plaisio/console": "^2.4.8",
+    "plaisio/page-core": "^1.4.2",
     "setbased/phing-extensions": "dev-master",
-    "setbased/php-stratum": "^6.0"
+    "setbased/php-stratum": "^6.1.0"
   },
   "autoload": {
     "classmap": [
