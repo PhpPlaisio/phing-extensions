@@ -37,7 +37,7 @@
   "autoload-dev": {
     "psr-4": {
       "Plaisio\\Phing\\Task\\Test\\": "test/",
-      "Phing\\Support\\": "vendor/phing/phing/tests/Phing/Support"
+      "Phing\\Support\\": "test/Phing/Support"
     }
   },
   "config": {
