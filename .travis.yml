@@ -3,9 +3,9 @@ language: php
 matrix:
   include:
     - dist: focal
-      php: '7.4'
-    - dist: bionic
-      php: '7.3'
+      php:
+          - '7.4'
+          - '8.0'
 
 before_install:
   - curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
