@@ -3,10 +3,13 @@ declare(strict_types=1);
 
 namespace Plaisio\Phing\Task\Test\SpriteTask;
 
+use Phing\Exception\BuildException;
+use Phing\Support\BuildFileTest;
+
 /**
  * Unit Tests for testing sprite Task.
  */
-class SpriteTaskTest extends \BuildFileTest
+class SpriteTaskTest extends BuildFileTest
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -17,7 +20,7 @@ class SpriteTaskTest extends \BuildFileTest
     $dir = 'test01-png';
     $this->configureProject(sprintf('%s/%s/%s', __DIR__, $dir, 'build.xml'));
     $this->project->setBasedir(sprintf('%s/%s', __DIR__, $dir));
-    $this->executeTarget('sprite');
+    $this->getProject()->executeTarget('sprite');
 
     $expected = file_get_contents(sprintf('%s/%s/%s', __DIR__, $dir, 'www/css/navigation-expected.css'));
     $actual   = file_get_contents(sprintf('%s/%s/%s', __DIR__, $dir, 'www/css/navigation.css'));
@@ -37,7 +40,7 @@ class SpriteTaskTest extends \BuildFileTest
       $dir = 'test01-webp';
       $this->configureProject(sprintf('%s/%s/%s', __DIR__, $dir, 'build.xml'));
       $this->project->setBasedir(sprintf('%s/%s', __DIR__, $dir));
-      $this->executeTarget('sprite');
+      $this->getProject()->executeTarget('sprite');
 
       $expected = file_get_contents(sprintf('%s/%s/%s', __DIR__, $dir, 'www/css/navigation-expected.css'));
       $actual   = file_get_contents(sprintf('%s/%s/%s', __DIR__, $dir, 'www/css/navigation.css'));
@@ -56,12 +59,12 @@ class SpriteTaskTest extends \BuildFileTest
    */
   public function testSprite02()
   {
-    $this->expectException('BuildException');
+    $this->expectException(BuildException::class);
     $this->expectExceptionMessage('Images have different sizes');
 
     $this->configureProject(__DIR__.'/test02/build.xml');
     $this->project->setBasedir(__DIR__.'/test02');
-    $this->executeTarget('sprite');
+    $this->getProject()->executeTarget('sprite');
   }
 
   //--------------------------------------------------------------------------------------------------------------------

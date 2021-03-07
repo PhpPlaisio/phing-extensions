@@ -1,6 +1,14 @@
 <?php
 declare(strict_types=1);
 
+namespace Plaisio\Phing\Task;
+
+use Phing\Exception\BuildException;
+use Plaisio\Phing\Task\WebPacker\ResourceHelper\JsMainResourceHelper;
+use Plaisio\Phing\Task\WebPacker\ResourceHelper\ResourceHelper;
+use Plaisio\Phing\Task\WebPacker\ResourceStore;
+use Plaisio\Phing\Task\WebPacker\ResourceStoreTask;
+use Plaisio\Phing\Task\WebPacker\SourceHelper\SourceHelper;
 use SetBased\Helper\ProgramExecution;
 use Webmozart\PathUtil\Path;
 
@@ -52,7 +60,7 @@ class WebPackerTask extends ResourceStoreTask
       $this->logVerbose('    analyzing %s', Path::makeRelative($resource['rsr_path'], $this->buildPath));
 
       $class = $resource['rtp_class'];
-      /** @var \ResourceHelper $helper */
+      /** @var ResourceHelper $helper */
       $helper = new $class($this);
       $helper->analyze($resource);
     }
@@ -145,7 +153,7 @@ class WebPackerTask extends ResourceStoreTask
       $this->logVerbose('  analyzing %s', Path::makeRelative($source['src_path'], $this->buildPath));
 
       $class = $source['stp_class'];
-      /** @var \SourceHelper $helper */
+      /** @var SourceHelper $helper */
       $helper = new $class($this);
       $helper->analyze($source);
     }
@@ -155,7 +163,7 @@ class WebPackerTask extends ResourceStoreTask
   /**
    * Compresses optimized/minimized resource files with Brotli.
    *
-   * @throws \BuildException
+   * @throws BuildException
    */
   private function brotliCompressOptimizedResourceFiles(): void
   {
@@ -375,7 +383,7 @@ class WebPackerTask extends ResourceStoreTask
   /**
    * Compresses optimized/minimized resource files with gzip.
    *
-   * @throws \BuildException
+   * @throws BuildException
    */
   private function gzipCompressOptimizedResourceFiles(): void
   {
@@ -438,7 +446,7 @@ class WebPackerTask extends ResourceStoreTask
         $this->logVerbose('    optimizing %s', Path::makeRelative($resource['rsr_path'], $this->buildPath));
 
         $class = $resource['rtp_class'];
-        /** @var \ResourceHelper $helper */
+        /** @var ResourceHelper $helper */
         $helper = new $class($this);
 
         $resources        = $this->store->resourceGetAllReferredByReSource($resource['rsr_id']);
@@ -534,47 +542,47 @@ class WebPackerTask extends ResourceStoreTask
     $this->store->insertRow('ABC_SOURCE_TYPE', ['stp_id'    => null,
                                                 'stp_regex' => '/\.php$/i',
                                                 'stp_name'  => 'php',
-                                                'stp_class' => 'PhpSourceHelper']);
+                                                'stp_class' => 'Plaisio\Phing\Task\WebPacker\SourceHelper\PhpSourceHelper']);
 
     $this->store->insertRow('ABC_SOURCE_TYPE', ['stp_id'    => null,
                                                 'stp_regex' => '/\.(html|xhtml)$/i',
                                                 'stp_name'  => 'html',
-                                                'stp_class' => 'HtmlSourceHelper']);
+                                                'stp_class' => 'Plaisio\Phing\Task\WebPacker\SourceHelper\HtmlSourceHelper']);
 
     $this->store->insertRow('ABC_SOURCE_TYPE', ['stp_id'    => null,
                                                 'stp_regex' => '/\.sdoc$/i',
                                                 'stp_name'  => 'sdoc',
-                                                'stp_class' => 'SDocSourceHelper']);
+                                                'stp_class' => 'Plaisio\Phing\Task\WebPacker\SourceHelper\SDocSourceHelper']);
 
     $this->store->insertRow('ABC_RESOURCE_TYPE', ['rtp_id'    => null,
                                                   'rtp_regex' => '/\.css$/i',
                                                   'rtp_name'  => 'css',
-                                                  'rtp_class' => 'CssResourceHelper']);
+                                                  'rtp_class' => 'Plaisio\Phing\Task\WebPacker\ResourceHelper\CssResourceHelper']);
 
     $this->store->insertRow('ABC_RESOURCE_TYPE', ['rtp_id'    => null,
                                                   'rtp_regex' => '/\.txt$/i',
                                                   'rtp_name'  => 'css-list',
-                                                  'rtp_class' => 'CssListResourceHelper']);
+                                                  'rtp_class' => 'Plaisio\Phing\Task\WebPacker\ResourceHelper\CssListResourceHelper']);
 
     $this->store->insertRow('ABC_RESOURCE_TYPE', ['rtp_id'    => null,
                                                   'rtp_regex' => '/\.txt$/i',
                                                   'rtp_name'  => 'text',
-                                                  'rtp_class' => 'TextResourceHelper']);
+                                                  'rtp_class' => 'Plaisio\Phing\Task\WebPacker\ResourceHelper\TextResourceHelper']);
 
     $this->store->insertRow('ABC_RESOURCE_TYPE', ['rtp_id'    => null,
                                                   'rtp_regex' => '/\.main\.js$/i',
                                                   'rtp_name'  => 'js.main',
-                                                  'rtp_class' => 'JsMainResourceHelper']);
+                                                  'rtp_class' => 'Plaisio\Phing\Task\WebPacker\ResourceHelper\JsMainResourceHelper']);
 
     $this->store->insertRow('ABC_RESOURCE_TYPE', ['rtp_id'    => null,
                                                   'rtp_regex' => '/\.js$/i',
                                                   'rtp_name'  => 'js',
-                                                  'rtp_class' => 'JsResourceHelper']);
+                                                  'rtp_class' => 'Plaisio\Phing\Task\WebPacker\ResourceHelper\JsResourceHelper']);
 
     $this->store->insertRow('ABC_RESOURCE_TYPE', ['rtp_id'    => null,
-                                                  'rtp_regex' => '/\.(png|jpg|jpeg|gif|webp)$/i',
+                                                  'rtp_regex' => '/\.(png|jpg|jpeg|gif|webp|svg)$/i',
                                                   'rtp_name'  => 'image',
-                                                  'rtp_class' => 'ImageResourceHelper']);
+                                                  'rtp_class' => 'Plaisio\Phing\Task\WebPacker\ResourceHelper\ImageResourceHelper']);
   }
 
   //--------------------------------------------------------------------------------------------------------------------

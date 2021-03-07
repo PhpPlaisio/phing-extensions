@@ -1,13 +1,17 @@
 <?php
 declare(strict_types=1);
 
+namespace Plaisio\Phing\Task\WebPacker\SourceHelper;
+
+use Plaisio\Phing\Task\WebPacker\WebPackerInterface;
+use Plaisio\Phing\Task\WebPacker\WebPackerTrait;
 use SetBased\Exception\FallenException;
 use Webmozart\PathUtil\Path;
 
 /**
  * Replace references to resources with the references to the corresponding optimized resources in PHP code.
  */
-class PhpSourceHelper implements \SourceHelper, WebPackerInterface
+class PhpSourceHelper implements SourceHelper, WebPackerInterface
 {
   //--------------------------------------------------------------------------------------------------------------------
   use WebPackerTrait;
@@ -16,9 +20,9 @@ class PhpSourceHelper implements \SourceHelper, WebPackerInterface
   /**
    * PhpSourceHelperJs constructor.
    *
-   * @param \WebPackerInterface $parent The parent object.
+   * @param WebPackerInterface $parent The parent object.
    */
-  public function __construct(\WebPackerInterface $parent)
+  public function __construct(WebPackerInterface $parent)
   {
     $this->initWebPackerTrait($parent);
   }
@@ -150,10 +154,10 @@ class PhpSourceHelper implements \SourceHelper, WebPackerInterface
     // Don't process the WebAssets classes.
     if (in_array($qualifiedName, $this->webAssetsClasses)) return;
 
-    $helper1 = new \PhpSourceHelperCss($this);
+    $helper1 = new PhpSourceHelperCss($this);
     $helper1->analyzePhpSourceFileHelper1($source, $lines, $qualifiedName, $imports, $namespace);
 
-    $helper2 = new \PhpSourceHelperJs($this);
+    $helper2 = new PhpSourceHelperJs($this);
     $helper2->analyzePhpSourceFileHelper1($source, $lines, $qualifiedName, $imports, $namespace);
   }
 

@@ -1,6 +1,10 @@
 <?php
 declare(strict_types=1);
 
+namespace Plaisio\Phing\Task\WebPacker;
+
+use Plaisio\Phing\Task\PlaisioTask;
+
 trait WebPackerTrait
 {
   //--------------------------------------------------------------------------------------------------------------------
@@ -159,7 +163,7 @@ trait WebPackerTrait
   /**
    * The task.
    *
-   * @var \PlaisioTask
+   * @var PlaisioTask
    */
   public $task;
 
@@ -171,13 +175,12 @@ trait WebPackerTrait
   public $webAssetsClasses = [];
 
   //--------------------------------------------------------------------------------------------------------------------
-
   /**
    * Initializes the properties of this trait.
    *
    * @param WebPackerInterface $parent
    */
-  public function initWebPackerTrait(\WebPackerInterface $parent)
+  public function initWebPackerTrait(WebPackerInterface $parent)
   {
     $this->brotliFlag               = $parent->brotliFlag;
     $this->brotliPath               = $parent->brotliPath;

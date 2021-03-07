@@ -1,5 +1,8 @@
 <?php
 declare(strict_types=1);
+
+namespace Plaisio\Phing\Task\WebPacker;
+
 use SetBased\Stratum\SqlitePdo\SqlitePdoDataLayer;
 
 /**

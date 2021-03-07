@@ -1,8 +1,8 @@
 <project name="PhpPlaisio" default="build" basedir=".">
-    <taskdef name="sprite" classname="../../../src.SpriteTask"/>
+    <taskdef name="sprite" classname="\Plaisio\Phing\Task\SpriteTask"/>
 
     <target name="sprite">
-        <sprite cssBaseClass="navigation"
+        <Sprite cssBaseClass="navigation"
                 cssFilename="css/navigation.css"
                 spriteFilename="www/images/navigation.png"
                 resourceRoot="www">
@@ -10,7 +10,7 @@
                 <include name="**/*.png"/>
                 <include name="**/*.gif"/>
             </fileset>
-        </sprite>
+        </Sprite>
     </target>
 
     <target name="build" depends="sprite">

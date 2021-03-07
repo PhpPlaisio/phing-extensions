@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+namespace Plaisio\Phing\Task\WebPacker\ResourceHelper;
+
 use Webmozart\PathUtil\Path;
 
 /**

@@ -1,5 +1,5 @@
 <project name="PhpPlaisio" default="build" basedir=".">
-    <taskdef name="sprite" classname="../../../src.SpriteTask"/>
+    <taskdef name="sprite" classname="\Plaisio\Phing\Task\SpriteTask"/>
 
     <target name="sprite">
         <sprite cssBaseClass="navigation"

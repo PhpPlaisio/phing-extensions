@@ -1,6 +1,10 @@
 <?php
 declare(strict_types=1);
 
+namespace Plaisio\Phing\Task\WebPacker\ResourceHelper;
+
+use Plaisio\Phing\Task\WebPacker\WebPackerInterface;
+
 /**
  * Interface for resource handlers.
  */

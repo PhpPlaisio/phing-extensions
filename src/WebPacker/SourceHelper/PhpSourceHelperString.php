@@ -1,6 +1,10 @@
 <?php
 declare(strict_types=1);
 
+namespace Plaisio\Phing\Task\WebPacker\SourceHelper;
+
+use Plaisio\Phing\Task\WebPacker\WebPackerInterface;
+use Plaisio\Phing\Task\WebPacker\WebPackerTrait;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -37,7 +41,7 @@ class PhpSourceHelperString
   {
     $this->initWebPackerTrait($parent);
 
-    $this->methods = array_merge(\PhpSourceHelperCss::$methods, \PhpSourceHelperJs::$methods);
+    $this->methods = array_merge(PhpSourceHelperCss::$methods, PhpSourceHelperJs::$methods);
 
     $this->regex = sprintf('/(?<quote1>[\'"])(?<uri>\/(%s)\/[a-zA-Z0-9_\-.\/]+)(?<quote2>[\'"])/',
                            implode('|', array_unique([preg_quote($this->cssDir),
@@ -60,7 +64,7 @@ class PhpSourceHelperString
       {
         if (preg_match_all($this->regex, $line, $matches, PREG_SET_ORDER | PREG_UNMATCHED_AS_NULL))
         {
-         foreach ($matches as $match)
+          foreach ($matches as $match)
           {
             if ($match['quote1']===$match['quote2'])
             {

@@ -1,6 +1,10 @@
 <?php
 declare(strict_types=1);
 
+namespace Plaisio\Phing\Task\WebPacker\SourceHelper;
+
+use Plaisio\Phing\Task\WebPacker\WebPackerInterface;
+use Plaisio\Phing\Task\WebPacker\WebPackerTrait;
 use SetBased\Exception\FallenException;
 use Webmozart\PathUtil\Path;
 
@@ -53,7 +57,6 @@ class PhpSourceHelperCss
                                               array $imports,
                                               string $namespace): void
   {
-
 
     $indent     = '(?<indent>.*)';
     $call       = '(?<call>((Nub::\$)|(\$this->))nub->assets->)';
@@ -179,7 +182,7 @@ class PhpSourceHelperCss
         break;
 
       default:
-        throw new LogicException('Regex not correct');
+        throw new \LogicException('Regex not correct');
     }
 
     $path = $this->resolveFullPathOfResource($filename);

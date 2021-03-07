@@ -1,6 +1,10 @@
 <?php
 declare(strict_types=1);
 
+namespace Plaisio\Phing\Task\WebPacker\SourceHelper;
+
+use Plaisio\Phing\Task\WebPacker\WebPackerInterface;
+use Plaisio\Phing\Task\WebPacker\WebPackerTrait;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -160,7 +164,7 @@ class PhpSourceHelperJs
         break;
 
       default:
-        throw new LogicException('Regex not correct');
+        throw new \LogicException('Regex not correct');
     }
 
     if (in_array($matches['method'], ['jsAdmSetMain', 'jsAdmSetPageSpecificMain']))

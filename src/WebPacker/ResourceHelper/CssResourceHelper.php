@@ -1,6 +1,11 @@
 <?php
 declare(strict_types=1);
 
+namespace Plaisio\Phing\Task\WebPacker\ResourceHelper;
+
+use Phing\Exception\BuildException;
+use Plaisio\Phing\Task\WebPacker\WebPackerInterface;
+use Plaisio\Phing\Task\WebPacker\WebPackerTrait;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -23,9 +28,9 @@ class CssResourceHelper implements ResourceHelper, WebPackerInterface
   /**
    * Object constructor.
    *
-   * @param \WebPackerInterface $parent The parent object.
+   * @param WebPackerInterface $parent The parent object.
    */
-  public function __construct(\WebPackerInterface $parent)
+  public function __construct(WebPackerInterface $parent)
   {
     $this->initWebPackerTrait($parent);
   }
@@ -151,7 +156,7 @@ class CssResourceHelper implements ResourceHelper, WebPackerInterface
    *
    * @return string[] An array with two elements: the standard output and the standard error.
    *
-   * @throws \BuildException
+   * @throws BuildException
    */
   protected function runProcess(string $command, string $input): array
   {

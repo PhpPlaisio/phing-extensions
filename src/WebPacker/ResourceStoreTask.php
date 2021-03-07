@@ -1,10 +1,15 @@
 <?php
 declare(strict_types=1);
 
+namespace Plaisio\Phing\Task\WebPacker;
+
+use Phing\Exception\BuildException;
+use Plaisio\Phing\Task\PlaisioTask;
+
 /**
  * Abstract parent class for tasks for optimizing resources
  */
-abstract class ResourceStoreTask extends \PlaisioTask implements \WebPackerInterface
+abstract class ResourceStoreTask extends PlaisioTask implements WebPackerInterface
 {
   //--------------------------------------------------------------------------------------------------------------------
   use WebPackerTrait;
@@ -197,7 +202,7 @@ abstract class ResourceStoreTask extends \PlaisioTask implements \WebPackerInter
    * @param string $destinationFilename The full file name of destination file.
    * @param string $referenceFilename
    *
-   * @throws \BuildException
+   * @throws BuildException
    */
   protected function setFilePermissions(string $destinationFilename, string $referenceFilename): void
   {
@@ -216,7 +221,7 @@ abstract class ResourceStoreTask extends \PlaisioTask implements \WebPackerInter
    * @param string $path  The path of the file.
    * @param int    $mtime The  last modification time.
    *
-   * @throws \BuildException
+   * @throws BuildException
    */
   protected function setModificationTime(string $path, int $mtime): void
   {

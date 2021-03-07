@@ -1,6 +1,10 @@
 <?php
 declare(strict_types=1);
 
+namespace Plaisio\Phing\Task\WebPacker\ResourceHelper;
+
+use Plaisio\Phing\Task\WebPacker\WebPackerInterface;
+use Plaisio\Phing\Task\WebPacker\WebPackerTrait;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -15,9 +19,9 @@ class ImageResourceHelper implements ResourceHelper, WebPackerInterface
   /**
    * Object constructor.
    *
-   * @param \WebPackerInterface $parent The parent object.
+   * @param WebPackerInterface $parent The parent object.
    */
-  public function __construct(\WebPackerInterface $parent)
+  public function __construct(WebPackerInterface $parent)
   {
     $this->initWebPackerTrait($parent);
   }

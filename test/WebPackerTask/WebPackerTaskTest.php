@@ -3,12 +3,14 @@ declare(strict_types=1);
 
 namespace Plaisio\Phing\Task\Test\WebPackerTask;
 
+use Phing\Exception\BuildException;
+use Phing\Support\BuildFileTest;
 use Webmozart\PathUtil\Path;
 
 /**
  * Unit Tests for testing optimize_css Task.
  */
-class WebPackerTaskTest extends \BuildFileTest
+class WebPackerTaskTest extends BuildFileTest
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -217,7 +219,7 @@ class WebPackerTaskTest extends \BuildFileTest
     $this->configureProject(__DIR__.'/Test07/build.xml');
     $this->project->setBasedir(__DIR__.'/Test07');
 
-    $this->expectException(\BuildException::class);
+    $this->expectException(BuildException::class);
     $this->expectExceptionMessageMatches("(Unable to find resource '\/images\/no-such-image\.png')");
     $this->executeTarget('web_packer');
   }
@@ -231,7 +233,7 @@ class WebPackerTaskTest extends \BuildFileTest
     $this->configureProject(__DIR__.'/Test08/build.xml');
     $this->project->setBasedir(__DIR__.'/Test08');
 
-    $this->expectException(\BuildException::class);
+    $this->expectException(BuildException::class);
     $this->expectExceptionMessageMatches("(Unable to find resource '\/images\/no-such-image\.png')");
     $this->executeTarget('web_packer');
   }
@@ -314,7 +316,7 @@ class WebPackerTaskTest extends \BuildFileTest
     $this->configureProject(__DIR__.'/Test13/build.xml');
     $this->project->setBasedir(__DIR__.'/Test13');
 
-    $this->expectException(\BuildException::class);
+    $this->expectException(BuildException::class);
     $this->expectExceptionMessage("Path 'nope: not/here' ('www/js/not/here.js') in file 'www/js/Foo/Page.main.js' does not exist");
     $this->executeTarget('web_packer');
   }

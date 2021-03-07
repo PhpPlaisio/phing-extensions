@@ -1,5 +1,5 @@
 <project name="PhpPlaisio" default="build" basedir=".">
-    <taskdef name="WebPacker" classname="../../../src.WebPackerTask"/>
+    <taskdef name="WebPacker" classname="\Plaisio\Phing\Task\WebPackerTask"/>
     <property name="BUILD_DIR" value="./build"/>
 
     <!-- Creates an empty build directory. -->

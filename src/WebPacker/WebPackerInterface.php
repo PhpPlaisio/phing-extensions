@@ -1,6 +1,10 @@
 <?php
 declare(strict_types=1);
 
+namespace Plaisio\Phing\Task\WebPacker;
+
+use Plaisio\Phing\Task\PlaisioTask;
+
 /**
  * Interface WebPackerInterface
  *
@@ -25,7 +29,7 @@ declare(strict_types=1);
  * @property-read string        $sourcesFilesetId
  * @property-read ResourceStore $store
  * @property-read string|null   $storeFilename
- * @property-read \PlaisioTask  $task
+ * @property-read PlaisioTask   $task
  * @property-read string[]      $webAssetsClasses
  */
 interface WebPackerInterface
@@ -34,9 +38,9 @@ interface WebPackerInterface
   /**
    * Initializes the properties of this trait.
    *
-   * @param \WebPackerInterface $parent
+   * @param WebPackerInterface $parent
    */
-  public function initWebPackerTrait(\WebPackerInterface $parent);
+  public function initWebPackerTrait(WebPackerInterface $parent);
 
   //--------------------------------------------------------------------------------------------------------------------
 }

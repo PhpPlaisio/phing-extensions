@@ -1,12 +1,15 @@
 <?php
 declare(strict_types=1);
 
+namespace Plaisio\Phing\Task;
+
+use Phing\Type\Element\FileSetAware;
 use SetBased\Helper\Cast;
 
 /**
  * Get images and create one big sprite and css in result.
  */
-class SpriteTask extends \PlaisioTask
+class SpriteTask extends PlaisioTask
 {
   //--------------------------------------------------------------------------------------------------------------------
   use FileSetAware;
