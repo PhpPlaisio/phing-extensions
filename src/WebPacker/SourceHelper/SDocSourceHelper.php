@@ -5,7 +5,7 @@ namespace Plaisio\Phing\Task\WebPacker\SourceHelper;
 
 use Plaisio\Phing\Task\WebPacker\WebPackerInterface;
 use Plaisio\Phing\Task\WebPacker\WebPackerTrait;
-use Webmozart\PathUtil\Path;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Helper class for SDoc files.
@@ -113,7 +113,7 @@ class SDocSourceHelper implements SourceHelper, WebPackerInterface
    */
   private function resolveFullPathOfResource(string $uri): string
   {
-    return Path::join([$this->parentResourcePath, $uri]);
+    return Path::join($this->parentResourcePath, $uri);
   }
 
   //--------------------------------------------------------------------------------------------------------------------

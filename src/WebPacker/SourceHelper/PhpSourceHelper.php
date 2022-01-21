@@ -6,7 +6,7 @@ namespace Plaisio\Phing\Task\WebPacker\SourceHelper;
 use Plaisio\Phing\Task\WebPacker\WebPackerInterface;
 use Plaisio\Phing\Task\WebPacker\WebPackerTrait;
 use SetBased\Exception\FallenException;
-use Webmozart\PathUtil\Path;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Replace references to resources with the references to the corresponding optimized resources in PHP code.
@@ -265,12 +265,12 @@ class PhpSourceHelper implements SourceHelper, WebPackerInterface
    */
   private function getNamespaceFromResourceFilename(string $resourceFilename): string
   {
-    $name = Path::makeRelative($resourceFilename, Path::join([$this->parentResourcePath, $this->jsDir]));
+    $name = Path::makeRelative($resourceFilename, Path::join($this->parentResourcePath, $this->jsDir));
     $dir  = Path::getDirectory($name);
     $name = Path::getFilenameWithoutExtension($name);
     $name = Path::getFilenameWithoutExtension($name);
 
-    return Path::join([$dir, $name]);
+    return Path::join($dir, $name);
   }
 
   //--------------------------------------------------------------------------------------------------------------------

@@ -10,7 +10,7 @@ use Plaisio\Phing\Task\WebPacker\ResourceStore;
 use Plaisio\Phing\Task\WebPacker\ResourceStoreTask;
 use Plaisio\Phing\Task\WebPacker\SourceHelper\SourceHelper;
 use SetBased\Helper\ProgramExecution;
-use Webmozart\PathUtil\Path;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Task fo bundling and optimizing web assets.
@@ -175,7 +175,7 @@ class WebPackerTask extends ResourceStoreTask
       $class = $resource['rtp_class'];
       if ($class::mustCompress())
       {
-        $resourcePath = Path::join([$this->parentResourcePath, $resource['rsr_uri_optimized']]);
+        $resourcePath = Path::join($this->parentResourcePath, $resource['rsr_uri_optimized']);
         $brotliPath   = sprintf('%s.br', $resourcePath);
 
         $this->logVerbose('  brotli compressing file %s to %s',
@@ -395,7 +395,7 @@ class WebPackerTask extends ResourceStoreTask
       $class = $resource['rtp_class'];
       if ($class::mustCompress())
       {
-        $resourcePath = Path::join([$this->parentResourcePath, $resource['rsr_uri_optimized']]);
+        $resourcePath = Path::join($this->parentResourcePath, $resource['rsr_uri_optimized']);
         $gzipPath     = sprintf('%s.gz', $resourcePath);
 
         $this->logVerbose('  gzip compressing file %s to %s',
@@ -505,7 +505,7 @@ class WebPackerTask extends ResourceStoreTask
     $resources = $this->store->resourceGetAllToBeSaved();
     foreach ($resources as $resource)
     {
-      $path = Path::join([$this->parentResourcePath, $resource['rsr_uri_optimized']]);
+      $path = Path::join($this->parentResourcePath, $resource['rsr_uri_optimized']);
       $dir  = Path::getDirectory($path);
 
       $this->logVerbose('  writing %s', Path::makeRelative($path, $this->buildPath));

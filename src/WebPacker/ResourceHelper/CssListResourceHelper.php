@@ -5,7 +5,7 @@ namespace Plaisio\Phing\Task\WebPacker\ResourceHelper;
 
 use Plaisio\Phing\Task\WebPacker\WebPackerInterface;
 use Plaisio\Phing\Task\WebPacker\WebPackerTrait;
-use Webmozart\PathUtil\Path;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Helper class for CSS-list resources.
@@ -120,7 +120,7 @@ class CssListResourceHelper implements ResourceHelper, WebPackerInterface
   {
     if ($filename[0]==='/')
     {
-      $resourcePath = Path::join([$this->parentResourcePath, $filename]);
+      $resourcePath = Path::join($this->parentResourcePath, $filename);
     }
     else
     {

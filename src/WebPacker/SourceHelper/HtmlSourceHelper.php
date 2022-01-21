@@ -5,7 +5,7 @@ namespace Plaisio\Phing\Task\WebPacker\SourceHelper;
 
 use Plaisio\Phing\Task\WebPacker\WebPackerInterface;
 use Plaisio\Phing\Task\WebPacker\WebPackerTrait;
-use Webmozart\PathUtil\Path;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Helper class for html and xhtml files.
@@ -117,12 +117,12 @@ class HtmlSourceHelper implements SourceHelper, WebPackerInterface
   {
     if (substr($uri, 0, 1)==='/')
     {
-      $fullPath = Path::join([$this->parentResourcePath, $uri]);
+      $fullPath = Path::join($this->parentResourcePath, $uri);
     }
     else
     {
       $dir      = Path::getDirectory($sourcePath);
-      $fullPath = Path::join([$dir, $uri]);
+      $fullPath = Path::join($dir, $uri);
     }
 
     return $fullPath;

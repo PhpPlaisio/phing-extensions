@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Plaisio\Phing\Task\WebPacker\ResourceHelper;
 
-use Webmozart\PathUtil\Path;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Helper class for JS resources.
@@ -110,7 +110,7 @@ class JsMainResourceHelper extends JsResourceHelper
     fwrite($handle, $config);
     fclose($handle);
 
-    $resourcePath = Path::join([$this->parentResourcePath, $this->jsDir]);
+    $resourcePath = Path::join($this->parentResourcePath, $this->jsDir);
 
     // Create temporary file for combined JavaScript code.
     $tmp_name2 = tempnam($resourcePath, 'plaisio_');

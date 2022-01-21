@@ -5,7 +5,7 @@ namespace Plaisio\Phing\Task\WebPacker\ResourceHelper;
 
 use Plaisio\Phing\Task\WebPacker\WebPackerInterface;
 use Plaisio\Phing\Task\WebPacker\WebPackerTrait;
-use Webmozart\PathUtil\Path;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Helper class for image resources.

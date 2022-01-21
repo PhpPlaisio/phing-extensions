@@ -5,7 +5,7 @@ namespace Plaisio\Phing\Task\WebPacker\SourceHelper;
 
 use Plaisio\Phing\Task\WebPacker\WebPackerInterface;
 use Plaisio\Phing\Task\WebPacker\WebPackerTrait;
-use Webmozart\PathUtil\Path;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Helper class for replacing string references to resources with string references to the corresponding optimized

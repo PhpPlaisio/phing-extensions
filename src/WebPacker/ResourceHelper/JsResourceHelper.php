@@ -7,7 +7,7 @@ use Phing\Exception\BuildException;
 use Plaisio\Phing\Task\WebPacker\WebPackerInterface;
 use Plaisio\Phing\Task\WebPacker\WebPackerTrait;
 use SetBased\Helper\ProgramExecution;
-use Webmozart\PathUtil\Path;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Helper class for JS resources.
@@ -83,7 +83,7 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
         {
           if ($match['quote1']===$match['quote2'] && Path::getExtension($match['path'])!=='')
           {
-            $resourcePath2 = Path::join([$this->parentResourcePath, $match['path']]);
+            $resourcePath2 = Path::join($this->parentResourcePath, $match['path']);
             $this->task->logVerbose('      found %s (%s:%d)',
                                     Path::makeRelative($resourcePath2, $this->buildPath),
                                     $match['path'],
@@ -189,14 +189,14 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
    */
   protected function getNamespaceFromResourceFilename(string $resourceFilename): string
   {
-    $resourcePath = Path::join([$this->parentResourcePath, $this->jsExtension]);
+    $resourcePath = Path::join($this->parentResourcePath, $this->jsExtension);
 
     $name = Path::makeRelative($resourceFilename, $resourcePath);
     $dir  = Path::getDirectory($name);
     $name = Path::getFilenameWithoutExtension($name);
     $name = Path::getFilenameWithoutExtension($name);
 
-    return Path::join([$dir, $name]);
+    return Path::join($dir, $name);
   }
 
   //--------------------------------------------------------------------------------------------------------------------

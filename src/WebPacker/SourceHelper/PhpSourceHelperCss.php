@@ -6,7 +6,7 @@ namespace Plaisio\Phing\Task\WebPacker\SourceHelper;
 use Plaisio\Phing\Task\WebPacker\WebPackerInterface;
 use Plaisio\Phing\Task\WebPacker\WebPackerTrait;
 use SetBased\Exception\FallenException;
-use Webmozart\PathUtil\Path;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Helper class for replacing calls to methods of WebAssets for including CSS with calls to the corresponding
@@ -195,11 +195,11 @@ class PhpSourceHelperCss
   {
     if (substr($resourceName, 0, 1)==='/')
     {
-      $fullPath = Path::join([$this->parentResourcePath, $resourceName]);
+      $fullPath = Path::join($this->parentResourcePath, $resourceName);
     }
     else
     {
-      $fullPath = Path::join([$this->parentResourcePath, $this->cssDir, $resourceName]);
+      $fullPath = Path::join($this->parentResourcePath, $this->cssDir, $resourceName);
     }
 
     return $fullPath;
