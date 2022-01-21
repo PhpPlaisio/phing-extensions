@@ -22,14 +22,14 @@ class PhpSourceHelperString
    *
    * @var string[]
    */
-  private $methods;
+  private array $methods;
 
   /**
    * The regex for finding references to resources.
    *
    * @var string
    */
-  private $regex;
+  private string $regex;
 
   //--------------------------------------------------------------------------------------------------------------------
   /**

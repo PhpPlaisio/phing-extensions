@@ -106,7 +106,7 @@ class HtmlSourceHelper implements SourceHelper, WebPackerInterface
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Resolves a name of a resource to to full path of the resource on the file system.
+   * Resolves a name of a resource to full path of the resource on the file system.
    *
    * @param string $uri        The URI found in the html file.
    * @param string $sourcePath The full path of the html file.

@@ -13,112 +13,112 @@ trait WebPackerTrait
    *
    * @var bool
    */
-  public $brotliFlag = false;
+  public bool $brotliFlag = false;
 
   /**
    * Path to the Brotli program.
    *
    * @var string
    */
-  public $brotliPath = 'brotli';
+  public string $brotliPath = 'brotli';
 
   /**
    * The full path to the build dir.
    *
    * @var string
    */
-  public $buildPath;
+  public string $buildPath;
 
   /**
    * The directory under $parentResourcePath for CSS files.
    *
    * @var string
    */
-  public $cssDir = 'css';
+  public string $cssDir = 'css';
 
   /**
    * The extension CSS files.
    *
    * @var string
    */
-  public $cssExtension = 'css';
+  public string $cssExtension = 'css';
 
   /**
    * The command to minify CSS.
    *
    * @var string
    */
-  public $cssMinifyCommand = '/usr/bin/csso';
+  public string $cssMinifyCommand = '/usr/bin/csso';
 
   /**
    * If set static gzipped files of the optimized/minimized resources will be created.
    *
    * @var bool
    */
-  public $gzipFlag = false;
+  public bool $gzipFlag = false;
 
   /**
    * The directory under $parentResourcePath for images.
    *
    * @var string
    */
-  public $imageDir = 'images';
+  public string $imageDir = 'images';
 
   /**
    * The command to run r.js.
    *
    * @var string
    */
-  public $jsCombineCommand = '/usr/bin/r.js';
+  public string $jsCombineCommand = '/usr/bin/r.js';
 
   /**
    * The directory under $parentResourcePath for JS files.
    *
    * @var string
    */
-  public $jsDir = 'js';
+  public string $jsDir = 'js';
 
   /**
    * The extension JS files.
    *
    * @var string
    */
-  public $jsExtension = 'js';
+  public string $jsExtension = 'js';
 
   /**
    * The command to minify JS.
    *
    * @var string
    */
-  public $jsMinifyCommand = '/usr/bin/uglifyjs -c -m';
+  public string $jsMinifyCommand = '/usr/bin/uglifyjs -c -m';
 
   /**
    * The path to the node program.
    *
    * @var string
    */
-  public $jsNodePath = '/usr/bin/node';
+  public string $jsNodePath = '/usr/bin/node';
 
   /**
    * The path to require.js relative to the parent resource path.
    *
    * @var string
    */
-  public $jsRequirePath = 'js/require.js';
+  public string $jsRequirePath = 'js/require.js';
 
   /**
    * The path to the parent resource dir (relative to the build dir).
    *
    * @var string
    */
-  public $parentResourceDir;
+  public string $parentResourceDir;
 
   /**
    * The full path to the parent resource dir.
    *
    * @var string
    */
-  public $parentResourcePath;
+  public string $parentResourcePath;
 
   /**
    * If set
@@ -132,47 +132,47 @@ trait WebPackerTrait
    *
    * @var bool
    */
-  public $preserveModificationTime = false;
+  public bool $preserveModificationTime = false;
 
   /**
    * The ID of the fileset with resource files.
    *
    * @var string
    */
-  public $resourcesFilesetId;
+  public string $resourcesFilesetId;
 
   /**
    * The ID of the fileset with sources.
    *
    * @var string
    */
-  public $sourcesFilesetId;
+  public string $sourcesFilesetId;
 
   /**
    * @var ResourceStore
    */
-  public $store;
+  public ResourceStore $store;
 
   /**
    * The filename of the SQLite database, a.k.a. the store.
    *
    * @var string|null
    */
-  public $storeFilename;
+  public ?string $storeFilename = null;
 
   /**
    * The task.
    *
    * @var PlaisioTask
    */
-  public $task;
+  public PlaisioTask $task;
 
   /**
    * The list of the web asset classes, interfaces and traits.
    *
-   * @var
+   * @var string[]
    */
-  public $webAssetsClasses = [];
+  public array $webAssetsClasses = [];
 
   //--------------------------------------------------------------------------------------------------------------------
   /**

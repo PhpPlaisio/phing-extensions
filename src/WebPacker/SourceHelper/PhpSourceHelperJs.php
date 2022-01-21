@@ -22,10 +22,10 @@ class PhpSourceHelperJs
    *
    * @var array
    */
-  public static $methods = ['jsAdmSetMain',
-                            'jsAdmOptimizedSetMain',
-                            'jsAdmFunctionCall',
-                            'jsAdmOptimizedFunctionCall'];
+  public static array $methods = ['jsAdmSetMain',
+                                  'jsAdmOptimizedSetMain',
+                                  'jsAdmFunctionCall',
+                                  'jsAdmOptimizedFunctionCall'];
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -44,14 +44,14 @@ class PhpSourceHelperJs
    *
    * @param array  $source        The details of the PHP source file.
    * @param array  $lines         The source as lines.
-   * @param string $qualifiedName The fully qualified class name of the class found int he PHP source file.
+   * @param string $qualifiedName The fully qualified class name of the class found in the PHP source file.
    * @param array  $imports       The imports (use) found in the PHP source file.
    * @param string $namespace     The namespace used in the PHP source file.
    */
-  public function analyzePhpSourceFileHelper1(array $source,
-                                              array $lines,
+  public function analyzePhpSourceFileHelper1(array  $source,
+                                              array  $lines,
                                               string $qualifiedName,
-                                              array $imports,
+                                              array  $imports,
                                               string $namespace): void
   {
 
@@ -89,18 +89,18 @@ class PhpSourceHelperJs
    * Analyzes a line in a PHP source file that calls a WebAssets method.
    *
    * @param array  $matches       The matches as returned by preg_match().
-   * @param string $qualifiedName The fully qualified class name of the class found int he PHP source file.
+   * @param string $qualifiedName The fully qualified class name of the class found in the PHP source file.
    * @param array  $imports       The imports (use) found in the PHP source file.
    * @param string $namespace     The namespace used in the PHP source file.
    * @param array  $source        The details of the PHP source file.
    * @param int    $lineno        The line number in the PHP source file were the WebAssets method is called.
    */
-  private function analyzePhpSourceFileHelper2(array $matches,
+  private function analyzePhpSourceFileHelper2(array  $matches,
                                                string $qualifiedName,
-                                               array $imports,
+                                               array  $imports,
                                                string $namespace,
-                                               array $source,
-                                               int $lineno): void
+                                               array  $source,
+                                               int    $lineno): void
   {
     [$path, $expression] = $this->deriveResourcePath($matches, $qualifiedName, $imports, $namespace);
 
@@ -123,7 +123,7 @@ class PhpSourceHelperJs
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Derives the full path of the included resource and the expression the refer to the resource.
+   * Derives the full path of the included resource and the expression that refer to the resource.
    *
    * @param array  $matches       The matches from the regexp.
    * @param string $qualifiedName The fully qualified name of the class in the source file.
@@ -132,9 +132,9 @@ class PhpSourceHelperJs
    *
    * @return array
    */
-  private function deriveResourcePath(array $matches,
+  private function deriveResourcePath(array  $matches,
                                       string $qualifiedName,
-                                      array $imports,
+                                      array  $imports,
                                       string $namespace): array
   {
     switch (true)
@@ -150,14 +150,7 @@ class PhpSourceHelperJs
         break;
 
       case $matches['resolution']!==null:
-        if (isset($imports[$matches['resolution']]))
-        {
-          $tmp = $imports[$matches['resolution']];
-        }
-        else
-        {
-          $tmp = $namespace.'\\'.$matches['resolution'];
-        }
+        $tmp        = $imports[$matches['resolution']] ?? $namespace.'\\'.$matches['resolution'];
         $filename   = sprintf('%s.%s', str_replace('\\', '/', $tmp), $this->jsExtension);
         $expression = $matches['resolution'].'::class';
         break;
@@ -179,7 +172,7 @@ class PhpSourceHelperJs
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Resolves a name of a resource to to full path of the resource on the file system.
+   * Resolves a name of a resource to full path of the resource on the file system.
    *
    * @param string $resourceName The name of the resource as found in the source file.
    *

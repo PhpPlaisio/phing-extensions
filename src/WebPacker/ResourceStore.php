@@ -99,7 +99,7 @@ join   ABC_RESOURCE_TYPE rtp  on  rtp.rtp_id = rsr.rtp_id
 where  rsr.rsr_depth = :p_rsr_depth
 order by rsr.rsr_path
 EOT;
-    $query = str_repeat(PHP_EOL, 7).$query;
+    $query   = str_repeat(PHP_EOL, 7).$query;
 
     return $this->executeRows($query, $replace);
   }
@@ -124,7 +124,7 @@ join   ABC_RESOURCE_TYPE rtp  on  rtp.rtp_id = rsr.rtp_id
 where  rtp.rtp_name = :p_rtp_name
 order by rsr.rsr_path
 EOT;
-    $query = str_repeat(PHP_EOL, 7).$query;
+    $query   = str_repeat(PHP_EOL, 7).$query;
 
     return $this->executeRows($query, $replace);
   }
@@ -218,7 +218,7 @@ where  lk2.rsr_id_src = :p_rsr_id
 order by lk2.lk2_line
 ,        lk2.ROWID
 EOT;
-    $query = str_repeat(PHP_EOL, 7).$query;
+    $query   = str_repeat(PHP_EOL, 7).$query;
 
     return $this->executeRows($query, $replace);
   }
@@ -249,7 +249,7 @@ where  lk1.src_id = :p_src_id
 order by lk1.lk1_line
 ,        lk1.ROWID
 EOT;
-    $query = str_repeat(PHP_EOL, 7).$query;
+    $query   = str_repeat(PHP_EOL, 7).$query;
 
     return $this->executeRows($query, $replace);
   }
@@ -352,7 +352,7 @@ select rsr_id
 from   ABC_RESOURCE
 where  rsr_id = :p_rsr_id
 EOT;
-    $query = str_repeat(PHP_EOL, 7).$query;
+    $query   = str_repeat(PHP_EOL, 7).$query;
 
     return $this->executeRow1($query, $replace);
   }
@@ -396,7 +396,7 @@ select rsr_id
 from   ABC_RESOURCE
 where  rsr_path = :p_rsr_path
 EOT;
-    $query = str_repeat(PHP_EOL, 7).$query;
+    $query   = str_repeat(PHP_EOL, 7).$query;
 
     return $this->executeRow0($query, $replace);
   }
@@ -448,7 +448,7 @@ from   ABC_RESOURCE
 where  rsr_depth = :p_rsr_depth
 ;
 EOT;
-    $query = str_repeat(PHP_EOL, 8).$query;
+    $query   = str_repeat(PHP_EOL, 8).$query;
 
     return $this->executeSingleton1($query, $replace);
   }
@@ -504,7 +504,7 @@ set    rsr_mtime =  max(rsr_mtime, ( select ifnull(max(t01.rsr_mtime), 0)
                                      where  t02.rsr_id_src = :p_rsr_id))
 where  rsr_id = :p_rsr_id
 EOT;
-    $query = str_repeat(PHP_EOL, 7).$query;
+    $query   = str_repeat(PHP_EOL, 7).$query;
 
     $this->executeNone($query, $replace);
   }
@@ -518,13 +518,14 @@ EOT;
    */
   public function resourceUpdateNameOptimized(?int $pRsrId, ?string $pRsrUriOptimized): void
   {
-    $replace = [':p_rsr_id' => $this->quoteInt($pRsrId), ':p_rsr_uri_optimized' => $this->quoteVarchar($pRsrUriOptimized)];
+    $replace = [':p_rsr_id'            => $this->quoteInt($pRsrId),
+                ':p_rsr_uri_optimized' => $this->quoteVarchar($pRsrUriOptimized)];
     $query   = <<< EOT
 update ABC_RESOURCE
 set    rsr_uri_optimized = :p_rsr_uri_optimized
 where  rsr_id = :p_rsr_id
 EOT;
-    $query = str_repeat(PHP_EOL, 8).$query;
+    $query   = str_repeat(PHP_EOL, 8).$query;
 
     $this->executeNone($query, $replace);
   }
@@ -538,13 +539,14 @@ EOT;
    */
   public function resourceUpdateOptimized(?int $pRsrId, ?string $pRsrContentOptimized): void
   {
-    $replace = [':p_rsr_id' => $this->quoteInt($pRsrId), ':p_rsr_content_optimized' => $this->quoteBlob($pRsrContentOptimized)];
+    $replace = [':p_rsr_id'                => $this->quoteInt($pRsrId),
+                ':p_rsr_content_optimized' => $this->quoteBlob($pRsrContentOptimized)];
     $query   = <<< EOT
 update ABC_RESOURCE
 set    rsr_content_optimized = :p_rsr_content_optimized
 where  rsr_id = :p_rsr_id
 EOT;
-    $query = str_repeat(PHP_EOL, 8).$query;
+    $query   = str_repeat(PHP_EOL, 8).$query;
 
     $this->executeNone($query, $replace);
   }
@@ -645,7 +647,7 @@ set    src_mtime =  max(src_mtime, ( select max(t01.rsr_mtime)
                                      where  t02.src_id = :p_src_id))
 where  src_id = :p_src_id
 EOT;
-    $query = str_repeat(PHP_EOL, 7).$query;
+    $query   = str_repeat(PHP_EOL, 7).$query;
 
     return $this->executeRows($query, $replace);
   }

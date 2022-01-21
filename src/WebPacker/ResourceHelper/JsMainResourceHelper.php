@@ -16,7 +16,7 @@ class JsMainResourceHelper extends JsResourceHelper
    *
    * @var bool
    */
-  private static $first = true;
+  private static bool $first = true;
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -49,7 +49,7 @@ class JsMainResourceHelper extends JsResourceHelper
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Computes the depth of the resources in the resources hierarchy.
+   * Computes the depth of the resources in the resource hierarchy.
    */
   public function fixComputeResourceDepth()
   {
@@ -196,7 +196,7 @@ class JsMainResourceHelper extends JsResourceHelper
       $n = preg_match('/\((?:[^)(]+|(?R))*\)/sm', $matches1[1], $matches2);
       if ($n===1)
       {
-        $config = rtrim(ltrim(trim($matches2[0]), '(',), ')');
+        $config = rtrim(ltrim(trim($matches2[0]), '('), ')');
       }
     }
 
@@ -212,7 +212,7 @@ class JsMainResourceHelper extends JsResourceHelper
   /**
    * Reads the main.js file and returns baseUrl and paths.
    *
-   * @param $mainJsFile
+   * @param string $mainJsFile
    *
    * @return array
    */
@@ -306,7 +306,7 @@ class JsMainResourceHelper extends JsResourceHelper
                               $name,
                               $file,
                               Path::makeRelative($path, $this->buildPath),
-                              Path::makeRelative($resource['rsr_path'], $this->buildPath),);
+                              Path::makeRelative($resource['rsr_path'], $this->buildPath));
       }
     }
   }

@@ -53,7 +53,9 @@ class CssResourceHelper implements ResourceHelper, WebPackerInterface
   public static function mustCompress(): bool
   {
     return true;
-  }  //--------------------------------------------------------------------------------------------------------------------
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
   /**
    * @inheritDoc
    */
@@ -233,7 +235,7 @@ class CssResourceHelper implements ResourceHelper, WebPackerInterface
       }
     }
 
-    // Close the process and it return value.
+    // Close the process and test its return value.
     $ret = proc_close($process);
     if ($ret!==0)
     {

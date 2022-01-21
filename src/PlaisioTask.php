@@ -18,7 +18,7 @@ abstract class PlaisioTask extends Task
    *
    * @var bool
    */
-  protected $haltOnError = true;
+  protected bool $haltOnError = true;
 
   //--------------------------------------------------------------------------------------------------------------------
   /**

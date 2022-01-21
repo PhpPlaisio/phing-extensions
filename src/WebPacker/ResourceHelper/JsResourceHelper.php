@@ -30,7 +30,7 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
    *
    * @var string
    */
-  private $regex;
+  private string $regex;
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -303,7 +303,7 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
       }
     }
 
-    // Close the process and it return value.
+    // Close the process and test ist return value.
     $ret = proc_close($process);
     if ($ret!==0)
     {

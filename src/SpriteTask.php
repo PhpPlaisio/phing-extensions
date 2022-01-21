@@ -20,49 +20,49 @@ class SpriteTask extends PlaisioTask
    *
    * @var string
    */
-  private $cssBaseClass;
+  private string $cssBaseClass;
 
   /**
    * The path to the generated CSS file.
    *
    * @var string
    */
-  private $cssFilename;
+  private string $cssFilename;
 
   /**
    * Image height.
    *
-   * @var int
+   * @var int|null
    */
-  private $imageHeight;
+  private ?int $imageHeight = null;
 
   /**
    * The list of paths to images to be included in the sprite image.
    *
    * @var array
    */
-  private $imagePaths;
+  private array $imagePaths;
 
   /**
    * Image width.
    *
-   * @var int
+   * @var int|null
    */
-  private $imageWidth;
+  private ?int $imageWidth = null;
 
   /**
    * Resource directory.
    *
    * @var string
    */
-  private $resourceRoot;
+  private string $resourceRoot;
 
   /**
    * The path to the generated sprite image.
    *
    * @var string
    */
-  private $spriteFilename;
+  private string $spriteFilename;
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -176,7 +176,7 @@ class SpriteTask extends PlaisioTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Create the list of images to be include in the sprite image.
+   * Create the list of images to be included in the sprite image.
    */
   private function createImageList()
   {

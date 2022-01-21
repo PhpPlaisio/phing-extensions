@@ -202,7 +202,7 @@ class PhpSourceHelper implements SourceHelper, WebPackerInterface
   private function extractImports(array $lines): array
   {
     $imports = [];
-    foreach ($lines as $i => $line)
+    foreach ($lines as $line)
     {
       if (preg_match('/^use\s+(?<class>[^ ]+)(\s+as\s+(?<alias>[^ ]+))?;$/',
                      trim($line),

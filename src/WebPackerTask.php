@@ -68,7 +68,7 @@ class WebPackerTask extends ResourceStoreTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Computes the depth of the resources in the resources hierarchy.
+   * Computes the depth of the resources in the resource hierarchy.
    */
   protected function computeResourceDepth()
   {
@@ -589,7 +589,7 @@ class WebPackerTask extends ResourceStoreTask
   /**
    * Removes the store (the SQLite database) if required (i.e. the basename starts with a dot.)
    *
-   * @param bool $force The store will be removed always if exists.
+   * @param bool $force The store will always be removed if exists.
    */
   private function storeUnlinkIfRequired(bool $force): void
   {
