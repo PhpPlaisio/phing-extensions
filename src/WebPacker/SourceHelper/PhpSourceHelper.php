@@ -84,7 +84,6 @@ class PhpSourceHelper implements SourceHelper, WebPackerInterface
           break;
 
         case 'jsAdmSetMain':
-        case 'jsAdmSetPageSpecificMain':
           $line = $this->replaceWebAssetMethod($matches, 'jsAdmOptimizedSetMain', $resource['rsr_uri_optimized']);
           break;
 

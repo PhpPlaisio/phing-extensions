@@ -57,7 +57,7 @@
                     parentResourceDir="www"
                     preserveLastModified="true"
                     cssMinifyCommand="/bin/cat"
-                    jsCombineCommand="r.js"
+                    jsCombineCommand="../../../node_modules/.bin/r.js"
                     jsMinifyCommand="/bin/cat"
                     jsNodePath="/usr/bin/node"
                     jsRequirePath="js/require.js"

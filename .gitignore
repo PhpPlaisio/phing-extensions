@@ -5,11 +5,13 @@
 /custom.task.properties
 /custom.type.properties
 /doc/api/
+/node_modules/
+/package-lock.json
+/test/SpriteTask/test01-png/www/css/navigation.css
+/test/SpriteTask/test01-png/www/images/navigation.png
+/test/SpriteTask/test01-webp/www/css/navigation.css
+/test/SpriteTask/test01-webp/www/images/navigation.webp
 /test/WebPackerTask/Test*/build/
 /test/coverage.xml
 /test/report/
 /vendor/
-/test/SpriteTask/test01-png/www/images/navigation.png
-/test/SpriteTask/test01-webp/www/images/navigation.webp
-/test/SpriteTask/test01-png/www/css/navigation.css
-/test/SpriteTask/test01-webp/www/css/navigation.css

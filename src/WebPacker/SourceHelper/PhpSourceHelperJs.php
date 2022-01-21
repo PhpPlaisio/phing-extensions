@@ -23,7 +23,6 @@ class PhpSourceHelperJs
    * @var array
    */
   public static $methods = ['jsAdmSetMain',
-                            'jsAdmSetPageSpecificMain',
                             'jsAdmOptimizedSetMain',
                             'jsAdmFunctionCall',
                             'jsAdmOptimizedFunctionCall'];
@@ -58,7 +57,7 @@ class PhpSourceHelperJs
 
     $indent     = '(?<indent>.*)';
     $call       = '(?<call>((Nub::\$)|(\$this->))nub->assets->)';
-    $method     = '(?<method>jsAdmFunctionCall|jsAdmSetMain|jsAdmSetPageSpecificMain)';
+    $method     = '(?<method>jsAdmFunctionCall|jsAdmSetMain)';
     $class      = '(\(\s*)(?<class>__CLASS__|__TRAIT__)';
     $path       = '(\((\s*[\'"])(?<path>[a-zA-Z0-9_\-.\/]+))([\'"])';
     $resolution = '(\(\s*)(?<resolution>[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)::class';
@@ -167,7 +166,7 @@ class PhpSourceHelperJs
         throw new \LogicException('Regex not correct');
     }
 
-    if (in_array($matches['method'], ['jsAdmSetMain', 'jsAdmSetPageSpecificMain']))
+    if ($matches['method']==='jsAdmSetMain')
     {
       $extension = Path::getExtension($filename);
       $filename  = Path::changeExtension($filename, '.main.'.$extension);
