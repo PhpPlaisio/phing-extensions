@@ -50,9 +50,9 @@ class ImageResourceHelper implements ResourceHelper, WebPackerInterface
   /**
    * @inheritDoc
    */
-  public function analyze(array $resource): void
+  public function analyze(array $resource1): void
   {
-    unset($resource);
+    unset($resource1);
   }
 
   //--------------------------------------------------------------------------------------------------------------------

@@ -34,7 +34,7 @@ class CssListResourceHelper implements ResourceHelper, WebPackerInterface
   {
     $lines = explode(PHP_EOL, $content, 1);
 
-    return (isset($lines[0]) && strpos($lines[0], 'plaisio-css-list')!==false);
+    return (isset($lines[0]) && str_contains($lines[0], 'plaisio-css-list'));
   }
 
   //--------------------------------------------------------------------------------------------------------------------

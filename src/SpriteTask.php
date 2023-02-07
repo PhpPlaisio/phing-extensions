@@ -74,7 +74,10 @@ class SpriteTask extends PlaisioTask
    */
   private static function lengthToPixel(int $integer): string
   {
-    if ($integer===0) return '0';
+    if ($integer===0)
+    {
+      return '0';
+    }
 
     return Cast::toManString($integer).'px';
   }

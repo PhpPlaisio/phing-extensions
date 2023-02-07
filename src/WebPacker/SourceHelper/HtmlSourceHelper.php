@@ -32,7 +32,7 @@ class HtmlSourceHelper implements SourceHelper, WebPackerInterface
    */
   public static function deriveType(string $content): bool
   {
-    return (strpos(substr($content, 0, 120), '<!DOCTYPE html')!==false);
+    return (str_contains(substr($content, 0, 120), '<!DOCTYPE html'));
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -115,7 +115,7 @@ class HtmlSourceHelper implements SourceHelper, WebPackerInterface
    */
   private function resolveFullPathOfResource(string $uri, string $sourcePath): string
   {
-    if (substr($uri, 0, 1)==='/')
+    if (str_starts_with($uri, '/'))
     {
       $fullPath = Path::join($this->parentResourcePath, $uri);
     }

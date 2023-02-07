@@ -42,9 +42,9 @@ class JsMainResourceHelper extends JsResourceHelper
   /**
    * @inheritDoc
    */
-  public function analyze(array $resource): void
+  public function analyze(array $resource1): void
   {
-    $this->validatePaths($resource);
+    $this->validatePaths($resource1);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -138,12 +138,18 @@ class JsMainResourceHelper extends JsResourceHelper
 
     // Get the combined the JavaScript code.
     $code = file_get_contents($tmp_name2);
-    if ($code===false) $this->task->logError("Unable to read file '%s'", $tmp_name2);
+    if ($code===false)
+    {
+      $this->task->logError("Unable to read file '%s'", $tmp_name2);
+    }
 
     // Get require.js
     $path      = $this->parentResourcePath.'/'.$this->jsRequirePath;
     $requireJs = file_get_contents($path);
-    if ($requireJs===false) $this->task->logError("Unable to read file '%s'", $path);
+    if ($requireJs===false)
+    {
+      $this->task->logError("Unable to read file '%s'", $path);
+    }
 
     // Combine require.js and all required includes.
     $code = $requireJs.$code;
@@ -239,11 +245,17 @@ class JsMainResourceHelper extends JsResourceHelper
   {
     // Read the main file.
     $js = file_get_contents($resource['rsr_path']);
-    if ($js===false) $this->task->logError("Unable to read file '%s'", $resource['rsr_path']);
+    if ($js===false)
+    {
+      $this->task->logError("Unable to read file '%s'", $resource['rsr_path']);
+    }
 
     // Extract paths from main.
     preg_match('/^(.*paths:[^{]*)({[^}]*})(.*)$/sm', $js, $matches);
-    if (!isset($matches[2])) $this->task->logError("Unable to find paths in '%s'", $resource['rsr_path']);
+    if (!isset($matches[2]))
+    {
+      $this->task->logError("Unable to find paths in '%s'", $resource['rsr_path']);
+    }
 
     $paths = [];
     [$baseUrl, $aliases] = $this->extractPaths($resource['rsr_path']);

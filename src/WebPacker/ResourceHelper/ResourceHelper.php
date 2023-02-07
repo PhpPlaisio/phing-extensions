@@ -41,9 +41,9 @@ interface ResourceHelper
   /**
    * Analyze a resource for any references to resources.
    *
-   * @param array $resource The details of the resource.
+   * @param array $resource1 The details of the resource.
    */
-  public function analyze(array $resource): void;
+  public function analyze(array $resource1): void;
 
   //--------------------------------------------------------------------------------------------------------------------
   /**

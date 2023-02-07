@@ -273,7 +273,10 @@ class WebPackerTask extends ResourceStoreTask
         $this->logVerbose('  collect %s', Path::makeRelative($path, $this->buildPath));
 
         $source = file_get_contents($path);
-        if ($source===false) $this->logError("Unable to read file '%s'", $path);
+        if ($source===false)
+        {
+          $this->logError("Unable to read file '%s'", $path);
+        }
 
         $stpId = $this->deriveTypeOfSourceFile($sourceTypes, $source, $path);
         if ($stpId===null)
@@ -595,8 +598,8 @@ class WebPackerTask extends ResourceStoreTask
   {
     if ($this->storeFilename!==null)
     {
-      $basename = Path::getFilename($this->storeFilename);
-      if (($basename[0]==='.' || $force) && file_exists($this->storeFilename))
+      $basename = basename($this->storeFilename);
+      if ((str_starts_with($basename, '.') || $force) && file_exists($this->storeFilename))
       {
         unlink($this->storeFilename);
       }

@@ -68,7 +68,7 @@
         <symlink link="etc/default.tasks.properties" target="../vendor/phing/phing/etc/default.tasks.properties" />
         <symlink link="etc/default.types.properties" target="../vendor/phing/phing/etc/default.types.properties" />
         <symlink link="etc/default.listeners.properties" target="../vendor/phing/phing/etc/default.listeners.properties" />
-        <exec command="bin/phpunit --bootstrap=test/bootstrap.php test" passthru="true" checkreturn="true"/>
+        <exec executable="bin/phpunit" passthru="true" checkreturn="true"/>
         <delete file="etc/default.tasks.properties"/>
         <delete file="etc/default.types.properties"/>
         <delete file="etc/default.listeners.properties"/>

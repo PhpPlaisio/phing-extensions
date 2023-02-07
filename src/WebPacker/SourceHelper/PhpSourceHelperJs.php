@@ -180,7 +180,7 @@ class PhpSourceHelperJs
    */
   private function resolveFullPathOfResource(string $resourceName): string
   {
-    if (substr($resourceName, 0, 1)==='/')
+    if (str_starts_with($resourceName, '/'))
     {
       $fullPath = Path::join($this->parentResourcePath, $resourceName);
     }

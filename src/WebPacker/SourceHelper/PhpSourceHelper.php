@@ -146,12 +146,18 @@ class PhpSourceHelper implements SourceHelper, WebPackerInterface
     $imports   = $this->extractImports($lines);
 
     // Don't process files with class of namespace.
-    if ($class===null || $namespace===null) return;
+    if ($class===null || $namespace===null)
+    {
+      return;
+    }
 
     $qualifiedName = $namespace.'\\'.$class;
 
     // Don't process the WebAssets classes.
-    if (in_array($qualifiedName, $this->webAssetsClasses)) return;
+    if (in_array($qualifiedName, $this->webAssetsClasses))
+    {
+      return;
+    }
 
     $helper1 = new PhpSourceHelperCss($this);
     $helper1->analyzePhpSourceFileHelper1($source, $lines, $qualifiedName, $imports, $namespace);

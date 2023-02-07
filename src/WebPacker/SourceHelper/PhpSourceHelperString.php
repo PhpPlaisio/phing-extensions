@@ -109,7 +109,10 @@ class PhpSourceHelperString
   {
     foreach ($this->methods as $method)
     {
-      if (strpos($line, $method)!==false) return true;
+      if (str_contains($line, $method))
+      {
+        return true;
+      }
     }
 
     return false;

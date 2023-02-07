@@ -180,7 +180,7 @@ trait WebPackerTrait
    *
    * @param WebPackerInterface $parent
    */
-  public function initWebPackerTrait(WebPackerInterface $parent)
+  public function initWebPackerTrait(WebPackerInterface $parent): void
   {
     $this->brotliFlag               = $parent->brotliFlag;
     $this->brotliPath               = $parent->brotliPath;

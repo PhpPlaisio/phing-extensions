@@ -5,7 +5,7 @@ namespace Plaisio\Phing\Task\Test\WebPackerTask;
 
 use Phing\Exception\BuildException;
 use Phing\Support\BuildFileTest;
-use Webmozart\PathUtil\Path;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Unit Tests for testing optimize_css Task.
@@ -39,7 +39,7 @@ class WebPackerTaskTest extends BuildFileTest
     // All files must be equal to the expected file.
     foreach ($build as $key => $b)
     {
-      self::assertFileEquals($expected[$key], $build[$key], $key);
+      self::assertFileEquals($expected[$key], $b, $key);
     }
 
     // All images must be directly under the images directory.
@@ -90,7 +90,7 @@ class WebPackerTaskTest extends BuildFileTest
     // All files must be equal to the expected file.
     foreach ($build as $key => $b)
     {
-      self::assertFileEquals($expected[$key], $build[$key], $key);
+      self::assertFileEquals($expected[$key], $b, $key);
     }
   }
 
@@ -119,7 +119,7 @@ class WebPackerTaskTest extends BuildFileTest
     // All files must be equal to the expected file.
     foreach ($build as $key => $b)
     {
-      self::assertFileEquals($expected[$key], $build[$key], $key);
+      self::assertFileEquals($expected[$key], $b, $key);
     }
   }
 
@@ -148,7 +148,7 @@ class WebPackerTaskTest extends BuildFileTest
     // All files must be equal to the expected file.
     foreach ($build as $key => $b)
     {
-      self::assertFileEquals($expected[$key], $build[$key], $key);
+      self::assertFileEquals($expected[$key], $b, $key);
     }
   }
 
@@ -177,7 +177,7 @@ class WebPackerTaskTest extends BuildFileTest
     // All files must be equal to the expected file.
     foreach ($build as $key => $b)
     {
-      self::assertFileEquals($expected[$key], $build[$key], $key);
+      self::assertFileEquals($expected[$key], $b, $key);
     }
   }
 
@@ -206,7 +206,7 @@ class WebPackerTaskTest extends BuildFileTest
     // All files must be equal to the expected file.
     foreach ($build as $key => $b)
     {
-      self::assertFileEquals($expected[$key], $build[$key], $key);
+      self::assertFileEquals($expected[$key], $b, $key);
     }
   }
 

@@ -211,7 +211,10 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
   {
     [$stdOut, $stdErr] = $this->runProcess($this->jsMinifyCommand, $code);
 
-    if ($stdErr) $this->task->logInfo($stdErr);
+    if ($stdErr)
+    {
+      $this->task->logInfo($stdErr);
+    }
 
     return $stdOut;
   }
@@ -235,7 +238,10 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
                         2 => ["pipe", "w"]];
 
     $process = proc_open($command, $descriptor_spec, $pipes);
-    if ($process===false) $this->task->logError("Unable to span process '%s'", $command);
+    if ($process===false)
+    {
+      $this->task->logError("Unable to span process '%s'", $command);
+    }
 
     $write_pipes = [$pipes[0]];
     $read_pipes  = [$pipes[1], $pipes[2]];
@@ -258,7 +264,10 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
           if ($read===$pipes[1])
           {
             $data = fread($read, self::BUFFER_SIZE);
-            if ($data===false) $this->task->logError("Unable to read standard output from command '%s'", $command);
+            if ($data===false)
+            {
+              $this->task->logError("Unable to read standard output from command '%s'", $command);
+            }
             if ($data==='')
             {
               fclose($pipes[1]);
@@ -272,7 +281,10 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
           if ($read===$pipes[2])
           {
             $data = fread($read, self::BUFFER_SIZE);
-            if ($data===false) $this->task->logError("Unable to read standard error from command '%s'", $command);
+            if ($data===false)
+            {
+              $this->task->logError("Unable to read standard error from command '%s'", $command);
+            }
             if ($data==='')
             {
               fclose($pipes[2]);
@@ -290,7 +302,10 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
       if (isset($writes[0]))
       {
         $bytes = fwrite($writes[0], $std_in);
-        if ($bytes===false) $this->task->logError("Unable to write to standard input of command '%s'", $command);
+        if ($bytes===false)
+        {
+          $this->task->logError("Unable to write to standard input of command '%s'", $command);
+        }
         if ($bytes===0)
         {
           fclose($writes[0]);
