@@ -22,7 +22,7 @@
         </if>
     </target>
 
-    <!-- Copies all required files the the build directory. -->
+    <!-- Copies all required files to the build directory. -->
     <target name="copy_files" depends="prepare">
         <echo msg="Copying main files…"/>
         <copy todir="${BUILD_DIR}" includeemptydirs="true" verbose="false" preservelastmodified="true">
