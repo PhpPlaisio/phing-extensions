@@ -24,6 +24,12 @@ jobs:
       - name: "Checkout"
         uses: "actions/checkout@v3"
 
+      - name: "Install Node.js CLI"
+        uses: "actions/setup-node@v3"
+        with:
+          node-version: "16"
+      - run: "npm ci"
+
       - name: "Install PHP with extensions"
         uses: "shivammathur/setup-php@v2"
         with:
