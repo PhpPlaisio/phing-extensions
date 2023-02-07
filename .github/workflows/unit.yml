@@ -29,6 +29,12 @@ jobs:
         with:
           node-version: "16"
 
+      - name: "Link node"
+        run: "sudo ln -s `which node | head -n 1` /usr/bin/node"
+
+      - name: "Install Node.js packages"
+        run: "npm install"
+
       - name: "Install PHP with extensions"
         uses: "shivammathur/setup-php@v2"
         with:
