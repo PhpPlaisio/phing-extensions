@@ -7,5 +7,5 @@
  * @type none
  */
 update ABC_RESOURCE
-set    rsr_content_optimized = :p_rsr_content_optimized
-where  rsr_id = :p_rsr_id
+set rsr_content_optimized = :p_rsr_content_optimized
+where rsr_id = :p_rsr_id

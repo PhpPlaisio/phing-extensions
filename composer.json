@@ -6,25 +6,23 @@
     "Phing Extensions"
   ],
   "license": "MIT",
-  "minimum-stability": "dev",
-  "prefer-stable": true,
   "require": {
     "php": ">=8.1",
     "ext-gd": "*",
     "ext-json": "*",
     "ext-zlib": "*",
-    "phing/phing": "^3.0.0-RC4",
+    "phing/phing": "^3.0.0",
     "plaisio/helper-url": "^1.2.0",
     "plaisio/kernel": "^3.2.1",
     "plaisio/web-assets": "^3.1.0",
     "setbased/exception": "^2.3.0",
     "setbased/helper-cast": "^3.0.0",
     "setbased/helper-program-execution": "^1.2.0",
-    "setbased/php-stratum-sqlite-pdo": "^1.7.0",
+    "setbased/php-stratum-sqlite-pdo": "^2.0.0",
     "symfony/filesystem": "^6.2.5"
   },
   "require-dev": {
-    "phpunit/phpunit": "^9.6.3",
+    "phpunit/phpunit": "^10.5.35",
     "plaisio/console-kernel": "^1.0.1",
     "plaisio/page-core": "^1.5.0",
     "setbased/php-stratum": "^6.3.1"

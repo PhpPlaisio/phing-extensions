@@ -6,11 +6,11 @@
  * @type row1
  */
 select rsr_id
-,      rsr_path
-,      rsr_mtime
-,      rsr_depth
-,      rsr_content
-,      rsr_content_optimized
-,      rsr_uri_optimized
-from   ABC_RESOURCE
-where  rsr_id = :p_rsr_id
+     , rsr_path
+     , rsr_mtime
+     , rsr_depth
+     , rsr_content
+     , rsr_content_optimized
+     , rsr_uri_optimized
+from ABC_RESOURCE
+where rsr_id = :p_rsr_id

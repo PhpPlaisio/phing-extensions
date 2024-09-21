@@ -4,13 +4,13 @@ declare(strict_types=1);
 namespace Plaisio\Phing\Task\Test\WebPackerTask;
 
 use Phing\Exception\BuildException;
-use Phing\Support\BuildFileTest;
+use Phing\Support\BuildFileTestCase;
 use Symfony\Component\Filesystem\Path;
 
 /**
  * Unit Tests for testing optimize_css Task.
  */
-class WebPackerTaskTest extends BuildFileTest
+class WebPackerTaskTest extends BuildFileTestCase
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**

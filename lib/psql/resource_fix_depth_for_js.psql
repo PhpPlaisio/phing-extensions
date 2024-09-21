@@ -3,18 +3,17 @@
  *
  * @type rows
  */
-select src.rsr_id   as  src_rsr_id
-,      rsr.rsr_id   as  rsr_rsr_id
-,      rsr.rsr_path as  rsr_rsr_path
-from   ABC_RESOURCE      src
-join   ABC_RESOURCE_TYPE src_rtp  on  src_rtp.rtp_id = src.rtp_id
-join   ABC_RESOURCE      rsr      on  1 = 1
-join   ABC_RESOURCE_TYPE rsr_rtp  on  rsr_rtp.rtp_id = rsr.rtp_id
-where  src_rtp.rtp_name = 'js.main'
-and    rsr_rtp.rtp_name = 'js'
-and    not exists ( select 1
-                    from   ABC_LINK2 cur
-                    where  cur.rsr_id_src = src.rsr_id
-                    and    cur.rsr_id_src = rsr.rsr_id)
+select src.rsr_id   as src_rsr_id
+     , rsr.rsr_id   as rsr_rsr_id
+     , rsr.rsr_path as rsr_rsr_path
+from ABC_RESOURCE      src
+join ABC_RESOURCE_TYPE src_rtp on src_rtp.rtp_id = src.rtp_id
+join ABC_RESOURCE      rsr on 1 = 1
+join ABC_RESOURCE_TYPE rsr_rtp on rsr_rtp.rtp_id = rsr.rtp_id
+where src_rtp.rtp_name = 'js.main'
+  and rsr_rtp.rtp_name = 'js'
+  and not exists ( select 1
+                   from ABC_LINK2 cur
+                   where cur.rsr_id_src = src.rsr_id
+                     and cur.rsr_id_src = rsr.rsr_id )
 order by rsr.rsr_path
-;

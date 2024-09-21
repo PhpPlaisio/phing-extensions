@@ -1,8 +1,7 @@
 /**
- * Selects the max depth op the resources.
+ * Selects the max depth of the resources.
  *
- * @type   singleton1
- * @return int
+ * @type singleton1 int
  */
 select ifnull(max(rsr_depth), 0)
-from   ABC_RESOURCE
+from ABC_RESOURCE

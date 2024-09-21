@@ -4,40 +4,36 @@
  * @type rows
  */
 select rsr_id
-,      rsr_path
-,      rsr_mtime
-,      rsr_content_optimized
-,      rsr_uri_optimized
+     , rsr_path
+     , rsr_mtime
+     , rsr_content_optimized
+     , rsr_uri_optimized
 
-,      rtp_id
-,      rtp_regex
-,      rtp_name
-,      rtp_class
-from
-(
-    select rsr.rsr_id
-    ,      rsr.rsr_path
-    ,      rsr.rsr_mtime
-    ,      rsr.rsr_content_optimized
-    ,      rsr.rsr_uri_optimized
+     , rtp_id
+     , rtp_regex
+     , rtp_name
+     , rtp_class
+from ( select rsr.rsr_id
+            , rsr.rsr_path
+            , rsr.rsr_mtime
+            , rsr.rsr_content_optimized
+            , rsr.rsr_uri_optimized
 
-    ,      rtp.rtp_id
-    ,      rtp.rtp_regex
-    ,      rtp.rtp_name
-    ,      rtp.rtp_class
+            , rtp.rtp_id
+            , rtp.rtp_regex
+            , rtp.rtp_name
+            , rtp.rtp_class
 
-    ,      row_number() over (partition by rsr.rsr_uri_optimized order by rsr.rsr_mtime desc) row_number
-    from   ABC_RESOURCE      rsr
-    join   ABC_RESOURCE_TYPE rtp  on  rtp.rtp_id = rsr.rtp_id
-    where  rsr.rsr_uri_optimized is not null
-    and    rsr.rsr_id in ( select rsr_id_rsr
-                       from  ABC_LINK2
+            , row_number() over (partition by rsr.rsr_uri_optimized order by rsr.rsr_mtime desc) as row_number
+       from ABC_RESOURCE      rsr
+       join ABC_RESOURCE_TYPE rtp on rtp.rtp_id = rsr.rtp_id
+       where rsr.rsr_uri_optimized is not null
+         and rsr.rsr_id in ( select rsr_id_rsr
+                             from ABC_LINK2
 
-                       union all
+                             union all
 
-                       select rsr_id
-                       from  ABC_LINK1
-                     )
-) as t
+                             select rsr_id
+                             from ABC_LINK1 ) ) as t
 where row_number = 1
 order by rsr_uri_optimized

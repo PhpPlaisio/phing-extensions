@@ -4,12 +4,12 @@ declare(strict_types=1);
 namespace Plaisio\Phing\Task\Test\SpriteTask;
 
 use Phing\Exception\BuildException;
-use Phing\Support\BuildFileTest;
+use Phing\Support\BuildFileTestCase;
 
 /**
  * Unit Tests for testing sprite Task.
  */
-class SpriteTaskTest extends BuildFileTest
+class SpriteTaskTest extends BuildFileTestCase
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**

@@ -4,7 +4,7 @@
  * @type rows
  */
 select stp_id
-,      stp_regex
-,      stp_class
-from   ABC_SOURCE_TYPE
+     , stp_regex
+     , stp_class
+from ABC_SOURCE_TYPE
 order by stp_id

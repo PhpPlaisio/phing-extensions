@@ -4,8 +4,8 @@
  * @type rows
  */
 select rsr_id
-,      rsr_path
-,      rsr_uri_optimized
-from   ABC_RESOURCE
-where  rsr_uri_optimized is not null
+     , rsr_path
+     , rsr_uri_optimized
+from ABC_RESOURCE
+where rsr_uri_optimized is not null
 order by rsr_path

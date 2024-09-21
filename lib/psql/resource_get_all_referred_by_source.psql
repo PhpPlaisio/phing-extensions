@@ -6,15 +6,15 @@
  * @type rows
  */
 select rsr.rsr_id
-,      rsr.rsr_path
-,      rsr.rsr_mtime
-,      rsr.rsr_uri_optimized
+     , rsr.rsr_path
+     , rsr.rsr_mtime
+     , rsr.rsr_uri_optimized
 
-,      lk1.lk1_line
-,      lk1.lk1_method
-,      lk1.lk1_matches
-from   ABC_RESOURCE rsr
-join   ABC_LINK1    lk1  on  lk1.rsr_id = rsr.rsr_id
-where  lk1.src_id = :p_src_id
+     , lk1.lk1_line
+     , lk1.lk1_method
+     , lk1.lk1_matches
+from ABC_RESOURCE rsr
+join ABC_LINK1    lk1 on lk1.rsr_id = rsr.rsr_id
+where lk1.src_id = :p_src_id
 order by lk1.lk1_line
-,        lk1.ROWID
+       , lk1.ROWID

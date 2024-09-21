@@ -2,9 +2,8 @@
 /.phpunit.result.cache
 /bin/
 /composer.lock
-/custom.task.properties
-/custom.type.properties
 /doc/api/
+/etc/routines.json
 /node_modules/
 /package-lock.json
 /test/SpriteTask/test01-png/www/css/navigation.css

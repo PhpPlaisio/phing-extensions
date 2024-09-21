@@ -1,14 +1,14 @@
 /**
- * Selects all resources by type
+ * Selects all resources by type.
  *
- * @param string :p_rtp_name The name of the type.
+ * @param text :p_rtp_name The name of the type.
  *
  * @type rows
  */
 select rsr.rsr_id
-,      rsr.rsr_path
-,      rsr.rsr_content_optimized
-from   ABC_RESOURCE      rsr
-join   ABC_RESOURCE_TYPE rtp  on  rtp.rtp_id = rsr.rtp_id
-where  rtp.rtp_name = :p_rtp_name
+     , rsr.rsr_path
+     , rsr.rsr_content_optimized
+from ABC_RESOURCE      rsr
+join ABC_RESOURCE_TYPE rtp on rtp.rtp_id = rsr.rtp_id
+where rtp.rtp_name = :p_rtp_name
 order by rsr.rsr_path

@@ -26,7 +26,7 @@ use Phing\Project;
 use PHPUnit\Framework\TestCase;
 
 /**
- * A BuildFileTest is a TestCase which executes targets from a Phing buildfile
+ * A BuildFileTestCase is a TestCase which executes targets from a Phing buildfile
  * for testing.
  *
  * This class provides a number of utility methods for particular build file
@@ -36,7 +36,7 @@ use PHPUnit\Framework\TestCase;
  * @author Conor MacNeill
  * @author Victor Farazdagi <simple.square@gmail.com>
  */
-abstract class BuildFileTest extends TestCase
+abstract class BuildFileTestCase extends TestCase
 {
     /** @var Project */
     protected $project;
