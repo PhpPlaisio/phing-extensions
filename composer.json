@@ -7,25 +7,25 @@
   ],
   "license": "MIT",
   "require": {
-    "php": ">=8.1",
+    "php": ">=8.3",
     "ext-gd": "*",
     "ext-json": "*",
     "ext-zlib": "*",
-    "phing/phing": "^3.0.0",
+    "phing/phing": "^3.0.1",
     "plaisio/helper-url": "^1.2.0",
     "plaisio/kernel": "^3.2.1",
     "plaisio/web-assets": "^3.1.0",
-    "setbased/exception": "^2.3.0",
-    "setbased/helper-cast": "^3.0.0",
+    "setbased/exception": "^2.5.0",
+    "setbased/helper-cast": "^3.1.0",
     "setbased/helper-program-execution": "^1.2.0",
-    "setbased/php-stratum-sqlite-pdo": "^2.0.0",
+    "setbased/php-stratum-sqlite-pdo": "^2.1.0",
     "symfony/filesystem": "^6.0|^7.0"
   },
   "require-dev": {
-    "phpunit/phpunit": "^10.5.35",
-    "plaisio/console-kernel": "^1.0.1",
+    "phpunit/phpunit": "^11.5.22",
+    "plaisio/console-kernel": "^1.1.0",
     "plaisio/page-core": "^1.5.0",
-    "setbased/php-stratum": "^6.3.1"
+    "setbased/php-stratum": "^6.4.0"
   },
   "autoload": {
     "psr-4": {
@@ -34,8 +34,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Plaisio\\Phing\\Task\\Test\\": "test/",
-      "Phing\\Support\\": "test/Phing/Support"
+      "Plaisio\\Phing\\Task\\Test\\": "test/"
     }
   },
   "config": {

@@ -123,7 +123,7 @@ trait WebPackerTrait
   /**
    * If set
    * <ul>
-   * <li> The mtime of optimized/minimized resource files will be inherited from its originals file.
+   * <li> The mtime of optimized/minimized resource files will be inherited from its original file.
    * <li> If two or more source files will be combined in a single resource file the mtime of this combined file will
    *      be set to the maximum mtime of the original resource files.
    * <li> When a PHP file is modified its mtime will be set to the maximum mtime of the PHP file and the referenced

@@ -22,7 +22,7 @@ class CssResourceHelper implements ResourceHelper, WebPackerInterface
    *
    * @var int
    */
-  const BUFFER_SIZE = 8000;
+  const int BUFFER_SIZE = 8000;
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -74,7 +74,7 @@ class CssResourceHelper implements ResourceHelper, WebPackerInterface
           if ($match['quote1']===$match['quote2'])
           {
             $resourcePath2 = $this->cssResolveReferredResourcePath($match['uri'], $resource1['rsr_path']);
-            $this->task->logVerbose('      found %s (%s:%d)',
+            $this->task->logVerbose('      found %s (%s:%d).',
                                     Path::makeRelative($resourcePath2, $this->buildPath),
                                     $match['uri'],
                                     $i + 1);
@@ -82,7 +82,7 @@ class CssResourceHelper implements ResourceHelper, WebPackerInterface
             $resource2 = $this->store->resourceSearchByPath($resourcePath2);
             if ($resource2===null)
             {
-              $this->task->logError('File %s not found referred at %s:%d',
+              $this->task->logError('File %s not found referred at %s:%d.',
                                     $match['uri'],
                                     Path::makeRelative($resource1['rsr_path'], $this->buildPath),
                                     $i + 1);
@@ -132,7 +132,10 @@ class CssResourceHelper implements ResourceHelper, WebPackerInterface
 
     [$std_out, $std_err] = $this->runProcess($this->cssMinifyCommand, $content);
 
-    if ($std_err!=='') $this->task->logError($std_err);
+    if ($std_err!=='')
+    {
+      $this->task->logError($std_err);
+    }
 
     return $std_out;
   }
@@ -167,7 +170,10 @@ class CssResourceHelper implements ResourceHelper, WebPackerInterface
                         2 => ["pipe", "w"]];
 
     $process = proc_open($command, $descriptor_spec, $pipes);
-    if ($process===false) $this->task->logError("Unable to span process '%s'", $command);
+    if ($process===false)
+    {
+      $this->task->logError("Unable to span process '%s'.", $command);
+    }
 
     $write_pipes = [$pipes[0]];
     $read_pipes  = [$pipes[1], $pipes[2]];
@@ -180,7 +186,10 @@ class CssResourceHelper implements ResourceHelper, WebPackerInterface
       $writes = $write_pipes;
       $except = null;
 
-      if (empty($reads) && empty($writes)) break;
+      if (empty($reads) && empty($writes))
+      {
+        break;
+      }
 
       stream_select($reads, $writes, $except, 1);
       if (!empty($reads))
@@ -190,7 +199,10 @@ class CssResourceHelper implements ResourceHelper, WebPackerInterface
           if ($read===$pipes[1])
           {
             $data = fread($read, self::BUFFER_SIZE);
-            if ($data===false) $this->task->logError("Unable to read standard output from command '%s'", $command);
+            if ($data===false)
+            {
+              $this->task->logError("Unable to read standard output from command '%s'.", $command);
+            }
             if ($data==='')
             {
               fclose($pipes[1]);
@@ -204,7 +216,10 @@ class CssResourceHelper implements ResourceHelper, WebPackerInterface
           if ($read===$pipes[2])
           {
             $data = fread($read, self::BUFFER_SIZE);
-            if ($data===false) $this->task->logError("Unable to read standard error from command '%s'", $command);
+            if ($data===false)
+            {
+              $this->task->logError("Unable to read standard error from command '%s'.", $command);
+            }
             if ($data==='')
             {
               fclose($pipes[2]);
@@ -222,7 +237,10 @@ class CssResourceHelper implements ResourceHelper, WebPackerInterface
       if (isset($writes[0]))
       {
         $bytes = fwrite($writes[0], $std_in);
-        if ($bytes===false) $this->task->logError("Unable to write to standard input of command '%s'", $command);
+        if ($bytes===false)
+        {
+          $this->task->logError("Unable to write to standard input of command '%s'.", $command);
+        }
         if ($bytes===0)
         {
           fclose($writes[0]);
@@ -239,7 +257,7 @@ class CssResourceHelper implements ResourceHelper, WebPackerInterface
     $ret = proc_close($process);
     if ($ret!==0)
     {
-      $this->task->logError("Error executing '%s'\n%s", $command, $std_out);
+      $this->task->logError("Error executing '%s':\n%s", $command, $std_out);
     }
 
     return [$std_out, $std_err];
@@ -250,7 +268,7 @@ class CssResourceHelper implements ResourceHelper, WebPackerInterface
    * Returns the full path of a resource found in another resource.
    *
    * @param string $filename     The relative path found in the referring resource.
-   * @param string $referrerPath The full path of the another resource referring to the resource.
+   * @param string $referrerPath The full path of the other resource referring to the resource.
    *
    * @return string
    */

@@ -52,7 +52,7 @@ class SDocSourceHelper implements SourceHelper, WebPackerInterface
         if ($matches['quote1']===$matches['quote2'])
         {
           $path = $this->resolveFullPathOfResource($matches['uri']);
-          $this->task->logVerbose('    found %s (%s:%d)',
+          $this->task->logVerbose('    found %s (%s:%d).',
                                   Path::makeRelative($path, $this->buildPath),
                                   $matches['uri'],
                                   $i + 1);
@@ -60,7 +60,7 @@ class SDocSourceHelper implements SourceHelper, WebPackerInterface
           $resource = $this->store->resourceSearchByPath($path);
           if ($resource===null)
           {
-            $this->task->logError("Unable to find resource '%s' found at %s:%d",
+            $this->task->logError("Unable to find resource '%s' found at %s:%d.",
                                   $matches['uri'],
                                   $source['src_path'],
                                   $i + 1);
@@ -105,9 +105,9 @@ class SDocSourceHelper implements SourceHelper, WebPackerInterface
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Resolves a name of a resource to full path of the resource on the file system.
+   * Resolves the name of a resource to full path of the resource on the file system.
    *
-   * @param string $uri The URI found in the html file.
+   * @param string $uri The URI found in the HTML file.
    *
    * @return string
    */

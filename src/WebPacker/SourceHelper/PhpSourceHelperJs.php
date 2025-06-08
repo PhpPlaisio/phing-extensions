@@ -77,7 +77,10 @@ class PhpSourceHelperJs
         {
           if (preg_match("/(->|::)($method)(\\()/", $line))
           {
-            $this->task->logError("Unexpected usage of method '%s' at line %s:%d", $method, $source['src_path'], $i + 1);
+            $this->task->logError("Unexpected usage of method '%s' at line %s:%d.",
+                                  $method,
+                                  $source['src_path'],
+                                  $i + 1);
           }
         }
       }
@@ -104,12 +107,12 @@ class PhpSourceHelperJs
   {
     [$path, $expression] = $this->deriveResourcePath($matches, $qualifiedName, $imports, $namespace);
 
-    $this->task->logVerbose('    found %s (%s:%d)', Path::makeRelative($path, $this->buildPath), $expression, $lineno);
+    $this->task->logVerbose('    found %s (%s:%d).', Path::makeRelative($path, $this->buildPath), $expression, $lineno);
 
     $resource = $this->store->resourceSearchByPath($path);
     if ($resource===null)
     {
-      $this->task->logError("Unable to find resource '%s' found at %s:%d", $path, $source['src_path'], $lineno);
+      $this->task->logError("Unable to find resource '%s' found at %s:%d.", $path, $source['src_path'], $lineno);
 
       return;
     }

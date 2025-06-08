@@ -21,7 +21,7 @@ class WebPackerTask extends ResourceStoreTask
   /**
    * Main method of this Phing task.
    */
-  public function main()
+  public function main(): void
   {
     $this->task = $this;
 
@@ -40,8 +40,14 @@ class WebPackerTask extends ResourceStoreTask
     $this->unlinkResourceFiles();
     $this->unlinkUnusedResourceFiles();
 
-    if ($this->gzipFlag) $this->gzipCompressOptimizedResourceFiles();
-    if ($this->brotliFlag) $this->brotliCompressOptimizedResourceFiles();
+    if ($this->gzipFlag)
+    {
+      $this->gzipCompressOptimizedResourceFiles();
+    }
+    if ($this->brotliFlag)
+    {
+      $this->brotliCompressOptimizedResourceFiles();
+    }
 
     $this->storeClose();
   }
@@ -57,7 +63,7 @@ class WebPackerTask extends ResourceStoreTask
     $resources = $this->store->resourceGetAll();
     foreach ($resources as $resource)
     {
-      $this->logVerbose('    analyzing %s', Path::makeRelative($resource['rsr_path'], $this->buildPath));
+      $this->logVerbose('    analyzing %s.', Path::makeRelative($resource['rsr_path'], $this->buildPath));
 
       $class = $resource['rtp_class'];
       /** @var ResourceHelper $helper */
@@ -70,7 +76,7 @@ class WebPackerTask extends ResourceStoreTask
   /**
    * Computes the depth of the resources in the resource hierarchy.
    */
-  protected function computeResourceDepth()
+  protected function computeResourceDepth(): void
   {
     $helper = new JsMainResourceHelper($this);
     $helper->fixComputeResourceDepth();
@@ -82,11 +88,9 @@ class WebPackerTask extends ResourceStoreTask
       $n = $this->store->resourceUpdateDepth($depth);
     } while ($n!==0);
 
-    $depth = 0;
-    $n2    = 0;
+    $n2 = 0;
     do
     {
-      $depth++;
       $n1 = $n2;
       $n2 = $this->store->resourceUpdateDepthNotUsed();
     } while ($n2>$n1);
@@ -109,7 +113,7 @@ class WebPackerTask extends ResourceStoreTask
         // Resource file has an optimized/minimized version. Remove the original file.
         if (file_exists($resource['rsr_path']))
         {
-          $this->logVerbose("  removing '%s'", Path::makeRelative($resource['rsr_path'], $this->buildPath));
+          $this->logVerbose("  removing '%s'.", Path::makeRelative($resource['rsr_path'], $this->buildPath));
           unlink($resource['rsr_path']);
           $count++;
         }
@@ -150,7 +154,7 @@ class WebPackerTask extends ResourceStoreTask
     $sources = $this->store->sourceGetAll();
     foreach ($sources as $source)
     {
-      $this->logVerbose('  analyzing %s', Path::makeRelative($source['src_path'], $this->buildPath));
+      $this->logVerbose('  analyzing %s.', Path::makeRelative($source['src_path'], $this->buildPath));
 
       $class = $source['stp_class'];
       /** @var SourceHelper $helper */
@@ -178,7 +182,7 @@ class WebPackerTask extends ResourceStoreTask
         $resourcePath = Path::join($this->parentResourcePath, $resource['rsr_uri_optimized']);
         $brotliPath   = sprintf('%s.br', $resourcePath);
 
-        $this->logVerbose('  brotli compressing file %s to %s',
+        $this->logVerbose('  brotli compressing file %s to %s.',
                           Path::makeRelative($resourcePath, $this->buildPath),
                           Path::makeRelative($brotliPath, $this->buildPath));
 
@@ -187,7 +191,7 @@ class WebPackerTask extends ResourceStoreTask
 
         if (filesize($resourcePath)<filesize($brotliPath))
         {
-          $this->logVerbose('    compressed file larger than original file');
+          $this->logVerbose('    compressed file larger than the original file.');
 
           unlink($brotliPath);
         }
@@ -208,10 +212,15 @@ class WebPackerTask extends ResourceStoreTask
   {
     $this->logInfo('Collecting resource files');
 
-    $fileset   = $this->getProject()->getReference($this->resourcesFilesetId);
-    $filenames = $fileset->getDirectoryScanner()->getIncludedFiles();
+    $fileset   = $this->getProject()
+                      ->getReference($this->resourcesFilesetId);
+    $filenames = $fileset->getDirectoryScanner()
+                         ->getIncludedFiles();
     $suc       = ksort($filenames);
-    if ($suc===false) $this->logError('ksort failed');
+    if ($suc===false)
+    {
+      $this->logError('ksort failed.');
+    }
 
     $resourceTypes = $this->store->resourceTypeGetAll();
 
@@ -222,10 +231,13 @@ class WebPackerTask extends ResourceStoreTask
       {
         $path = realpath($path);
 
-        $this->logVerbose('  collect %s', Path::makeRelative($path, $this->buildPath));
+        $this->logVerbose('  collect %s.', Path::makeRelative($path, $this->buildPath));
 
         $source = file_get_contents($path);
-        if ($source===false) $this->logError("Unable to read file '%s'", $path);
+        if ($source===false)
+        {
+          $this->logError("Unable to read file '%s'.", $path);
+        }
 
         $rtpId = $this->deriveTypeOfResourceFile($resourceTypes, $source, $path);
         if ($rtpId===null)
@@ -250,16 +262,21 @@ class WebPackerTask extends ResourceStoreTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   *  Collects full path for each source file in the source fileset.
+   *  Collects the full path for each source file in the source fileset.
    */
   private function collectSourceFiles(): void
   {
     $this->logInfo('Collecting source files');
 
-    $fileset   = $this->getProject()->getReference($this->sourcesFilesetId);
-    $filenames = $fileset->getDirectoryScanner()->getIncludedFiles();
+    $fileset   = $this->getProject()
+                      ->getReference($this->sourcesFilesetId);
+    $filenames = $fileset->getDirectoryScanner()
+                         ->getIncludedFiles();
     $suc       = ksort($filenames);
-    if ($suc===false) $this->logError('ksort failed');
+    if ($suc===false)
+    {
+      $this->logError('ksort failed.');
+    }
 
     $sourceTypes = $this->store->sourceTypeGetAll();
 
@@ -270,12 +287,12 @@ class WebPackerTask extends ResourceStoreTask
       {
         $path = realpath($path);
 
-        $this->logVerbose('  collect %s', Path::makeRelative($path, $this->buildPath));
+        $this->logVerbose('  collect %s.', Path::makeRelative($path, $this->buildPath));
 
         $source = file_get_contents($path);
         if ($source===false)
         {
-          $this->logError("Unable to read file '%s'", $path);
+          $this->logError("Unable to read file '%s'.", $path);
         }
 
         $stpId = $this->deriveTypeOfSourceFile($sourceTypes, $source, $path);
@@ -365,7 +382,7 @@ class WebPackerTask extends ResourceStoreTask
    */
   private function execCommand(array $command): array
   {
-    $this->task->logVerbose('Execute: %s', implode(' ', $command));
+    $this->task->logVerbose('Execute: %s.', implode(' ', $command));
     [$output, $ret] = ProgramExecution::exec1($command, null);
     if ($ret!=0)
     {
@@ -401,14 +418,14 @@ class WebPackerTask extends ResourceStoreTask
         $resourcePath = Path::join($this->parentResourcePath, $resource['rsr_uri_optimized']);
         $gzipPath     = sprintf('%s.gz', $resourcePath);
 
-        $this->logVerbose('  gzip compressing file %s to %s',
+        $this->logVerbose('  gzip compressing file %s to %s.',
                           Path::makeRelative($resourcePath, $this->buildPath),
                           Path::makeRelative($gzipPath, $this->buildPath));
 
         $gzipData = gzencode($resource['rsr_content_optimized'], 9);
         if ($gzipData===false)
         {
-          $this->logError('gzencode failed');
+          $this->logError('gzencode failed.');
         }
 
         if (strlen($gzipData)<strlen($resource['rsr_content_optimized']))
@@ -416,7 +433,7 @@ class WebPackerTask extends ResourceStoreTask
           $status = file_put_contents($gzipPath, $gzipData);
           if ($status===false)
           {
-            $this->logError("Unable to write to file '%s'", $gzipPath);
+            $this->logError("Unable to write to file '%s'.", $gzipPath);
           }
 
           $this->setModificationTime($gzipPath, $resource['rsr_mtime']);
@@ -424,7 +441,7 @@ class WebPackerTask extends ResourceStoreTask
         }
         else
         {
-          $this->logVerbose('    compressed file larger than original file');
+          $this->logVerbose('    compressed file larger than the original file.');
         }
       }
     }
@@ -434,19 +451,19 @@ class WebPackerTask extends ResourceStoreTask
   /**
    * Optimizes all resources.
    */
-  private function optimizeAllResources()
+  private function optimizeAllResources(): void
   {
     $this->logInfo('Optimizing all resources');
 
     $max = $this->store->resourceGetMaxDepth();
     for ($depth = $max; $depth>=1; $depth--)
     {
-      $this->logVerbose('  optimizing resources at depth %d', $depth);
+      $this->logVerbose('  optimizing resources at depth %d.', $depth);
 
       $resources = $this->store->resourceGetAllByDepth($depth);
       foreach ($resources as $resource)
       {
-        $this->logVerbose('    optimizing %s', Path::makeRelative($resource['rsr_path'], $this->buildPath));
+        $this->logVerbose('    optimizing %s.', Path::makeRelative($resource['rsr_path'], $this->buildPath));
 
         $class = $resource['rtp_class'];
         /** @var ResourceHelper $helper */
@@ -465,16 +482,16 @@ class WebPackerTask extends ResourceStoreTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Process all source files referring the resources files.
+   * Process all source files referring to the resource files.
    */
-  private function processSources()
+  private function processSources(): void
   {
     $this->logInfo('Processing PHP source files');
 
     $sources = $this->store->sourceGetAllWithReferences();
     foreach ($sources as $source)
     {
-      $this->logVerbose('  processing %s', Path::makeRelative($source['src_path'], $this->buildPath));
+      $this->logVerbose('  processing %s.', Path::makeRelative($source['src_path'], $this->buildPath));
 
       $class = $source['stp_class'];
       /** @var SourceHelper $helper */
@@ -485,14 +502,14 @@ class WebPackerTask extends ResourceStoreTask
 
       if ($newContent!==$source['src_content'])
       {
-        // Write sources file with modified references to resource files.
+        // Write source files with modified references to resource files.
         $status = file_put_contents($source['src_path'], $newContent);
         if ($status===false)
         {
-          $this->logError("Updating file '%s' failed", $source['src_path']);
+          $this->logError("Updating file '%s' failed.", $source['src_path']);
         }
 
-        $this->logInfo('  updated file %s', Path::makeRelative($source['src_path'], $this->buildPath));
+        $this->logInfo('  updated file %s.', Path::makeRelative($source['src_path'], $this->buildPath));
       }
     }
   }
@@ -501,7 +518,7 @@ class WebPackerTask extends ResourceStoreTask
   /**
    * Saves all optimized resources.
    */
-  private function saveResources()
+  private function saveResources(): void
   {
     $this->logInfo('Saving all resources');
 
@@ -511,7 +528,7 @@ class WebPackerTask extends ResourceStoreTask
       $path = Path::join($this->parentResourcePath, $resource['rsr_uri_optimized']);
       $dir  = Path::getDirectory($path);
 
-      $this->logVerbose('  writing %s', Path::makeRelative($path, $this->buildPath));
+      $this->logVerbose('  writing %s.', Path::makeRelative($path, $this->buildPath));
 
       if (!is_dir($dir))
       {

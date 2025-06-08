@@ -3,13 +3,13 @@ declare(strict_types=1);
 
 namespace Plaisio\Phing\Task\Test\SpriteTask;
 
-use Phing\Exception\BuildException;
-use Phing\Support\BuildFileTestCase;
+use PHPUnit\Framework\TestCase;
+use SetBased\Helper\ProgramExecution;
 
 /**
  * Unit Tests for testing sprite Task.
  */
-class SpriteTaskTest extends BuildFileTestCase
+class SpriteTaskTest extends TestCase
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -18,9 +18,9 @@ class SpriteTaskTest extends BuildFileTestCase
   public function testSprite01Png()
   {
     $dir = 'test01-png';
-    $this->configureProject(sprintf('%s/%s/%s', __DIR__, $dir, 'build.xml'));
-    $this->project->setBasedir(sprintf('%s/%s', __DIR__, $dir));
-    $this->getProject()->executeTarget('sprite');
+    chdir(__DIR__.'/'.$dir);
+    [$output, $status] = ProgramExecution::exec1([$_SERVER['PWD'].'/bin/phing', 'sprite']);
+    self::assertSame(0, $status);
 
     $expected = file_get_contents(sprintf('%s/%s/%s', __DIR__, $dir, 'www/css/navigation-expected.css'));
     $actual   = file_get_contents(sprintf('%s/%s/%s', __DIR__, $dir, 'www/css/navigation.css'));
@@ -38,9 +38,9 @@ class SpriteTaskTest extends BuildFileTestCase
     if ($imageTypes & IMG_WEBP)
     {
       $dir = 'test01-webp';
-      $this->configureProject(sprintf('%s/%s/%s', __DIR__, $dir, 'build.xml'));
-      $this->project->setBasedir(sprintf('%s/%s', __DIR__, $dir));
-      $this->getProject()->executeTarget('sprite');
+      chdir(__DIR__.'/'.$dir);
+      [$output, $status] = ProgramExecution::exec1([$_SERVER['PWD'].'/bin/phing', 'sprite']);
+      self::assertSame(0, $status);
 
       $expected = file_get_contents(sprintf('%s/%s/%s', __DIR__, $dir, 'www/css/navigation-expected.css'));
       $actual   = file_get_contents(sprintf('%s/%s/%s', __DIR__, $dir, 'www/css/navigation.css'));
@@ -59,12 +59,16 @@ class SpriteTaskTest extends BuildFileTestCase
    */
   public function testSprite02()
   {
-    $this->expectException(BuildException::class);
-    $this->expectExceptionMessage('Images have different sizes');
+    $dir = 'test02';
+    chdir(__DIR__.'/'.$dir);
+    $status = ProgramExecution::exec2([$_SERVER['PWD'].'/bin/phing', 'sprite'], 'output.txt', null, null);
 
-    $this->configureProject(__DIR__.'/test02/build.xml');
-    $this->project->setBasedir(__DIR__.'/test02');
-    $this->getProject()->executeTarget('sprite');
+    $output = file_get_contents('output.txt');
+
+    self::assertNotSame(0, $status);
+    self::assertStringContainsString('Images have different sizes.', $output);
+
+    unlink('output.txt');
   }
 
   //--------------------------------------------------------------------------------------------------------------------

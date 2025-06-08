@@ -69,7 +69,7 @@ class PhpSourceHelperString
             if ($match['quote1']===$match['quote2'])
             {
               $path = Path::join($this->parentResourcePath, $match['uri']);
-              $this->task->logVerbose('    found %s (%s:%d)',
+              $this->task->logVerbose('    found %s (%s:%d).',
                                       Path::makeRelative($path, $this->buildPath),
                                       $match['uri'],
                                       $i + 1);
@@ -77,7 +77,7 @@ class PhpSourceHelperString
               $resource = $this->store->resourceSearchByPath($path);
               if ($resource===null)
               {
-                $this->task->logError("Unable to find resource '%s' found at %s:%d",
+                $this->task->logError("Unable to find resource '%s' found at %s:%d.",
                                       $match['uri'],
                                       $source['src_path'],
                                       $i + 1);

@@ -20,7 +20,7 @@ interface SourceHelper
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Derives the type of a source file.  Returns the content type or null if it is not up to this class the handle the
+   * Derives the type of a source file. Returns the content type or null if it is not up to this class the handle the
    * given content.
    *
    * @param string $content The content of the source.

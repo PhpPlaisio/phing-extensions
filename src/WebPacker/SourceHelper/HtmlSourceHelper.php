@@ -8,7 +8,7 @@ use Plaisio\Phing\Task\WebPacker\WebPackerTrait;
 use Symfony\Component\Filesystem\Path;
 
 /**
- * Helper class for html and xhtml files.
+ * Helper class for HTML and xHTML files.
  */
 class HtmlSourceHelper implements SourceHelper, WebPackerInterface
 {
@@ -52,7 +52,7 @@ class HtmlSourceHelper implements SourceHelper, WebPackerInterface
         if ($matches['quote1']===$matches['quote2'])
         {
           $path = $this->resolveFullPathOfResource($matches['uri'], $source['src_path']);
-          $this->task->logVerbose('    found %s (%s:%d)',
+          $this->task->logVerbose('    found %s (%s:%d).',
                                   Path::makeRelative($path, $this->buildPath),
                                   $matches['uri'],
                                   $i + 1);
@@ -60,7 +60,7 @@ class HtmlSourceHelper implements SourceHelper, WebPackerInterface
           $resource = $this->store->resourceSearchByPath($path);
           if ($resource===null)
           {
-            $this->task->logError("Unable to find resource '%s' found at %s:%d",
+            $this->task->logError("Unable to find resource '%s' found at %s:%d.",
                                   $matches['uri'],
                                   $source['src_path'],
                                   $i + 1);

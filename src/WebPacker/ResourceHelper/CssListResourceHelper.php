@@ -59,12 +59,12 @@ class CssListResourceHelper implements ResourceHelper, WebPackerInterface
       if ($line!=='' && $line[0]!=='#')
       {
         $resourcePath = $this->cssResolveReferredResourcePath($line, $resource1['rsr_path']);
-        $this->task->logVerbose('      found %s (%s)', Path::makeRelative($resourcePath, $this->buildPath), $line);
+        $this->task->logVerbose('      found %s (%s).', Path::makeRelative($resourcePath, $this->buildPath), $line);
 
         $resource2 = $this->store->resourceSearchByPath($resourcePath);
         if ($resource2===null)
         {
-          $this->task->logError("Unable to find resource '%s' found at %s:%d",
+          $this->task->logError("Unable to find resource '%s' found at %s:%d.",
                                 $resourcePath,
                                 $resource1['rsr_path'],
                                 $i + 1);
@@ -112,7 +112,7 @@ class CssListResourceHelper implements ResourceHelper, WebPackerInterface
    * Returns the full path of a resource found in another resource.
    *
    * @param string $filename     The relative path found in the referring resource.
-   * @param string $referrerPath The full path of the another resource referring to the resource.
+   * @param string $referrerPath The full path of the other resource referring to the resource.
    *
    * @return string
    */

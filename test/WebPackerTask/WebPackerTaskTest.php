@@ -3,14 +3,14 @@ declare(strict_types=1);
 
 namespace Plaisio\Phing\Task\Test\WebPackerTask;
 
-use Phing\Exception\BuildException;
-use Phing\Support\BuildFileTestCase;
+use PHPUnit\Framework\TestCase;
+use SetBased\Helper\ProgramExecution;
 use Symfony\Component\Filesystem\Path;
 
 /**
  * Unit Tests for testing optimize_css Task.
  */
-class WebPackerTaskTest extends BuildFileTestCase
+class WebPackerTaskTest extends TestCase
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
@@ -18,9 +18,9 @@ class WebPackerTaskTest extends BuildFileTestCase
    */
   public function testWebPacker01(): void
   {
-    $this->configureProject(__DIR__.'/Test01/build.xml');
-    $this->project->setBasedir(__DIR__.'/Test01');
-    $this->executeTarget('web_packer');
+    chdir(__DIR__.'/Test01');
+    [$output, $status] = ProgramExecution::exec1([$_SERVER['PWD'].'/bin/phing', 'web_packer']);
+    self::assertSame(0, $status);
 
     $scripts = ['CorePage.js', 'OtherPage.js', 'Page.js', 'TestPage.main.js'];
     $images  = ['style1.png', 'style2.gif', 'style3.jpg', 'style4.jpeg'];
@@ -49,7 +49,7 @@ class WebPackerTaskTest extends BuildFileTestCase
       self::assertEquals('www/images', $dir, $key);
     }
 
-    // All CSS must be directly under the css directory.
+    // All CSS must be directly under the CSS directory.
     foreach ($styles as $key)
     {
       $dir = Path::getDirectory(path::makeRelative($build[$key], __DIR__.'/Test01/build'));
@@ -66,13 +66,13 @@ class WebPackerTaskTest extends BuildFileTestCase
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Test CSS in html files are been replaced.
+   * Test CSS in HTML files are being replaced.
    */
   public function testWebPacker02(): void
   {
-    $this->configureProject(__DIR__.'/Test02/build.xml');
-    $this->project->setBasedir(__DIR__.'/Test02');
-    $this->executeTarget('web_packer');
+    chdir(__DIR__.'/Test02');
+    [$output, $status] = ProgramExecution::exec1([$_SERVER['PWD'].'/bin/phing', 'web_packer']);
+    self::assertSame(0, $status);
 
     $pages  = ['index1.html', 'index2.html'];
     $styles = ['style1.css', 'style2.css'];
@@ -96,14 +96,14 @@ class WebPackerTaskTest extends BuildFileTestCase
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Test hard coded paths to resources in resources are been replaced with hard coded paths to optimized and renamed
+   * Test hard-coded paths to resources in resources are replaced with hard-coded paths to optimized and renamed
    * resources.
    */
   public function testWebPacker03(): void
   {
-    $this->configureProject(__DIR__.'/Test03/build.xml');
-    $this->project->setBasedir(__DIR__.'/Test03');
-    $this->executeTarget('web_packer');
+    chdir(__DIR__.'/Test03');
+    [$output, $status] = ProgramExecution::exec1([$_SERVER['PWD'].'/bin/phing', 'web_packer']);
+    self::assertSame(0, $status);
 
     $files = ['index.xhtml', 'test.js', 'logo.png', 'style.css'];
 
@@ -125,14 +125,14 @@ class WebPackerTaskTest extends BuildFileTestCase
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Test hard coded paths to resources in sources are been replaced with hard coded paths to optimized and renamed
+   * Test hard-coded paths to resources in sources are being replaced with hard-coded paths to optimized and renamed
    * resources.
    */
   public function testWebPacker04(): void
   {
-    $this->configureProject(__DIR__.'/Test04/build.xml');
-    $this->project->setBasedir(__DIR__.'/Test04');
-    $this->executeTarget('web_packer');
+    chdir(__DIR__.'/Test04');
+    [$output, $status] = ProgramExecution::exec1([$_SERVER['PWD'].'/bin/phing', 'web_packer']);
+    self::assertSame(0, $status);
 
     $files = ['mailer.php', 'reset.php', 'mail.css', 'reset.css'];
 
@@ -154,14 +154,14 @@ class WebPackerTaskTest extends BuildFileTestCase
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Test multiple references on a single line in a CSS file are been replaced with references to the optimized
+   * Test multiple references on a single line in a CSS file are being replaced with references to the optimized
    * resources.
    */
   public function testWebPacker05(): void
   {
-    $this->configureProject(__DIR__.'/Test05/build.xml');
-    $this->project->setBasedir(__DIR__.'/Test05');
-    $this->executeTarget('web_packer');
+    chdir(__DIR__.'/Test05');
+    [$output, $status] = ProgramExecution::exec1([$_SERVER['PWD'].'/bin/phing', 'web_packer']);
+    self::assertSame(0, $status);
 
     $files = ['index.xhtml', 'background.css', 'red.png', 'white.png', 'blue.png'];
 
@@ -183,14 +183,14 @@ class WebPackerTaskTest extends BuildFileTestCase
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Test multiple references on a single line in a JS file are been replaced with references to the optimized
+   * Test multiple references on a single line in a JS file are being replaced with references to the optimized
    * resources.
    */
   public function testWebPacker06(): void
   {
-    $this->configureProject(__DIR__.'/Test06/build.xml');
-    $this->project->setBasedir(__DIR__.'/Test06');
-    $this->executeTarget('web_packer');
+    chdir(__DIR__.'/Test06');
+    [$output, $status] = ProgramExecution::exec1([$_SERVER['PWD'].'/bin/phing', 'web_packer']);
+    self::assertSame(0, $status);
 
     $files = ['index.xhtml', 'background.js', 'red.png', 'white.png', 'blue.png'];
 
@@ -216,12 +216,15 @@ class WebPackerTaskTest extends BuildFileTestCase
    */
   public function testWebPacker07(): void
   {
-    $this->configureProject(__DIR__.'/Test07/build.xml');
-    $this->project->setBasedir(__DIR__.'/Test07');
+    chdir(__DIR__.'/Test07');
+    $status = ProgramExecution::exec2([$_SERVER['PWD'].'/bin/phing', 'web_packer'], 'output.txt', null, null);
 
-    $this->expectException(BuildException::class);
-    $this->expectExceptionMessageMatches("(Unable to find resource '\/images\/no-such-image\.png')");
-    $this->executeTarget('web_packer');
+    $output = file_get_contents('output.txt');
+
+    self::assertNotSame(0, $status);
+    self::assertStringContainsString("Unable to find resource '/images/no-such-image.png'", $output);
+
+    unlink('output.txt');
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -230,12 +233,15 @@ class WebPackerTaskTest extends BuildFileTestCase
    */
   public function testWebPacker08(): void
   {
-    $this->configureProject(__DIR__.'/Test08/build.xml');
-    $this->project->setBasedir(__DIR__.'/Test08');
+    chdir(__DIR__.'/Test08');
+    $status = ProgramExecution::exec2([$_SERVER['PWD'].'/bin/phing', 'web_packer'], 'output.txt', null, null);
 
-    $this->expectException(BuildException::class);
-    $this->expectExceptionMessageMatches("(Unable to find resource '\/images\/no-such-image\.png')");
-    $this->executeTarget('web_packer');
+    $output = file_get_contents('output.txt');
+
+    self::assertNotSame(0, $status);
+    self::assertStringContainsString("Unable to find resource '/images/no-such-image.png'", $output);
+
+    unlink('output.txt');
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -244,11 +250,9 @@ class WebPackerTaskTest extends BuildFileTestCase
    */
   public function testWebPacker09(): void
   {
-    $this->configureProject(__DIR__.'/Test09/build.xml');
-    $this->project->setBasedir(__DIR__.'/Test09');
-
-    $this->executeTarget('web_packer');
-    self::assertTrue(true);
+    chdir(__DIR__.'/Test09');
+    [$output, $status] = ProgramExecution::exec1([$_SERVER['PWD'].'/bin/phing', 'web_packer']);
+    self::assertSame(0, $status);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -257,11 +261,9 @@ class WebPackerTaskTest extends BuildFileTestCase
    */
   public function testWebPacker10(): void
   {
-    $this->configureProject(__DIR__.'/Test10/build.xml');
-    $this->project->setBasedir(__DIR__.'/Test10');
-
-    $this->executeTarget('web_packer');
-    self::assertTrue(true);
+    chdir(__DIR__.'/Test10');
+    [$output, $status] = ProgramExecution::exec1([$_SERVER['PWD'].'/bin/phing', 'web_packer']);
+    self::assertSame(0, $status);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -270,9 +272,9 @@ class WebPackerTaskTest extends BuildFileTestCase
    */
   public function testWebPacker11(): void
   {
-    $this->configureProject(__DIR__.'/Test11/build.xml');
-    $this->project->setBasedir(__DIR__.'/Test11');
-    $this->executeTarget('web_packer');
+    chdir(__DIR__.'/Test11');
+    [$output, $status] = ProgramExecution::exec1([$_SERVER['PWD'].'/bin/phing', 'web_packer']);
+    self::assertSame(0, $status);
 
     $files = ['index.xhtml'];
 
@@ -285,7 +287,7 @@ class WebPackerTaskTest extends BuildFileTestCase
     }
 
     $content = file_get_contents($build['index.xhtml']);
-    $n = preg_match('/"(\/js\/.*.js)"/', $content, $matches);
+    $n       = preg_match('/"(\/js\/.*.js)"/', $content, $matches);
     self::assertSame(1, $n);
 
     $content = file_get_contents(__DIR__.'/Test11/build/www/'.$matches[1]);
@@ -301,35 +303,38 @@ class WebPackerTaskTest extends BuildFileTestCase
    */
   public function testWebPacker12(): void
   {
-    $this->configureProject(__DIR__.'/Test12/build.xml');
-    $this->project->setBasedir(__DIR__.'/Test12');
-    $this->executeTarget('web_packer');
-    self::assertTrue(true);
+    chdir(__DIR__.'/Test12');
+    [$output, $status] = ProgramExecution::exec1([$_SERVER['PWD'].'/bin/phing', 'web_packer']);
+    self::assertSame(0, $status);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Test when a path in config of require.js can not be found on the filesystem an error.
+   * Test when a path in config of require.js cannot be found on the filesystem an error.
    */
   public function testWebPacker13(): void
   {
-    $this->configureProject(__DIR__.'/Test13/build.xml');
-    $this->project->setBasedir(__DIR__.'/Test13');
+    chdir(__DIR__.'/Test13');
+    $status = ProgramExecution::exec2([$_SERVER['PWD'].'/bin/phing', 'web_packer'], 'output.txt', null, null);
 
-    $this->expectException(BuildException::class);
-    $this->expectExceptionMessage("Path 'nope: not/here' ('www/js/not/here.js') in file 'www/js/Foo/Page.main.js' does not exist");
-    $this->executeTarget('web_packer');
+    $output = file_get_contents('output.txt');
+
+    self::assertNotSame(0, $status);
+    self::assertStringContainsString("Path 'nope: not/here' ('www/js/not/here.js') in file 'www/js/Foo/Page.main.js' does not exist.",
+                                     $output);
+
+    unlink('output.txt');
   }
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Test when a  path in config of require.js can not be found on the filesystem an error .
+   * Test when a path in config of require.js cannot be found on the filesystem an error.
    */
   public function testWebPacker14(): void
   {
-    $this->configureProject(__DIR__.'/Test14/build.xml');
-    $this->project->setBasedir(__DIR__.'/Test14');
-    $this->executeTarget('web_packer');
+    chdir(__DIR__.'/Test14');
+    [$output, $status] = ProgramExecution::exec1([$_SERVER['PWD'].'/bin/phing', 'web_packer']);
+    self::assertSame(0, $status);
 
     $files = ['main.sdoc', 'icon.png', 'figure1.jpg'];
 
@@ -367,7 +372,10 @@ class WebPackerTaskTest extends BuildFileTestCase
       if ($file->isFile())
       {
         $content = file_get_contents($path);
-        if ($content===false) print_r("\nUnable to read file '%s'.\n", $path);
+        if ($content===false)
+        {
+          print_r("\nUnable to read file '%s'.\n", $path);
+        }
         if (preg_match('/(\/\*\s?)(ID:\s?)(?<ID>[^\s]+)(\s?\*\/)/', $content, $match))
         {
           $list[$match['ID']] = $path;

@@ -112,7 +112,7 @@ class PhpSourceHelper implements SourceHelper, WebPackerInterface
    *
    * @param array $source The details of the source.
    */
-  private function analyzeString(array $source)
+  private function analyzeString(array $source): void
   {
     $lines = explode(PHP_EOL, $source['src_content']);
 
@@ -124,7 +124,10 @@ class PhpSourceHelper implements SourceHelper, WebPackerInterface
       $qualifiedName = $namespace.'\\'.$class;
 
       // Don't process the WebAssets classes.
-      if (in_array($qualifiedName, $this->webAssetsClasses)) return;
+      if (in_array($qualifiedName, $this->webAssetsClasses))
+      {
+        return;
+      }
     }
 
     $helper = new PhpSourceHelperString($this);
@@ -137,7 +140,7 @@ class PhpSourceHelper implements SourceHelper, WebPackerInterface
    *
    * @param array $source The details of the source.
    */
-  private function analyzeWebAssets(array $source)
+  private function analyzeWebAssets(array $source): void
   {
     $lines = explode(PHP_EOL, $source['src_content']);
 

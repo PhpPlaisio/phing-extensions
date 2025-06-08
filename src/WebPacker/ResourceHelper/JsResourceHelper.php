@@ -23,7 +23,7 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
    *
    * @var int
    */
-  const BUFFER_SIZE = 8000;
+  const int BUFFER_SIZE = 8000;
 
   /**
    * The regex for finding references to resources.
@@ -84,7 +84,7 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
           if ($match['quote1']===$match['quote2'] && Path::getExtension($match['path'])!=='')
           {
             $resourcePath2 = Path::join($this->parentResourcePath, $match['path']);
-            $this->task->logVerbose('      found %s (%s:%d)',
+            $this->task->logVerbose('      found %s (%s:%d).',
                                     Path::makeRelative($resourcePath2, $this->buildPath),
                                     $match['path'],
                                     $i + 1);
@@ -92,7 +92,7 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
             $resource2 = $this->store->resourceSearchByPath($resourcePath2);
             if ($resource2===null)
             {
-              $this->task->logError("Unable to find resource '%s' found at %s:%d",
+              $this->task->logError("Unable to find resource '%s' found at %s:%d.",
                                     $match['path'],
                                     $resource1['rsr_path'],
                                     $i + 1);
@@ -117,7 +117,10 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
    */
   public function optimize(array $resource, array $resources): ?string
   {
-    if ($resource['rsr_content']===null) return '';
+    if ($resource['rsr_content']===null)
+    {
+      return '';
+    }
 
     $lines = explode(PHP_EOL, $resource['rsr_content']);
     foreach ($resources as $resource)
@@ -162,7 +165,7 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
    */
   protected function execCommand(array $command): array
   {
-    $this->task->logVerbose('Execute: %s', implode(' ', $command));
+    $this->task->logVerbose('Execute: %s.', implode(' ', $command));
     [$output, $ret] = ProgramExecution::exec1($command, null);
     if ($ret!=0)
     {
@@ -240,7 +243,7 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
     $process = proc_open($command, $descriptor_spec, $pipes);
     if ($process===false)
     {
-      $this->task->logError("Unable to span process '%s'", $command);
+      $this->task->logError("Unable to span process '%s'.", $command);
     }
 
     $write_pipes = [$pipes[0]];
@@ -254,7 +257,10 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
       $writes = $write_pipes;
       $except = null;
 
-      if (empty($reads) && empty($writes)) break;
+      if (empty($reads) && empty($writes))
+      {
+        break;
+      }
 
       stream_select($reads, $writes, $except, 1);
       if (!empty($reads))
@@ -266,7 +272,7 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
             $data = fread($read, self::BUFFER_SIZE);
             if ($data===false)
             {
-              $this->task->logError("Unable to read standard output from command '%s'", $command);
+              $this->task->logError("Unable to read standard output from command '%s'.", $command);
             }
             if ($data==='')
             {
@@ -283,7 +289,7 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
             $data = fread($read, self::BUFFER_SIZE);
             if ($data===false)
             {
-              $this->task->logError("Unable to read standard error from command '%s'", $command);
+              $this->task->logError("Unable to read standard error from command '%s'.", $command);
             }
             if ($data==='')
             {
@@ -304,7 +310,7 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
         $bytes = fwrite($writes[0], $std_in);
         if ($bytes===false)
         {
-          $this->task->logError("Unable to write to standard input of command '%s'", $command);
+          $this->task->logError("Unable to write to standard input of command '%s'.", $command);
         }
         if ($bytes===0)
         {
@@ -322,7 +328,7 @@ class JsResourceHelper implements ResourceHelper, WebPackerInterface
     $ret = proc_close($process);
     if ($ret!==0)
     {
-      $this->task->logError("Error executing '%s'\n%s", $command, $std_out);
+      $this->task->logError("Error executing '%s':\n%s", $command, $std_out);
     }
 
     return [$std_out, $std_err];

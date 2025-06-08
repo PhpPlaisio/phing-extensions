@@ -42,7 +42,7 @@ abstract class ResourceStoreTask extends PlaisioTask implements WebPackerInterfa
    *
    * @param string $buildDir The path to the build dir.
    */
-  public function setBuildDir(string $buildDir)
+  public function setBuildDir(string $buildDir): void
   {
     $this->buildPath = realpath($buildDir);
   }
@@ -119,7 +119,7 @@ abstract class ResourceStoreTask extends PlaisioTask implements WebPackerInterfa
    *
    * @param string $parentResourceDir The path to the resource dir.
    */
-  public function setParentResourceDir(string $parentResourceDir)
+  public function setParentResourceDir(string $parentResourceDir): void
   {
     $this->parentResourceDir = $parentResourceDir;
   }
@@ -141,7 +141,7 @@ abstract class ResourceStoreTask extends PlaisioTask implements WebPackerInterfa
    *
    * @param string $resources The ID of the fileset with resource files.
    */
-  public function setResources(string $resources)
+  public function setResources(string $resources): void
   {
     $this->resourcesFilesetId = $resources;
   }
@@ -181,17 +181,18 @@ abstract class ResourceStoreTask extends PlaisioTask implements WebPackerInterfa
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Get info about all source, resource files and directories.
+   * Get info about all source, resource files, and directories.
    */
   protected function prepareProjectData(): void
   {
-    // Get full path name of resource dir.
-    $resources                = $this->getProject()->getReference($this->resourcesFilesetId);
+    // Get the full path name of resource dir.
+    $resources                = $this->getProject()
+                                     ->getReference($this->resourcesFilesetId);
     $path                     = $resources->getDir($this->getProject()).'/'.$this->parentResourceDir;
     $this->parentResourcePath = realpath($path);
     if ($this->parentResourcePath===false)
     {
-      $this->logError("Path '%s' does not exists", $path);
+      $this->logError("Path '%s' does not exist.", $path);
     }
   }
 
@@ -199,7 +200,7 @@ abstract class ResourceStoreTask extends PlaisioTask implements WebPackerInterfa
   /**
    * Sets the mode of a file.
    *
-   * @param string $destinationFilename The full file name of destination file.
+   * @param string $destinationFilename The full filename of the destination file.
    * @param string $referenceFilename
    *
    * @throws BuildException
@@ -208,10 +209,16 @@ abstract class ResourceStoreTask extends PlaisioTask implements WebPackerInterfa
   {
     clearstatcache();
     $perms = fileperms($referenceFilename);
-    if ($perms===false) $this->logError("Unable to get permissions of file '%s'", $referenceFilename);
+    if ($perms===false)
+    {
+      $this->logError("Unable to get permissions of file '%s'.", $referenceFilename);
+    }
 
     $status = chmod($destinationFilename, $perms);
-    if ($status===false) $this->logError("Unable to set permissions for file '%s'", $destinationFilename);
+    if ($status===false)
+    {
+      $this->logError("Unable to set permissions for file '%s'.", $destinationFilename);
+    }
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -219,7 +226,7 @@ abstract class ResourceStoreTask extends PlaisioTask implements WebPackerInterfa
    * Copy the last modification time of a file.
    *
    * @param string $path  The path of the file.
-   * @param int    $mtime The  last modification time.
+   * @param int    $mtime The last modification time.
    *
    * @throws BuildException
    */
@@ -230,7 +237,7 @@ abstract class ResourceStoreTask extends PlaisioTask implements WebPackerInterfa
       $status = touch($path, $mtime);
       if ($status===false)
       {
-        $this->logError("Unable to set mtime of file '%s'", $path);
+        $this->logError("Unable to set mtime of file '%s'.", $path);
       }
     }
   }

@@ -51,7 +51,7 @@ class JsMainResourceHelper extends JsResourceHelper
   /**
    * Computes the depth of the resources in the resource hierarchy.
    */
-  public function fixComputeResourceDepth()
+  public function fixComputeResourceDepth(): void
   {
     $rows = $this->store->resourceFixDepthForJs();
     foreach ($rows as $row)
@@ -140,7 +140,7 @@ class JsMainResourceHelper extends JsResourceHelper
     $code = file_get_contents($tmp_name2);
     if ($code===false)
     {
-      $this->task->logError("Unable to read file '%s'", $tmp_name2);
+      $this->task->logError("Unable to read file '%s'.", $tmp_name2);
     }
 
     // Get require.js
@@ -148,7 +148,7 @@ class JsMainResourceHelper extends JsResourceHelper
     $requireJs = file_get_contents($path);
     if ($requireJs===false)
     {
-      $this->task->logError("Unable to read file '%s'", $path);
+      $this->task->logError("Unable to read file '%s'.", $path);
     }
 
     // Combine require.js and all required includes.
@@ -166,7 +166,7 @@ class JsMainResourceHelper extends JsResourceHelper
    * Replace all JS file with their optimized content. This required because the combine command read the JS file from
    * the filesystem and does some magic manipulation with the JS code.
    */
-  private function dumpAllJsSources()
+  private function dumpAllJsSources(): void
   {
     if (self::$first)
     {
@@ -176,7 +176,7 @@ class JsMainResourceHelper extends JsResourceHelper
         $ret = file_put_contents($resource['rsr_path'], $resource['rsr_content_optimized']);
         if ($ret===false)
         {
-          $this->task->logError("Unable to write file '%s'", $resource['rsr_path']);
+          $this->task->logError("Unable to write file '%s'.", $resource['rsr_path']);
         }
       }
 
@@ -193,7 +193,10 @@ class JsMainResourceHelper extends JsResourceHelper
   private function extractConfigFromMainFile(string $filename): string
   {
     $main = file_get_contents($filename);
-    if ($main===false) $this->task->logError("Unable to read file '%s'", $filename);
+    if ($main===false)
+    {
+      $this->task->logError("Unable to read file '%s'.", $filename);
+    }
 
     $config = null;
     $n      = preg_match('/requirejs\.config(.*)$/sm', $main, $matches1);
@@ -208,7 +211,7 @@ class JsMainResourceHelper extends JsResourceHelper
 
     if ($config===null)
     {
-      $this->task->logError("Unable to find 'requirejs.config' in file '%s'", $filename);
+      $this->task->logError("Unable to find 'requirejs.config' in file '%s'.", $filename);
     }
 
     return $config;
@@ -247,19 +250,19 @@ class JsMainResourceHelper extends JsResourceHelper
     $js = file_get_contents($resource['rsr_path']);
     if ($js===false)
     {
-      $this->task->logError("Unable to read file '%s'", $resource['rsr_path']);
+      $this->task->logError("Unable to read file '%s'.", $resource['rsr_path']);
     }
 
     // Extract paths from main.
     preg_match('/^(.*paths:[^{]*)({[^}]*})(.*)$/sm', $js, $matches);
     if (!isset($matches[2]))
     {
-      $this->task->logError("Unable to find paths in '%s'", $resource['rsr_path']);
+      $this->task->logError("Unable to find paths in '%s'.", $resource['rsr_path']);
     }
 
     $paths = [];
     [$baseUrl, $aliases] = $this->extractPaths($resource['rsr_path']);
-    if ($baseUrl!==null && $paths!==null)
+    if ($baseUrl!==null)
     {
       foreach ($aliases as $alias => $relPath)
       {
@@ -285,7 +288,7 @@ class JsMainResourceHelper extends JsResourceHelper
       if (isset($resource2['rsr_path']))
       {
         $module = $this->getNamespaceFromResourceFilename($resource2['rsr_path']);
-        if (strpos($module, '/')!==false)
+        if (str_contains($module, '/'))
         {
           $paths[$module] = $hash;
         }
@@ -314,7 +317,7 @@ class JsMainResourceHelper extends JsResourceHelper
       $path = Path::join($this->parentResourcePath, $baseUrl, $file.'.'.$this->jsExtension);
       if (!file_exists($path))
       {
-        $this->task->logError("Path '%s: %s' ('%s') in file '%s' does not exist",
+        $this->task->logError("Path '%s: %s' ('%s') in file '%s' does not exist.",
                               $name,
                               $file,
                               Path::makeRelative($path, $this->buildPath),

@@ -7,7 +7,7 @@ use Phing\Type\Element\FileSetAware;
 use SetBased\Helper\Cast;
 
 /**
- * Get images and create one big sprite and css in result.
+ * Get images and create one big sprite and CSS in the result.
  */
 class SpriteTask extends PlaisioTask
 {
@@ -86,7 +86,7 @@ class SpriteTask extends PlaisioTask
   /**
    * Main method of this Phing task.
    */
-  public function main()
+  public function main(): void
   {
     $this->createImageList();
     $this->validateParameters();
@@ -111,7 +111,7 @@ class SpriteTask extends PlaisioTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Setter for path to the generated CSS file.
+   * Setter for the path to the generated CSS file.
    *
    * @param string $cssFilename The path to the generated CSS file.
    */
@@ -144,7 +144,7 @@ class SpriteTask extends PlaisioTask
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Create css file for work with sprite.
+   * Create CSS file for work with sprite.
    *
    * @param array[] $matrix Array with paths for images.
    */
@@ -181,7 +181,7 @@ class SpriteTask extends PlaisioTask
   /**
    * Create the list of images to be included in the sprite image.
    */
-  private function createImageList()
+  private function createImageList(): void
   {
     $cwd = realpath(getcwd()).DIRECTORY_SEPARATOR;
 
@@ -216,7 +216,7 @@ class SpriteTask extends PlaisioTask
   {
     $sprite = imagecreatetruecolor($this->imageWidth * $cols, $this->imageHeight * $rows);
 
-    // Add alpha channel to image (transparency)
+    // Add alpha channel to the image (transparency)
     imagesavealpha($sprite, true);
     $alpha = imagecolorallocatealpha($sprite, 0, 0, 0, 127);
     imagefill($sprite, 0, 0, $alpha);
@@ -224,7 +224,7 @@ class SpriteTask extends PlaisioTask
     // Append images to sprite and generate CSS lines
     foreach ($matrix as $element)
     {
-      $this->logVerbose('Reading image %s', $element['path']);
+      $this->logVerbose('Reading image %s.', $element['path']);
 
       $data = file_get_contents($element['path']);
       $icon = imagecreatefromstring($data);
@@ -238,7 +238,7 @@ class SpriteTask extends PlaisioTask
                 $this->imageHeight);
     }
 
-    $this->logVerbose('Creating sprite image %s', $this->spriteFilename);
+    $this->logVerbose('Creating sprite image %s.', $this->spriteFilename);
     $this->saveSpriteImage($sprite);
     imagedestroy($sprite);
   }
@@ -287,7 +287,7 @@ class SpriteTask extends PlaisioTask
 
     if (strncmp($resourcePath, $spritePath, strlen($resourcePath)))
     {
-      $this->logError("Sprite path '%s' must be under resource directory '%'", $spritePath, $resourcePath);
+      $this->logError("Sprite path '%s' must be under resource directory '%s'.", $spritePath, $resourcePath);
     }
 
     return substr($spritePath, strlen($resourcePath));
@@ -322,7 +322,7 @@ class SpriteTask extends PlaisioTask
         break;
 
       default:
-        $this->logError('Unknown image format');
+        $this->logError('Unknown image format.');
     }
   }
 
@@ -349,7 +349,7 @@ class SpriteTask extends PlaisioTask
 
       if ($width!=$this->imageWidth || $this->imageHeight!=$height)
       {
-        $this->logError('Images have different sizes');
+        $this->logError('Images have different sizes.');
       }
     }
   }
@@ -365,13 +365,13 @@ class SpriteTask extends PlaisioTask
     {
       if ($this->$parameter===null || $this->$parameter==='')
       {
-        $this->logError('Parameter %s is mandatory', $parameter);
+        $this->logError('Parameter %s is mandatory.', $parameter);
       }
     }
 
     if (empty($this->imagePaths))
     {
-      $this->logError('No image list provided');
+      $this->logError('No image list provided.');
     }
 
     $extension  = mb_strtolower(pathinfo($this->spriteFilename, PATHINFO_EXTENSION) ?? '');
@@ -381,7 +381,7 @@ class SpriteTask extends PlaisioTask
       case 'gif':
         if (!($imageTypes & IMG_GIF))
         {
-          $this->logError('GIF not supported');
+          $this->logError('GIF is not supported.');
         }
         break;
 
@@ -389,26 +389,26 @@ class SpriteTask extends PlaisioTask
       case 'jpeg':
         if (!($imageTypes & IMG_JPEG))
         {
-          $this->logError('JPEG not supported');
+          $this->logError('JPEG is not supported.');
         }
         break;
 
       case 'png':
         if (!($imageTypes & IMG_PNG))
         {
-          $this->logError('PNG not supported');
+          $this->logError('PNG is not supported.');
         }
         break;
 
       case 'webp':
         if (!($imageTypes & IMG_WEBP))
         {
-          $this->logError('WebP not supported');
+          $this->logError('WebP is not supported.');
         }
         break;
 
       default:
-        $this->logError('Unknown image format');
+        $this->logError('Unknown image format.');
     }
   }
 

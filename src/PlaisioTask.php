@@ -14,7 +14,7 @@ abstract class PlaisioTask extends Task
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * If set stop build on errors.
+   * Whether to stop the build on errors.
    *
    * @var bool
    */
@@ -37,11 +37,20 @@ abstract class PlaisioTask extends Task
 
     foreach ($args as &$arg)
     {
-      if (!is_scalar($arg)) $arg = var_export($arg, true);
+      if (!is_scalar($arg))
+      {
+        $arg = var_export($arg, true);
+      }
     }
 
-    if ($this->haltOnError) throw new BuildException(vsprintf($format, $args));
-    else $this->log(vsprintf($format, $args), Project::MSG_ERR);
+    if ($this->haltOnError)
+    {
+      throw new BuildException(vsprintf($format, $args));
+    }
+    else
+    {
+      $this->log(vsprintf($format, $args), Project::MSG_ERR);
+    }
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -58,10 +67,13 @@ abstract class PlaisioTask extends Task
 
     foreach ($args as &$arg)
     {
-      if (!is_scalar($arg)) $arg = var_export($arg, true);
+      if (!is_scalar($arg))
+      {
+        $arg = var_export($arg, true);
+      }
     }
 
-    $this->log(vsprintf($format, $args), Project::MSG_INFO);
+    $this->log(vsprintf($format, $args));
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -79,7 +91,10 @@ abstract class PlaisioTask extends Task
 
     foreach ($args as &$arg)
     {
-      if (!is_scalar($arg)) $arg = var_export($arg, true);
+      if (!is_scalar($arg))
+      {
+        $arg = var_export($arg, true);
+      }
     }
 
     $this->log(vsprintf($format, $args), Project::MSG_VERBOSE);
@@ -99,7 +114,10 @@ abstract class PlaisioTask extends Task
 
     foreach ($args as &$arg)
     {
-      if (!is_scalar($arg)) $arg = var_export($arg, true);
+      if (!is_scalar($arg))
+      {
+        $arg = var_export($arg, true);
+      }
     }
 
     $this->log(vsprintf($format, $args), Project::MSG_WARN);
@@ -109,7 +127,7 @@ abstract class PlaisioTask extends Task
   /**
    * Setter for XML attribute haltOnError.
    *
-   * @param bool $haltOnError If set stop build on errors.
+   * @param bool $haltOnError Whether to stop the build on errors.
    */
   public function setHaltOnError(bool $haltOnError): void
   {
